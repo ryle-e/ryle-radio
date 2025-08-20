@@ -1,0 +1,154 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Audio;
+
+[RequireComponent(typeof(AudioSource))]
+public class RadioListener : MonoBehaviour
+{
+    public enum MultiplePlayersSelector
+    {
+        Youngest,
+        Oldest,
+        Random
+    }
+
+    [SerializeField] private RadioData data;
+
+    [SerializeField, Range(RadioData.LOW_INDEX, RadioData.HIGH_INDEX)] private float tune;
+
+    [SerializeField] private float proceduralRegenTime = 0.05f;
+
+    private List<RadioTrackPlayer> players = new();
+
+    public List<string> TrackIDs => data.TrackIDs;
+
+    public RadioData Data => data;
+    
+    public float Tune 
+    { 
+        get => tune; 
+        set => tune = Mathf.Clamp(tune, RadioData.LOW_INDEX, RadioData.HIGH_INDEX); 
+    }
+
+
+    private void Start()
+    {
+        Init();
+    }
+
+    public void Init()
+    {
+        data.Init();
+
+        StartPlayers();
+    }
+
+    private void StartPlayers()
+    {
+        foreach (RadioTrack track in Data.Tracks)
+        {
+            if (track.playOnInit)
+            {
+                RadioTrackPlayer player = new(track, track.loop ? RadioTrackPlayer.PlayerType.Loop : RadioTrackPlayer.PlayerType.Once);
+                players.Add(player);
+            }
+        }
+    }
+
+    public RadioTrackPlayer PlayOneShot(string _id)
+    {
+        if (Data.TryGetTrack(_id, out RadioTrack track))
+        {
+            RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.OneShot);
+            player.DoDestroy += player => players.Remove(player);
+
+            players.Add(player);
+
+            return player;
+        }
+
+        return null;
+    }
+
+    public RadioTrackPlayer Play(string _id)
+    {
+        if (Data.TryGetTrack(_id, out RadioTrack track))
+        {
+            RadioTrackPlayer player = new(track, track.loop ? RadioTrackPlayer.PlayerType.Loop : RadioTrackPlayer.PlayerType.Once);
+            players.Add(player);
+
+            return player;
+        }
+
+        return null;
+    }
+
+    public bool TryGetPlayer(string _trackID, out RadioTrackPlayer _player, bool _createNew, MultiplePlayersSelector _multiplePlayerSelector = MultiplePlayersSelector.Youngest)
+    {
+        var found = players.Where(p => p.Track.id == _trackID);
+
+        if (found.Count() > 1)
+        {
+            switch (_multiplePlayerSelector)
+            {
+                default:
+                case MultiplePlayersSelector.Youngest:
+                    _player = found.Last();
+                    break;
+
+                case MultiplePlayersSelector.Oldest:
+                    _player = found.First();
+                    break;
+
+                case MultiplePlayersSelector.Random:
+                    int index = Random.Range(0, found.Count());
+                    _player = found.ElementAt(index);
+
+                    break;
+            }
+
+            return true;
+        }
+        else if (found.Count() > 0)
+        {
+            _player = found.First();
+            return true;
+        }
+        else if (_createNew)
+        {
+            _player = Play(_trackID);
+            return true;
+        }
+        else
+        {
+            _player = null;
+            return false;
+        }
+    }
+
+    private void OnAudioFilterRead(float[] data, int channels)
+    {
+        for (int index = 0; index < data.Length; index += channels)
+        {
+            float sample = 0;
+
+            // get combined audio
+            foreach (RadioTrackPlayer player in players)
+            {
+                sample += player.NextSample(Tune);
+            }
+
+            //sample /= players.Count;
+
+            for (int channel = index; channel < index + channels; channel++)
+            {
+                data[channel] += sample;
+            }
+        }
+    }
+}
