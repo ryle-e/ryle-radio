@@ -100,8 +100,6 @@ public class RadioData : ScriptableObject
         else
             id = NameToID(_nameOrID);
 
-        Debug.Log(id);
-
         var found = tracks.Find(t => t.id == id);
 
         if (found != null)

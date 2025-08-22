@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 
@@ -20,12 +21,15 @@ public class RadioTrack
         WhiteNoise,
         PinkNoise,
         BrownNoise,
+        SineWave,
         Silence,
     }
 
     private const float RANGE_DECIMAL_MULTIPLIER = 10f;
 
     private const float WHITE_NOISE_MULTIPLIER = .5f;
+
+    private const float SIN_BASE_SAMPLE_RATE = 1024;
 
     public static AnimationCurve DefaultGainCurve => new(new Keyframe[3] { 
         new(0, 0, 0, 0), 
@@ -42,7 +46,10 @@ public class RadioTrack
     public AudioClip clip;
 
     [AllowNesting, ShowIf("UseProcedural")]
-    public ProceduralType proceduralType = ProceduralType.PinkNoise;
+    public ProceduralType proceduralType = ProceduralType.WhiteNoise;
+
+    [AllowNesting, ShowIf("IsSineWave"), Range(1, 500)]
+    public float waveFrequency = 100;
 
 
     [MinMaxSlider(RadioData.LOW_INDEX, RadioData.HIGH_INDEX), OnValueChanged("ScaleRange")]
@@ -53,6 +60,9 @@ public class RadioTrack
 
     [Range(0, 500)]
     public float gain = 100;
+
+    [Range(0, 1)]
+    public float attenuation = 0.1f;
 
     public bool isGlobal = true;
 
@@ -71,6 +81,7 @@ public class RadioTrack
 
     private bool UseAudioClip => trackType == TrackType.AudioClip;
     private bool UseProcedural => trackType == TrackType.Procedural;
+    private bool IsSineWave => UseProcedural && proceduralType == ProceduralType.SineWave;
 
 
     // rounds range to 1 decimal point
@@ -146,6 +157,9 @@ public class RadioTrack
 
                 return o;
 
+            case ProceduralType.SineWave:
+                return Mathf.Sin((_sampleIndex / SIN_BASE_SAMPLE_RATE) * waveFrequency);
+
             case ProceduralType.Silence:
                 return 0;
 
@@ -155,12 +169,19 @@ public class RadioTrack
         }
     }
 
-    public float GetGain(float _tune)
+    public float GetGain(float _tune, float _otherGain)
     {
         if (_tune < range.x || _tune > range.y)
             return 0;
 
-        return gainCurve.Evaluate(_tune.Remap(range.x, range.y, 0f, 1f)) * (gain / 100f);
+        float tunePower = gainCurve.Evaluate( _tune.Remap(range.x, range.y, 0f, 1f) );
+        float gainPower = gain / 100f;
+        float attenPower = 1f - (Mathf.Clamp01(_otherGain) * attenuation);
+
+        //if (attenuation > 0.5f)
+        //    Debug.Log(attenPower);
+
+        return tunePower * gainPower * attenPower;
     }
 }
 

@@ -35,16 +35,20 @@ public class RadioTrackPlayer
     }
 
 
-    public float NextSample(float _tune, Vector3 _receiverPosition, bool _applyGain = true)
+    public float NextSample(float _tune, Vector3 _receiverPosition, float _otherGain, out float _outGain, bool _applyGain = true)
     {
         if (Progress < -99) // if completed as a oneshot, do not provide any more samples
         {
             Debug.LogWarning("Attempting to move to the next sample on a completed RadioTrackPlayer set to OneShot.");
+
+            _outGain = 0f;
             return 0; 
         }
 
-        float gain = Track.GetGain(_tune) * GetBroadcastPower(_receiverPosition);
+        float gain = Track.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
         float sample = Track.GetSample(Progress) * (_applyGain ? gain : 1);
+
+        _outGain = gain;
 
         switch (PlayType)
         {

@@ -143,11 +143,13 @@ public class RadioListener : MonoBehaviour
         for (int index = 0; index < data.Length; index += channels)
         {
             float sample = 0;
+            float otherGain = 0;
 
             // get combined audio
             foreach (RadioTrackPlayer player in players)
             {
-                sample += player.NextSample(Tune, cachedPos, true);
+                sample += player.NextSample(Tune, cachedPos, otherGain, out float outGain, true);
+                otherGain += outGain;
             }
 
             //sample /= players.Count;
