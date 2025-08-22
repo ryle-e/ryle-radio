@@ -14,7 +14,7 @@ public class RadioListener : MonoBehaviour
 
     [SerializeField] private RadioData data;
 
-    [SerializeField, Range(RadioData.LOW_INDEX, RadioData.HIGH_INDEX)] private float tune;
+    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE)] private float tune;
 
     [SerializeField] private float proceduralRegenTime = 0.05f;
 
@@ -29,7 +29,7 @@ public class RadioListener : MonoBehaviour
     public float Tune 
     { 
         get => tune; 
-        set => tune = Mathf.Clamp(tune, RadioData.LOW_INDEX, RadioData.HIGH_INDEX); 
+        set => tune = Mathf.Clamp(tune, RadioData.LOW_TUNE, RadioData.HIGH_TUNE); 
     }
 
 

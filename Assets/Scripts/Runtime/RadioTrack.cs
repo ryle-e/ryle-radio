@@ -52,7 +52,7 @@ public class RadioTrack
     public float waveFrequency = 100;
 
 
-    [MinMaxSlider(RadioData.LOW_INDEX, RadioData.HIGH_INDEX), OnValueChanged("ScaleRange")]
+    [MinMaxSlider(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ScaleRange")]
     public Vector2 range;
 
     [CurveRange(0, 0, 1, 1)]

@@ -52,7 +52,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
-    gain: 162
+    gain: 120
     attenuation: 0.1
     isGlobal: 0
     loop: 1

@@ -9,8 +9,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "new test", menuName = "ryle radio/radio data")]
 public class RadioData : ScriptableObject
 {
-    public const float LOW_INDEX = 0;
-    public const float HIGH_INDEX = 1000;
+    public const float LOW_TUNE = 0;
+    public const float HIGH_TUNE = 1000;
 
 
     [SerializeField]
