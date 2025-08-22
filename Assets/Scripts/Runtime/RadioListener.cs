@@ -25,7 +25,9 @@ public class RadioListener : MonoBehaviour
 
     private List<RadioTrackPlayer> players = new();
 
-    public List<string> TrackIDs => data.TrackIDs;
+    private Vector3 cachedPos;
+
+    public List<string> TrackIDs => data.TrackNames;
 
     public RadioData Data => data;
     
@@ -39,6 +41,11 @@ public class RadioListener : MonoBehaviour
     private void Start()
     {
         Init();
+    }
+
+    private void Update()
+    {
+        cachedPos = transform.position;
     }
 
     public void Init()
@@ -140,7 +147,7 @@ public class RadioListener : MonoBehaviour
             // get combined audio
             foreach (RadioTrackPlayer player in players)
             {
-                sample += player.NextSample(Tune);
+                sample += player.NextSample(Tune, cachedPos, true);
             }
 
             //sample /= players.Count;

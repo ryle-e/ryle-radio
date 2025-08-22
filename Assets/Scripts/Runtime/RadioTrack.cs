@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -24,6 +25,8 @@ public class RadioTrack
 
     private const float RANGE_DECIMAL_MULTIPLIER = 10f;
 
+    private const float WHITE_NOISE_MULTIPLIER = .5f;
+
     public static AnimationCurve DefaultGainCurve => new(new Keyframe[3] { 
         new(0, 0, 0, 0), 
         new(0.5f, 1, 0, 0), 
@@ -48,14 +51,17 @@ public class RadioTrack
     [CurveRange(0, 0, 1, 1)]
     public AnimationCurve gainCurve = new(DefaultGainCurve.keys);
 
-    [Range(0, 200)]
+    [Range(0, 500)]
     public float gain = 100;
+
+    public bool isGlobal = true;
 
     public bool loop = true;
     public bool playOnInit = true;
 
-
     private System.Random random;
+
+    [HideInInspector] public List<RadioBroadcaster> broadcasters;
 
 
     protected float[] Samples { get; private set; }
@@ -78,6 +84,7 @@ public class RadioTrack
 
     public void Init()
     {
+        broadcasters = new List<RadioBroadcaster>();
         random = new System.Random();
 
         switch (trackType)
@@ -123,7 +130,7 @@ public class RadioTrack
         switch (proceduralType)
         {
             case ProceduralType.WhiteNoise:
-                return ((float)random.NextDouble() * 2) - 1;
+                return (((float)random.NextDouble() * 2) - 1) * WHITE_NOISE_MULTIPLIER;
 
             case ProceduralType.PinkNoise:
                 // generated using paul kellet's economy method, picked for performance as realtime generation

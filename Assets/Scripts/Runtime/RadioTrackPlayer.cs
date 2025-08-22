@@ -29,10 +29,13 @@ public class RadioTrackPlayer
         PlayType = _playerType;
 
         Progress = 0;
+
+        if (Track.broadcasters.Count <= 0 && !Track.isGlobal)
+            Debug.LogWarning("Track " + Track.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
     }
 
 
-    public float NextSample(float _tune, bool _applyGain = true)
+    public float NextSample(float _tune, Vector3 _receiverPosition, bool _applyGain = true)
     {
         if (Progress < -99) // if completed as a oneshot, do not provide any more samples
         {
@@ -40,7 +43,7 @@ public class RadioTrackPlayer
             return 0; 
         }
 
-        float gain = Track.GetGain(_tune);
+        float gain = Track.GetGain(_tune) * GetBroadcastPower(_receiverPosition);
         float sample = Track.GetSample(Progress) * (_applyGain ? gain : 1);
 
         switch (PlayType)
@@ -76,5 +79,18 @@ public class RadioTrackPlayer
         }
 
         return sample;
+    }
+
+    public float GetBroadcastPower(Vector3 _receiverPosition)
+    {
+        if (Track.isGlobal)
+            return 1;
+
+        float outGain = 0;
+
+        foreach (RadioBroadcaster broadcaster in Track.broadcasters)
+            outGain += broadcaster.GetPower(_receiverPosition);
+
+        return Mathf.Clamp01(outGain);
     }
 }

@@ -17,7 +17,7 @@ MonoBehaviour:
     trackType: 0
     clip: {fileID: 8300000, guid: 09815b9b8b9de244594fb05b52fc3dfe, type: 3}
     proceduralType: 0
-    range: {x: 201.9, y: 414.9}
+    range: {x: 201.8, y: 274.2}
     gainCurve:
       serializedVersion: 2
       m_Curve:
@@ -51,14 +51,17 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
-    gain: 100
+    gain: 244
+    isGlobal: 0
     loop: 1
     playOnInit: 1
-  - id: scream2
+    broadcasters:
+    - {fileID: 0}
+  - id: scream
     trackType: 0
     clip: {fileID: 8300000, guid: 2e868e1ddc90f93489f8f7d19c0e135e, type: 3}
     proceduralType: 0
-    range: {x: 883.5, y: 955}
+    range: {x: 873.1, y: 944.6}
     gainCurve:
       serializedVersion: 2
       m_Curve:
@@ -93,9 +96,11 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 0
     gain: 100
+    isGlobal: 1
     loop: 1
     playOnInit: 1
-  - id: scream
+    broadcasters: []
+  - id: whitenoise
     trackType: 1
     clip: {fileID: 8300000, guid: abae3383400777a4dabf1bd1c53bc579, type: 3}
     proceduralType: 0
@@ -124,6 +129,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
-    gain: 7.3
+    gain: 0
+    isGlobal: 1
     loop: 1
     playOnInit: 1
+    broadcasters: []
