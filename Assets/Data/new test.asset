@@ -18,7 +18,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 09815b9b8b9de244594fb05b52fc3dfe, type: 3}
     proceduralType: 0
     waveFrequency: 100
-    range: {x: 201.8, y: 274.2}
+    range: {x: 98, y: 356.8}
     gainCurve:
       serializedVersion: 2
       m_Curve:
@@ -52,7 +52,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 0
-    gain: 244
+    gain: 162
     attenuation: 0.1
     isGlobal: 0
     loop: 1
