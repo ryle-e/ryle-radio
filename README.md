@@ -5,3 +5,4 @@ A simple "radio" system for Unity
 - add random selection of audio when one ends- track vs station?
 - ~~add spatial broadcasting (can only receive track in certain area)~~
 - dead zones
+- events called when sound hits certain tune or range past threshold- RadioObservers??
