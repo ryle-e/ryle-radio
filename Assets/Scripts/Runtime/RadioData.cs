@@ -1,9 +1,5 @@
-using NaughtyAttributes;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "new test", menuName = "ryle radio/radio data")]
@@ -14,19 +10,19 @@ public class RadioData : ScriptableObject
 
 
     [SerializeField]
-    private List<RadioTrack> tracks = new() { 
-        new() { 
-            gainCurve = RadioTrack.DefaultGainCurve, 
-            gain = 100, 
-            loop = true, 
-            playOnInit = true 
-        } 
+    private List<RadioTrack> tracks = new() {
+        new() {
+            gainCurve = RadioTrack.DefaultGainCurve,
+            gain = 100,
+            loop = true,
+            playOnInit = true
+        }
     };
 
     public List<RadioTrack> Tracks => tracks;
 
-    public List<string> TrackNames { 
-        get 
+    public List<string> TrackNames {
+        get
         {
             if (trackNames == null || trackNames.Count <= 0)
                 PopulateTrackIDs();
@@ -36,8 +32,8 @@ public class RadioData : ScriptableObject
     }
     private List<string> trackNames;
 
-    public List<string> TrackIDs { 
-        get 
+    public List<string> TrackIDs {
+        get
         {
             if (trackIDs == null || trackIDs.Count <= 0)
                 PopulateTrackIDs();
@@ -84,7 +80,7 @@ public class RadioData : ScriptableObject
     public void Init()
     {
         foreach (RadioTrack track in tracks)
-        { 
+        {
             track.Init();
         }
 
@@ -110,6 +106,29 @@ public class RadioData : ScriptableObject
         else
         {
             _track = null;
+            return false;
+        }
+    }
+
+    public bool TryGetTrackIndex(string _nameOrID, out int _index, bool _useID = false)
+    {
+        string id = "";
+
+        if (_useID)
+            id = _nameOrID;
+        else
+            id = NameToID(_nameOrID);
+
+        var found = tracks.Find(t => t.id == id);
+
+        if (found != null)
+        {
+            _index = tracks.IndexOf(found);
+            return true;
+        }
+        else
+        {
+            _index = -1;
             return false;
         }
     }
