@@ -42,29 +42,43 @@ public class MultiselectDrawer : PropertyDrawer
         {
             if (options is IList list)
             {
-                optionNames = new string[list.Count];
+                if (list.Count > 0)
+                {
+                    optionNames = new string[list.Count];
 
-                for (int i = 0; i < list.Count; i++)
-                    optionNames[i] = list[i].ToString();
+                    for (int i = 0; i < list.Count; i++)
+                        optionNames[i] = list[i].ToString();
 
-                mask = EditorGUILayout.MaskField(mask, optionNames);
+                    mask = EditorGUILayout.MaskField(mask, optionNames);
+                }
+                else
+                {
+                    EditorGUILayout.LabelField($"{dataName} has size 0!");
+                }
             }
             else if (options is Array array)
             {
-                optionNames = new string[array.Length];
+                if (array.Length > 0)
+                { 
+                    optionNames = new string[array.Length];
 
-                for (int i = 0; i < array.Length; i++)
-                    optionNames[i] = array.GetValue(i).ToString();
+                    for (int i = 0; i < array.Length; i++)
+                        optionNames[i] = array.GetValue(i).ToString();
 
-                mask = EditorGUILayout.MaskField(mask, optionNames);
+                    mask = EditorGUILayout.MaskField(mask, optionNames);
+                }
+                else
+                {
+                    EditorGUILayout.LabelField($"{dataName} has size 0!");
+                }
             }
             else
             {
-                EditorGUILayout.TextArea($"{dataName} is not a List or an Array!");
+                EditorGUILayout.LabelField($"{dataName} is not a List or an Array!");
             }
         }
         else
-            EditorGUILayout.TextArea($"Invalid collection at {dataName}! Cannot display multiselect!");
+            EditorGUILayout.LabelField($"Invalid collection at {dataName}! Cannot display multiselect!");
 
         EditorGUILayout.EndHorizontal();
 
