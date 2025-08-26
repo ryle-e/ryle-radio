@@ -10,153 +10,15 @@ using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 [System.Serializable]
 public abstract class RadioTrack
 {
-    public enum ProceduralType
-    {
-        WhiteNoise,
-        PinkNoise,
-        BrownNoise,
-        SineWave,
-        Silence,
-    }
+    protected float[] Samples { get; set; }
+    public int Channels { get; protected set; }
 
-    public enum StationOptions
-    {
-        Random = 1 << 0
-    }
+    public float SampleRate { get; protected set; }
+    public float SampleCount { get; protected set; }
 
-    [System.Serializable]
-    public class StationTrack
-    {
-        public AudioClip clip;
-        [Range(0, 500)] public float gain;
-    }
-
-    private const float WHITE_NOISE_MULTIPLIER = .5f;
-
-    private const float SIN_BASE_SAMPLE_RATE = 1024;
-
-
-    [AllowNesting, ShowIf("UseAudioClip")]
-    public AudioClip clip;
-
-    [AllowNesting, ShowIf("UseProcedural")]
-    public ProceduralType proceduralType = ProceduralType.WhiteNoise;
-
-    [AllowNesting, ShowIf("IsSineWave"), Range(1, 500)]
-    public float waveFrequency = 100;
-
-    [AllowNesting, ShowIf("IsStation")]
-    public StationOptions stationOptions;
-
-    [AllowNesting, ShowIf("IsStation")]
-    public List<StationTrack> stationTracks;
-
-
-    
-
-    private System.Random random;
-
-    [HideInInspector] public float sampleRate;
-
-
-    protected float[] Samples { get; private set; }
-    public int SampleLength { get; private set; } // set to epsilon for endless noise
-
-    public int Channels { get; private set; }
-
-    
     public abstract RadioTrackPlayer.PlayerType PlayerType { get; }
 
 
-    /*
-    public void Init()
-    {
-        random = new System.Random();
-        sampleRate = clip.frequency;
-
-        switch (trackType)
-        {
-            case TrackType.AudioClip:
-                Samples = new float[clip.samples * clip.channels];
-                SampleLength = Samples.Length;
-
-                Channels = clip.channels;
-
-                if (!clip.GetData(Samples, 0))
-                    Debug.LogError("Cannot access clip data from track " + clip.name);
-
-                break;
-
-            case TrackType.Station:
-                Samples = new float[clip.samples * clip.channels];
-                SampleLength = Samples.Length;
-
-                Channels = clip.channels;
-
-                if (!clip.GetData(Samples, 0))
-                    Debug.LogError("Cannot access clip data from track " + clip.name);
-
-                break;
-
-            case TrackType.Procedural:
-                SampleLength = int.MaxValue;
-                Channels = 1;
-
-                break;
-        }
-    }
-    */
-
-    /*
-    public float GetSample(int _sampleIndex)
-    {
-        switch (trackType)
-        {
-            case TrackType.AudioClip:
-                return Samples[_sampleIndex];
-
-            case TrackType.Procedural:
-                return GetProceduralSample(_sampleIndex);
-
-            default:
-                Debug.LogError("Attempting to get a sample from a RadioTrack with an invalid TrackType- this should not be possible.");
-                return 0;
-        }
-    }
-    */
-
-    private float GetProceduralSample(int _sampleIndex)
-    {
-        switch (proceduralType)
-        {
-            case ProceduralType.WhiteNoise:
-                return (((float)random.NextDouble() * 2) - 1) * WHITE_NOISE_MULTIPLIER;
-
-            case ProceduralType.PinkNoise:
-                // generated using paul kellet's economy method, picked for performance as realtime generation
-                // https://www.firstpr.com.au/dsp/pink-noise/#Filtering:~:text=(This%20is%20pke,b2%20%2B%20white%20*%200.1848%3B
-                float b0=0, b1=0, b2=0, o=0, white=0;
-
-                white = ((float)random.NextDouble() * 2) - 1;
-
-                b0 = 0.99765f + white * 0.0990460f;
-                b1 = 0.96300f + white * 0.2965164f;
-                b2 = 0.57000f + white * 1.0526913f;
-                o = b0 + b1 + b2 + white * 0.1848f;
-
-                return o;
-
-            case ProceduralType.SineWave:
-                return Mathf.Sin((_sampleIndex / SIN_BASE_SAMPLE_RATE) * waveFrequency);
-
-            case ProceduralType.Silence:
-                return 0;
-
-            default:
-                Debug.LogError("Attempting to get a sample from a procedural RadioTrack with an invalid ProceduralType- this should not be possible.");
-                return 0;
-        }
-    }
-
-    
+    public abstract void Init();
+    public abstract float GetSample(int _sampleIndex);
 }

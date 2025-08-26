@@ -47,9 +47,9 @@ public class RadioListener : MonoBehaviour
 
     public void Init()
     {
-        data.Init();
-
         baseSampleRate = AudioSettings.outputSampleRate;
+
+        data.Init();
 
         StartPlayers();
     }

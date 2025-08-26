@@ -40,7 +40,7 @@ public class RadioTrackWrapper
     [HideInInspector] public List<RadioBroadcaster> broadcasters; // the broadcasters in the scene, controlling the gain of the track
 
     [SerializeReference]
-    public RadioTrack track; // the track itself
+    protected RadioTrack track; // the track itself
 
     
     public RadioTrackWrapper(RadioTrack _track)
@@ -71,7 +71,7 @@ public class RadioTrackWrapper
     // creates a RadioTrackPlayer, which is in charge of the audio playback while the radio is used
     public RadioTrackPlayer CreatePlayer() 
     {
-        RadioTrackPlayer player = new(track, track.PlayerType);
+        RadioTrackPlayer player = new(this);
 
         return player;
     }
@@ -98,5 +98,8 @@ public class RadioTrackWrapper
         return tunePower * gainPower * attenPower; // combine the values into one singular volume
     }
 
-    public float 
+    public float GetSample(int _sampleIndex)
+    {
+        return track.GetSample(_sampleIndex);
+    }
 }

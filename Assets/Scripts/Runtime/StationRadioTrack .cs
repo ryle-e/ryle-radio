@@ -15,6 +15,8 @@ public class StationRadioTrack : RadioTrack
         Random = 1 << 0
     }
 
+    public override RadioTrackPlayer.PlayerType PlayerType => RadioTrackPlayer.PlayerType.Once;
+
     [System.Serializable]
     public class StationTrack
     {
@@ -31,12 +33,6 @@ public class StationRadioTrack : RadioTrack
     private System.Random random;
 
     [HideInInspector] public List<RadioBroadcaster> broadcasters;
-
-
-    protected float[] Samples { get; private set; }
-    public int SampleLength { get; private set; } // set to epsilon for endless noise
-
-    public int Channels { get; private set; }
 
     
     /*

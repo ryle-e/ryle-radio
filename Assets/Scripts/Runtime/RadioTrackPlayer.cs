@@ -15,19 +15,20 @@ public class RadioTrackPlayer
 
     //public RadioTrack Track { get; private set; }
     public RadioTrackWrapper TrackW { get; private set; }
-    public RadioTrack Track => TrackW.track;
 
     public float Progress { get; private set; } = 0;
-    public float ProgressFraction => Mathf.Clamp01((float)Progress / (Track.SampleLength - 1));
+    public float ProgressFraction => Mathf.Clamp01((float)Progress / (TrackW.track.SampleCount - 1));
 
     public PlayerType PlayType { get; private set; }
 
     public Action<RadioTrackPlayer> DoDestroy { get; set; } = _ => { };
 
+    public Action<RadioTrackPlayer> OnEnd
+
     private float sampleRateRatio;
 
 
-    public RadioTrackPlayer(RadioTrackWrapper _trackW)
+    public RadioTrackPlayer(RadioTrackWrapper _trackW, float _baseSampleRate)
     {
         TrackW = _trackW;
         PlayType = _trackW.track.PlayerType;
@@ -37,7 +38,7 @@ public class RadioTrackPlayer
         if (TrackW.broadcasters.Count <= 0 && !TrackW.isGlobal)
             Debug.LogWarning("Track " + TrackW.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
 
-        sampleRateRatio = _trackW.track.sampleKL
+        sampleRateRatio = _trackW.track.SampleRate / _baseSampleRate;
     }
 
 
@@ -52,7 +53,7 @@ public class RadioTrackPlayer
         }
 
         float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
-        float sample = Track.GetSample(Progress) * (_applyGain ? gain : 1);
+        float sample = TrackW.GetSample((int)Progress) * (_applyGain ? gain : 1);
 
         _outGain = gain;
 
@@ -93,12 +94,12 @@ public class RadioTrackPlayer
 
     public float GetBroadcastPower(Vector3 _receiverPosition)
     {
-        if (Track.isGlobal)
+        if (TrackW.isGlobal)
             return 1;
 
         float outGain = 0;
 
-        foreach (RadioBroadcaster broadcaster in Track.broadcasters)
+        foreach (RadioBroadcaster broadcaster in TrackW.broadcasters)
             outGain += broadcaster.GetPower(_receiverPosition);
 
         return Mathf.Clamp01(outGain);

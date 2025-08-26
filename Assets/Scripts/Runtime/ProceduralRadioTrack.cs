@@ -23,6 +23,7 @@ public class ProceduralRadioTrack : RadioTrack
 
     private const float SIN_BASE_SAMPLE_RATE = 1024;
 
+    public override RadioTrackPlayer.PlayerType PlayerType => RadioTrackPlayer.PlayerType.Loop;
 
     [AllowNesting, ShowIf("UseProcedural")]
     public ProceduralType proceduralType = ProceduralType.WhiteNoise;
@@ -33,70 +34,18 @@ public class ProceduralRadioTrack : RadioTrack
     private System.Random random;
 
 
-    protected float[] Samples { get; private set; }
-    public int SampleLength { get; private set; } // set to epsilon for endless noise
-
-    public int Channels { get; private set; }
-
-    
-    /*
-    public void Init()
+    public override void Init()
     {
-        broadcasters = new List<RadioBroadcaster>();
         random = new System.Random();
 
-        switch (trackType)
-        {
-            case TrackType.AudioClip:
-                Samples = new float[clip.samples * clip.channels];
-                SampleLength = Samples.Length;
+        Samples = new float[0]; 
+        SampleCount = int.MaxValue;
 
-                Channels = clip.channels;
-
-                if (!clip.GetData(Samples, 0))
-                    Debug.LogError("Cannot access clip data from track " + clip.name);
-
-                break;
-
-            case TrackType.Station:
-                Samples = new float[clip.samples * clip.channels];
-                SampleLength = Samples.Length;
-
-                Channels = clip.channels;
-
-                if (!clip.GetData(Samples, 0))
-                    Debug.LogError("Cannot access clip data from track " + clip.name);
-
-                break;
-
-            case TrackType.Procedural:
-                SampleLength = int.MaxValue;
-                Channels = 1;
-
-                break;
-        }
+        Channels = 1;
     }
-    */
 
-    /*
-    public float GetSample(int _sampleIndex)
-    {
-        switch (trackType)
-        {
-            case TrackType.AudioClip:
-                return Samples[_sampleIndex];
 
-            case TrackType.Procedural:
-                return GetProceduralSample(_sampleIndex);
-
-            default:
-                Debug.LogError("Attempting to get a sample from a RadioTrack with an invalid TrackType- this should not be possible.");
-                return 0;
-        }
-    }
-    */
-
-    private float GetProceduralSample(int _sampleIndex)
+    public override float GetSample(int _sampleIndex)
     {
         switch (proceduralType)
         {
