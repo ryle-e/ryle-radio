@@ -8,7 +8,7 @@ using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 
 [System.Serializable]
-public abstract class RadioTrack
+public class ProceduralRadioTrack : RadioTrack
 {
     public enum ProceduralType
     {
@@ -19,25 +19,10 @@ public abstract class RadioTrack
         Silence,
     }
 
-    public enum StationOptions
-    {
-        Random = 1 << 0
-    }
-
-    [System.Serializable]
-    public class StationTrack
-    {
-        public AudioClip clip;
-        [Range(0, 500)] public float gain;
-    }
-
     private const float WHITE_NOISE_MULTIPLIER = .5f;
 
     private const float SIN_BASE_SAMPLE_RATE = 1024;
 
-
-    [AllowNesting, ShowIf("UseAudioClip")]
-    public AudioClip clip;
 
     [AllowNesting, ShowIf("UseProcedural")]
     public ProceduralType proceduralType = ProceduralType.WhiteNoise;
@@ -45,18 +30,7 @@ public abstract class RadioTrack
     [AllowNesting, ShowIf("IsSineWave"), Range(1, 500)]
     public float waveFrequency = 100;
 
-    [AllowNesting, ShowIf("IsStation")]
-    public StationOptions stationOptions;
-
-    [AllowNesting, ShowIf("IsStation")]
-    public List<StationTrack> stationTracks;
-
-
-    
-
     private System.Random random;
-
-    [HideInInspector] public float sampleRate;
 
 
     protected float[] Samples { get; private set; }
@@ -65,14 +39,11 @@ public abstract class RadioTrack
     public int Channels { get; private set; }
 
     
-    public abstract RadioTrackPlayer.PlayerType PlayerType { get; }
-
-
     /*
     public void Init()
     {
+        broadcasters = new List<RadioBroadcaster>();
         random = new System.Random();
-        sampleRate = clip.frequency;
 
         switch (trackType)
         {

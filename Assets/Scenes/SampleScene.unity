@@ -701,6 +701,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: dda21914aeb84c9499e29ae6963bf49f, type: 2}
   tracks: 0
+  names:
+  - alpha
+  - beta
+  - delta
+  - gamma
+  selectedNames: 7
 --- !u!4 &1580720890
 Transform:
   m_ObjectHideFlags: 0

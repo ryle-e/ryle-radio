@@ -13,25 +13,31 @@ public class RadioTrackPlayer
         OneShot,
     }
 
-    public RadioTrack Track { get; private set; }
+    //public RadioTrack Track { get; private set; }
+    public RadioTrackWrapper TrackW { get; private set; }
+    public RadioTrack Track => TrackW.track;
 
-    public int Progress { get; private set; } = 0;
+    public float Progress { get; private set; } = 0;
     public float ProgressFraction => Mathf.Clamp01((float)Progress / (Track.SampleLength - 1));
 
     public PlayerType PlayType { get; private set; }
 
     public Action<RadioTrackPlayer> DoDestroy { get; set; } = _ => { };
 
+    private float sampleRateRatio;
 
-    public RadioTrackPlayer(RadioTrack _track, PlayerType _playerType)
+
+    public RadioTrackPlayer(RadioTrackWrapper _trackW)
     {
-        Track = _track;
-        PlayType = _playerType;
+        TrackW = _trackW;
+        PlayType = _trackW.track.PlayerType;
 
         Progress = 0;
 
-        if (Track.broadcasters.Count <= 0 && !Track.isGlobal)
-            Debug.LogWarning("Track " + Track.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
+        if (TrackW.broadcasters.Count <= 0 && !TrackW.isGlobal)
+            Debug.LogWarning("Track " + TrackW.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
+
+        sampleRateRatio = _trackW.track.sampleKL
     }
 
 
@@ -45,7 +51,7 @@ public class RadioTrackPlayer
             return 0; 
         }
 
-        float gain = Track.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
+        float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
         float sample = Track.GetSample(Progress) * (_applyGain ? gain : 1);
 
         _outGain = gain;

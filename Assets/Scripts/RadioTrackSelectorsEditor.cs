@@ -8,7 +8,6 @@ using NaughtyAttributes.Editor;
 using UnityEditor;
 #endif
 
-#if UNITY_EDITOR
 public class RadioTrackSelectorAttribute : PropertyAttribute
 {
     public string DataName { get; private set; }
@@ -29,6 +28,7 @@ public class MultiRadioTrackSelectorAttribute : PropertyAttribute
     }
 }
 
+#if UNITY_EDITOR
 [CustomPropertyDrawer(typeof(RadioTrackSelectorAttribute))]
 public class RadioTrackSelectorDrawer : PropertyDrawer
 {
@@ -46,14 +46,22 @@ public class RadioTrackSelectorDrawer : PropertyDrawer
     {
         string dataName = ((RadioTrackSelectorAttribute)attribute).DataName;
 
+        var dataProperty = property.FindPropertyRelative(dataName);
+        var namesProperty = dataProperty.FindPropertyRelative("TrackNames");
+
+        var name = property.FindPropertyRelative("id");
+
         RadioData data = GetValues(property, dataName) as RadioData;
         string[] options = data.TrackNames.ToArray();
+
+        //var thing = property.Find
 
         int index = 0;
 
         try
         {
-            index = Mathf.Max(0, data.Tracks.IndexOf((RadioTrack) property.boxedValue));
+            //index = namesProperty.arr
+            //index = Mathf.Max(0, data.Tracks.IndexOf((RadioTrack) property.boxedValue));
         }
         catch (InvalidCastException e)
         {
@@ -77,7 +85,6 @@ public class RadioTrackSelectorDrawer : PropertyDrawer
             if (track != null)
                 property.boxedValue = track; 
 
-            Debug.Log(property.boxedValue);
             property.serializedObject.ApplyModifiedProperties();
         }
         else

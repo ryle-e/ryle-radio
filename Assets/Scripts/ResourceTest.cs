@@ -38,7 +38,7 @@ public class ResourceTest : MonoBehaviour
 
         //sampleRate = (int)(sourceClip1.samples / sourceClip1.length);
         sampleRate = AudioSettings.outputSampleRate;
-        //Debug.Log(sampleRate + " " + AudioSettings.outputSampleRate + " " + AudioSettings.dspTime);
+        Debug.Log(sampleRate + " " + AudioSettings.outputSampleRate + " " + AudioSettings.dspTime);
         //sampleRate = sourceClip1.frequency;
 
         // We want our beats to repeat at a known interval, so let's just have them play

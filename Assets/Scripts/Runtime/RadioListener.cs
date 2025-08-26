@@ -22,6 +22,8 @@ public class RadioListener : MonoBehaviour
 
     private Vector3 cachedPos;
 
+    private float baseSampleRate;
+
     public List<string> TrackIDs => data.TrackNames;
 
     public RadioData Data => data;
@@ -47,16 +49,18 @@ public class RadioListener : MonoBehaviour
     {
         data.Init();
 
+        baseSampleRate = AudioSettings.outputSampleRate;
+
         StartPlayers();
     }
 
     private void StartPlayers()
     {
-        foreach (RadioTrack track in Data.Tracks)
+        foreach (RadioTrackWrapper trackW in Data.TrackWrappers)
         {
-            if (track.playOnInit)
+            if (trackW.playOnInit)
             {
-                RadioTrackPlayer player = new(track, track.loop ? RadioTrackPlayer.PlayerType.Loop : RadioTrackPlayer.PlayerType.Once);
+                RadioTrackPlayer player = trackW.CreatePlayer();
                 players.Add(player);
             }
         }
@@ -143,15 +147,18 @@ public class RadioListener : MonoBehaviour
             // get combined audio
             foreach (RadioTrackPlayer player in players)
             {
-                sample += player.NextSample(Tune, cachedPos, otherGain, out float outGain, true);
-                otherGain += outGain;
+                sample += player.NextSample(Tune, cachedPos, otherGain, out float outGain, true); // get the audio at this sample
+                otherGain += outGain; // store the gain so far so that tracks with attenuation can adjust accordingly
             }
 
             //sample /= players.Count;
 
-            for (int channel = index; channel < index + channels; channel++)
+            // this function uses data for each sample packed into one big list- each channel is joined end to end
+            // that means if there are multiple channels, we need to read through each of them before jumping to the next sample
+            // therefore we iterate through every channel, for every sample
+            for (int channel = index; channel < index + channels; channel++) 
             {
-                data[channel] += sample;
+                data[channel] += sample; // apply the sample
             }
         }
     }

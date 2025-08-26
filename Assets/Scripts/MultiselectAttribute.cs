@@ -8,7 +8,6 @@ using NaughtyAttributes.Editor;
 using UnityEditor;
 #endif
 
-#if UNITY_EDITOR
 public class MultiselectAttribute : PropertyAttribute
 {
     public string OptionsName { get; private set; }
@@ -19,6 +18,7 @@ public class MultiselectAttribute : PropertyAttribute
     }
 }
 
+#if UNITY_EDITOR
 [CustomPropertyDrawer(typeof(MultiselectAttribute))]
 public class MultiselectDrawer : PropertyDrawer
 {

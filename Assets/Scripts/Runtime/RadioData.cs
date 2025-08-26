@@ -10,16 +10,12 @@ public class RadioData : ScriptableObject
 
 
     [SerializeField]
-    private List<RadioTrack> tracks = new() {
-        new() {
-            gainCurve = RadioTrack.DefaultGainCurve,
-            gain = 100,
-            loop = true,
-            playOnInit = true
-        }
+    private List<RadioTrackWrapper> tracks = new() {
+        new( new ClipRadioTrack() )
     };
 
-    public List<RadioTrack> Tracks => tracks;
+    public List<RadioTrack> Tracks => tracks.Select(t => t.track).ToList();
+    public List<RadioTrackWrapper> TrackWrappers => tracks;
 
     public List<string> TrackNames {
         get
@@ -57,7 +53,7 @@ public class RadioData : ScriptableObject
         trackNames = new List<string>();
         trackIDs = new List<string>();
 
-        foreach (RadioTrack track in tracks)
+        foreach (RadioTrackWrapper track in tracks)
         {
             var othersWithID = tracks.Where(t => t.id == track.id);
 
