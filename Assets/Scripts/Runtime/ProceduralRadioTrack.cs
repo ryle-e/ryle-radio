@@ -20,27 +20,27 @@ public class ProceduralRadioTrack : RadioTrack
     }
 
     private const float WHITE_NOISE_MULTIPLIER = .5f;
+    private const float BASE_SAMPLE_RATE = 65536;
 
-    private const float SIN_BASE_SAMPLE_RATE = 1024;
-
-    public override RadioTrackPlayer.PlayerType PlayerType => RadioTrackPlayer.PlayerType.Loop;
-
-    [AllowNesting, ShowIf("UseProcedural")]
     public ProceduralType proceduralType = ProceduralType.WhiteNoise;
 
-    [AllowNesting, ShowIf("IsSineWave"), Range(1, 500)]
+    [AllowNesting, ShowIf("IsFinite")]
+    public float duration = 0;
+
+    [AllowNesting, ShowIf("proceduralType", ProceduralType.SineWave), Range(1, 500)]
     public float waveFrequency = 100;
 
     private System.Random random;
+
+    public bool IsFinite { get; set; } = false;
 
 
     public override void Init()
     {
         random = new System.Random();
 
-        Samples = new float[0]; 
-        SampleCount = int.MaxValue;
-
+        SampleCount = (duration > 0) ? (int)(duration * BASE_SAMPLE_RATE) : int.MaxValue;
+        SampleRate = BASE_SAMPLE_RATE;
         Channels = 1;
     }
 
@@ -67,7 +67,7 @@ public class ProceduralRadioTrack : RadioTrack
                 return o;
 
             case ProceduralType.SineWave:
-                return Mathf.Sin((_sampleIndex / SIN_BASE_SAMPLE_RATE) * waveFrequency);
+                return Mathf.Sin((_sampleIndex / BASE_SAMPLE_RATE) * waveFrequency);
 
             case ProceduralType.Silence:
                 return 0;

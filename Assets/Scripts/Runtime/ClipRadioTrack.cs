@@ -10,16 +10,16 @@ using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 [System.Serializable]
 public class ClipRadioTrack : RadioTrack
 {
-    [AllowNesting, ShowIf("UseAudioClip")]
     public AudioClip clip;
 
-    public override RadioTrackPlayer.PlayerType PlayerType => RadioTrackPlayer.PlayerType.Loop;
+    protected float[] Samples { get; set; }
 
     
     public override void Init()
     {
         Samples = new float[clip.samples * clip.channels];
         SampleCount = Samples.Length;
+        SampleRate = clip.frequency;
 
         Channels = clip.channels;
 

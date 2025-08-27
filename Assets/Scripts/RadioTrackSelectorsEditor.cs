@@ -80,7 +80,7 @@ public class RadioTrackSelectorDrawer : PropertyDrawer
         if (data != null)
         {
             int i = EditorGUILayout.Popup(index, options);
-            RadioTrack track = data.Tracks[i];
+            RadioTrackWrapper track = data.TrackWrappers[i];
 
             if (track != null)
                 property.boxedValue = track; 

@@ -52,14 +52,14 @@ public class RadioBroadcaster : MonoBehaviour
     {
         if (lastTrackAssignedToName != "")
         {
-            if (data.TryGetTrack(lastTrackAssignedToName, out RadioTrack lastTrack))
+            if (data.TryGetTrack(lastTrackAssignedToName, out RadioTrackWrapper lastTrack))
                 lastTrack.broadcasters.Remove(this);
             else
                 Debug.LogWarning("Couldn't remove broadcaster " + gameObject.name + " from track " + lastTrackAssignedToName + "!");
         }
 
         
-        if (data.TryGetTrack(selectedTrack, out RadioTrack track))
+        if (data.TryGetTrack(selectedTrack, out RadioTrackWrapper track))
         { 
             track.broadcasters.Add(this);
             lastTrackAssignedToName = selectedTrack;

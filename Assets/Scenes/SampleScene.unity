@@ -148,8 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc2a443894d9ed14a82132050e62334e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: dda21914aeb84c9499e29ae6963bf49f, type: 2}
-  selectedTrack: music, 98 - 356.8
+  data: {fileID: 11400000, guid: 7008414068ab1664aa501a77ade0e289, type: 2}
+  selectedTrack: music, 250 - 750
   broadcastRadius: {x: 30, y: 300}
   distanceFalloff:
     serializedVersion: 2
@@ -220,8 +220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f1646434eb92044af287452a342cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: dda21914aeb84c9499e29ae6963bf49f, type: 2}
-  tune: 0
+  data: {fileID: 11400000, guid: 7008414068ab1664aa501a77ade0e289, type: 2}
+  tune: 500
   proceduralRegenTime: 0.1
 --- !u!82 &398591044
 AudioSource:
@@ -450,7 +450,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &769949483
 MonoBehaviour:
   m_ObjectHideFlags: 0

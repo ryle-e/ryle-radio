@@ -1,7 +1,10 @@
 using NaughtyAttributes;
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
+[System.Serializable]
 public class RadioTrackWrapper
 {
     public enum TrackType // ADD TO THIS IF YOU HAVE ANY CUSTOM TRACK TYPES
@@ -11,14 +14,13 @@ public class RadioTrackWrapper
         Procedural
     }
 
-    private const float RANGE_DECIMAL_MULTIPLIER = 10f; // 2 ^ the number of decimal places that the range has, i.e 10 == 1dp, 100 == 2dp
-
     public static AnimationCurve DefaultGainCurve => new(new Keyframe[3] {  // the default curve used for gain, a bell curve-like shape
         new(0, 0, 0, 0), 
         new(0.5f, 1, 0, 0), 
         new(1, 0, 0, 0) 
     });
 
+    private const float RANGE_DECIMAL_MULTIPLIER = 10f; // 2 ^ the number of decimal places that the range has, i.e 10 == 1dp, 100 == 2dp
 
     public string id; // the id used to find and use this track
 
@@ -39,41 +41,47 @@ public class RadioTrackWrapper
 
     [HideInInspector] public List<RadioBroadcaster> broadcasters; // the broadcasters in the scene, controlling the gain of the track
 
+    [SerializeField, Space(8), AllowNesting, OnValueChanged("CreateTrack")]
+    private TrackType trackType;
+
     [SerializeReference]
     protected RadioTrack track; // the track itself
 
+
+    //  we provide aliases here so that no other class can directly access RadioTracks- this isn't necessarily vital, but it's much safer
+    public float SampleRate => track.SampleRate;
+    public int Channels => track.Channels;
+    public int SampleCount => track.SampleCount;
+
     
-    public RadioTrackWrapper(RadioTrack _track)
+    public RadioTrackWrapper()
     {
-        track = _track;
+        track = null;
+        trackType = TrackType.AudioClip;
+
+        CreateTrack();
     }
 
-
-    // creates a new track in this wrapper, called when the track type is chosen
-    public RadioTrack CreateTrack(TrackType _trackType)
+    public static RadioTrack CreateTrackEditor(int _type)
     {
-        switch (_trackType)
+        return (TrackType)_type switch
         {
-            case TrackType.AudioClip:
-                return new ClipRadioTrack();
-
-            case TrackType.Procedural:
-                return new ProceduralRadioTrack();
-
-            case TrackType.Station:
-                return new StationRadioTrack();
-
-            default:
-                return null;
-        }
+            TrackType.AudioClip => (ClipRadioTrack)Activator.CreateInstance(typeof(ClipRadioTrack)),
+            TrackType.Procedural => (ProceduralRadioTrack)Activator.CreateInstance(typeof(ProceduralRadioTrack)),
+            TrackType.Station => (StationRadioTrack)Activator.CreateInstance(typeof(StationRadioTrack)),
+            _ => new ClipRadioTrack(),
+        };
     }
 
-    // creates a RadioTrackPlayer, which is in charge of the audio playback while the radio is used
-    public RadioTrackPlayer CreatePlayer() 
-    {
-        RadioTrackPlayer player = new(this);
 
-        return player;
+    public void Init()
+    {
+        track.Init();
+    }
+
+    public void CreateTrack()
+    {
+        track = CreateTrackEditor((int)trackType);
     }
 
     // rounds range to decimal points
@@ -85,6 +93,7 @@ public class RadioTrackWrapper
         );
     }
 
+
     // calculate the volume of the track at a specific tune value
     public float GetGain(float _tune, float _otherGain)
     {
@@ -93,7 +102,7 @@ public class RadioTrackWrapper
 
         float tunePower = gainCurve.Evaluate(_tune.Remap(range.x, range.y, 0f, 1f)); // get the volume based on the tune and where it sits on the range curve
         float gainPower = gain / 100f; // get the volume based on the gain variable
-        float attenPower = 1f - (Mathf.Clamp01(_otherGain) * attenuation); // get the volume based on attenuation and other playing tracks
+        float attenPower = 1f - (Mathf.Clamp01(_otherGain) * attenuation); // get the volume based on attenuation and other playing trackWs
 
         return tunePower * gainPower * attenPower; // combine the values into one singular volume
     }

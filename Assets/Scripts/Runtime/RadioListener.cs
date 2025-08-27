@@ -14,9 +14,8 @@ public class RadioListener : MonoBehaviour
 
     [SerializeField] private RadioData data;
 
-    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE)] private float tune;
-
-    [SerializeField] private float proceduralRegenTime = 0.05f;
+    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE)] 
+    private float tune;
 
     private List<RadioTrackPlayer> players = new();
 
@@ -60,7 +59,7 @@ public class RadioListener : MonoBehaviour
         {
             if (trackW.playOnInit)
             {
-                RadioTrackPlayer player = trackW.CreatePlayer();
+                RadioTrackPlayer player = new RadioTrackPlayer(trackW, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
                 players.Add(player);
             }
         }
@@ -68,9 +67,9 @@ public class RadioListener : MonoBehaviour
 
     public RadioTrackPlayer PlayOneShot(string _id)
     {
-        if (Data.TryGetTrack(_id, out RadioTrack track))
+        if (Data.TryGetTrack(_id, out RadioTrackWrapper track))
         {
-            RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.OneShot);
+            RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.OneShot, baseSampleRate);
             player.DoDestroy += player => players.Remove(player);
 
             players.Add(player);
@@ -81,11 +80,11 @@ public class RadioListener : MonoBehaviour
         return null;
     }
 
-    public RadioTrackPlayer Play(string _id)
+    public RadioTrackPlayer PlayLoop(string _id)
     {
-        if (Data.TryGetTrack(_id, out RadioTrack track))
+        if (Data.TryGetTrack(_id, out RadioTrackWrapper track))
         {
-            RadioTrackPlayer player = new(track, track.loop ? RadioTrackPlayer.PlayerType.Loop : RadioTrackPlayer.PlayerType.Once);
+            RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
             players.Add(player);
 
             return player;
@@ -96,7 +95,7 @@ public class RadioListener : MonoBehaviour
 
     public bool TryGetPlayer(string _trackID, out RadioTrackPlayer _player, bool _createNew, MultiplePlayersSelector _multiplePlayerSelector = MultiplePlayersSelector.Youngest)
     {
-        var found = players.Where(p => p.Track.id == _trackID);
+        var found = players.Where(p => p.TrackW.id == _trackID);
 
         if (found.Count() > 1)
         {
@@ -127,7 +126,7 @@ public class RadioListener : MonoBehaviour
         }
         else if (_createNew)
         {
-            _player = Play(_trackID);
+            _player = PlayLoop(_trackID);
             return true;
         }
         else
@@ -147,8 +146,13 @@ public class RadioListener : MonoBehaviour
             // get combined audio
             foreach (RadioTrackPlayer player in players)
             {
-                sample += player.NextSample(Tune, cachedPos, otherGain, out float outGain, true); // get the audio at this sample
-                otherGain += outGain; // store the gain so far so that tracks with attenuation can adjust accordingly
+                sample += player.GetSample(index / channels, Tune, cachedPos, otherGain, out float outGain, true); // get the audio at this sample
+                otherGain += outGain; // store the gain so far so that trackWs with attenuation can adjust accordingly
+            }
+
+            foreach (RadioTrackPlayer player in players)
+            {
+                player.IncrementSample();
             }
 
             //sample /= players.Count;
@@ -161,5 +165,6 @@ public class RadioListener : MonoBehaviour
                 data[channel] += sample; // apply the sample
             }
         }
+
     }
 }

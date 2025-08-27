@@ -10,12 +10,9 @@ public class RadioData : ScriptableObject
 
 
     [SerializeField]
-    private List<RadioTrackWrapper> tracks = new() {
-        new( new ClipRadioTrack() )
-    };
+    private List<RadioTrackWrapper> trackWs = new() { new() };
 
-    public List<RadioTrack> Tracks => tracks.Select(t => t.track).ToList();
-    public List<RadioTrackWrapper> TrackWrappers => tracks;
+    public List<RadioTrackWrapper> TrackWrappers => trackWs;
 
     public List<string> TrackNames {
         get
@@ -47,20 +44,22 @@ public class RadioData : ScriptableObject
 
     public void PopulateTrackIDs()
     {
-        if (tracks.Count <= 0)
+        if (trackWs.Count <= 0)
             return;
 
         trackNames = new List<string>();
         trackIDs = new List<string>();
 
-        foreach (RadioTrackWrapper track in tracks)
+        for (int i = TrackWrappers.Count - 1; i >= 0; i--)
         {
-            var othersWithID = tracks.Where(t => t.id == track.id);
+            RadioTrackWrapper track = TrackWrappers[i];
+
+            var othersWithID = trackWs.Where(t => t.id == track.id);
 
             if (othersWithID.Count() > 1)
             {
                 track.id += othersWithID.Count();
-                Debug.LogWarning("A RadioTrack has the same ID as a previous one! Changed ID to " + track.id);
+                //Debug.LogWarning("A RadioTrack has the same ID as a previous one! Changed ID to " + track.id);
             }
 
             trackNames.Add($"{track.id}, {track.range.x} - {track.range.y}");
@@ -75,15 +74,13 @@ public class RadioData : ScriptableObject
 
     public void Init()
     {
-        foreach (RadioTrack track in tracks)
-        {
-            track.Init();
-        }
+        foreach (RadioTrackWrapper trackW in TrackWrappers)
+            trackW.Init();
 
         RadioBroadcaster.InitBroadcasters();
     }
 
-    public bool TryGetTrack(string _nameOrID, out RadioTrack _track, bool _useID = false)
+    public bool TryGetTrack(string _nameOrID, out RadioTrackWrapper _trackW, bool _useID = false)
     {
         string id = "";
 
@@ -92,16 +89,16 @@ public class RadioData : ScriptableObject
         else
             id = NameToID(_nameOrID);
 
-        var found = tracks.Find(t => t.id == id);
+        var found = TrackWrappers.Find(t => t.id == id);
 
         if (found != null)
         {
-            _track = found;
+            _trackW = found;
             return true;
         }
         else
         {
-            _track = null;
+            _trackW = null;
             return false;
         }
     }
@@ -115,11 +112,11 @@ public class RadioData : ScriptableObject
         else
             id = NameToID(_nameOrID);
 
-        var found = tracks.Find(t => t.id == id);
+        var found = TrackWrappers.Find(t => t.id == id);
 
         if (found != null)
         {
-            _index = tracks.IndexOf(found);
+            _index = TrackWrappers.IndexOf(found);
             return true;
         }
         else

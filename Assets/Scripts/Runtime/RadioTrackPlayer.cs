@@ -8,7 +8,6 @@ public class RadioTrackPlayer
 {
     public enum PlayerType
     {
-        Once,
         Loop,
         OneShot,
     }
@@ -17,79 +16,135 @@ public class RadioTrackPlayer
     public RadioTrackWrapper TrackW { get; private set; }
 
     public float Progress { get; private set; } = 0;
-    public float ProgressFraction => Mathf.Clamp01((float)Progress / (TrackW.track.SampleCount - 1));
+    public int ProgressScaled => ((int) Progress) * TrackW.Channels;
+    public float ProgressFraction
+    {
+        get
+        {
+            if (Progress < 0)
+                return 1;
+
+            float maxSamples = TrackW.SampleCount - 1;
+            return Mathf.Clamp01(Progress / maxSamples);
+        }
+    }
 
     public PlayerType PlayType { get; private set; }
 
     public Action<RadioTrackPlayer> DoDestroy { get; set; } = _ => { };
 
-    public Action<RadioTrackPlayer> OnEnd
+    public Action<RadioTrackPlayer> OnPlay { get; set; } = _ => { }; // when the track starts to play
+    public Action<RadioTrackPlayer> OnEnd { get; set; } = _ => { }; // when the track reaches the end, not when it stops (i.e when the loop happens)
+    public Action<RadioTrackPlayer> OnStop { get; set; } = _ => { }; // when the track is stopped and destroyed
+    public Action<RadioTrackPlayer> OnPause { get; set; } = _ => { }; // when the track is paused partway
+    public Action<RadioTrackPlayer> OnSample { get; set; } = _ => { };
 
-    private float sampleRateRatio;
+    public bool Paused { get; set; } = false;
+
+    private float sampleIncrement;
+    private float scaledSampleCount;
+    private float baseSampleRate;
+
+    private bool isStopped = false;
 
 
-    public RadioTrackPlayer(RadioTrackWrapper _trackW, float _baseSampleRate)
+    public RadioTrackPlayer(RadioTrackWrapper _trackW, PlayerType _playerType, float _baseSampleRate)
     {
         TrackW = _trackW;
-        PlayType = _trackW.track.PlayerType;
-
         Progress = 0;
+
+        PlayType = _playerType;
+
+        baseSampleRate = _baseSampleRate;
+        UpdateSampleIncrement();
 
         if (TrackW.broadcasters.Count <= 0 && !TrackW.isGlobal)
             Debug.LogWarning("Track " + TrackW.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
+    }
 
-        sampleRateRatio = _trackW.track.SampleRate / _baseSampleRate;
+    public void UpdateSampleIncrement()
+    {
+        sampleIncrement = TrackW.SampleRate / baseSampleRate;
+        scaledSampleCount = TrackW.SampleCount / TrackW.Channels;
     }
 
 
-    public float NextSample(float _tune, Vector3 _receiverPosition, float _otherGain, out float _outGain, bool _applyGain = true)
+    public float GetSample(int _channel, float _tune, Vector3 _receiverPosition, float _otherGain, out float _outGain, bool _applyGain = true)
     {
-        if (Progress < -99) // if completed as a oneshot, do not provide any more samples
+        if (isStopped || Paused)
         {
-            Debug.LogWarning("Attempting to move to the next sample on a completed RadioTrackPlayer set to OneShot.");
-
             _outGain = 0f;
             return 0; 
         }
 
         float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
-        float sample = TrackW.GetSample((int)Progress) * (_applyGain ? gain : 1);
+        float sample = TrackW.GetSample(ProgressScaled) * (_applyGain ? gain : 1);
 
         _outGain = gain;
 
+        return sample;
+    }
+
+    public void IncrementSample()
+    {
+        float lastProg = Progress;
         switch (PlayType)
         {
-            case PlayerType.Once:
-                if (ProgressFraction >= 1)
-                    Progress = -1;
-
-                else if (Progress >= 0)
-                    Progress = Mathf.Clamp(Progress + Track.Channels, 0, Track.SampleLength - 1);
-
-                break;
-
             case PlayerType.Loop:
                 if (ProgressFraction >= 1)
+                {
+                    OnEnd.Invoke(this);
                     Progress = 0;
-                
+                }
                 else
-                    Progress = Mathf.Clamp(Progress + Track.Channels, 0, Track.SampleLength - 1);
+                {
+                    OnSample.Invoke(this);
+                    Progress = Mathf.Clamp(Progress + sampleIncrement, 0, scaledSampleCount - 1);
+                }
 
                 break;
 
             case PlayerType.OneShot:
                 if (ProgressFraction >= 1)
                 {
-                    Progress = -1;
-                    DoDestroy.Invoke(this);
+                    OnEnd.Invoke(this);
+                    Stop();
                 }
                 else
-                    Progress = Mathf.Clamp(Progress + Track.Channels, 0, Track.SampleLength - 1);
+                {
+                    OnSample.Invoke(this);
+                    Progress = Mathf.Clamp(Progress + sampleIncrement, 0, scaledSampleCount - 1);
+                }
 
                 break;
         }
 
-        return sample;
+        //Debug.Log(lastProg + " " + Progress);
+    }
+
+    public void Stop()
+    {
+        if (isStopped)
+            return;
+
+        isStopped = true;
+
+        switch (PlayType)
+        {
+            case PlayerType.Loop:
+                OnStop.Invoke(this); // the track does not reach the end, so it just stops
+                DoDestroy(this);
+
+                break;
+
+            case PlayerType.OneShot:
+                OnStop.Invoke(this);
+                DoDestroy(this);
+
+                break;
+        }
+
+        OnStop.Invoke(this);
     }
 
     public float GetBroadcastPower(Vector3 _receiverPosition)
