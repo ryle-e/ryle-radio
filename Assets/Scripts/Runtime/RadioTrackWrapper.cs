@@ -1,7 +1,6 @@
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [System.Serializable]
@@ -50,7 +49,6 @@ public class RadioTrackWrapper
 
     //  we provide aliases here so that no other class can directly access RadioTracks- this isn't necessarily vital, but it's much safer
     public float SampleRate => track.SampleRate;
-    public int Channels => track.Channels;
     public int SampleCount => track.SampleCount;
 
     
@@ -77,11 +75,17 @@ public class RadioTrackWrapper
     public void Init()
     {
         track.Init();
+        broadcasters.Clear();
     }
 
     public void CreateTrack()
     {
         track = CreateTrackEditor((int)trackType);
+    }
+
+    public void AddToPlayerEndCallback(ref Action<RadioTrackPlayer> _callback)
+    {
+        track.AddToPlayerEndCallback(ref _callback);
     }
 
     // rounds range to decimal points

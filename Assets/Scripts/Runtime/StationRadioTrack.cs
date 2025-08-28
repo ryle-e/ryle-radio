@@ -1,11 +1,7 @@
 using NaughtyAttributes;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 
 [System.Serializable]
@@ -14,12 +10,19 @@ public class StationRadioTrack : RadioTrack
     [AllowNesting]
     public bool randomSequence;
 
+    [AllowNesting, ShowIf("randomSequence"), Range(0, 1)]
+    public float thresholdBeforeRepeats;
+
     [AllowNesting]
     public List<StationRadioTrackWrapper> stationTrackWs;
 
     private int currentTrackIndex;
 
     private System.Random random;
+
+    private int[] remainingTracksBeforeRepeat;
+
+    private int completedSamples = 0;
 
     private StationRadioTrackWrapper CurrentTrackW => stationTrackWs[currentTrackIndex];
 
@@ -28,19 +31,37 @@ public class StationRadioTrack : RadioTrack
     {
         random = new System.Random();
 
+        remainingTracksBeforeRepeat = new int[stationTrackWs.Count];
+        completedSamples = 0;
+
+        foreach (StationRadioTrackWrapper trackW in stationTrackWs)
+            trackW.Init();
+
         NextTrack();
+    }
+
+    public override void AddToPlayerEndCallback(ref Action<RadioTrackPlayer> _callback)
+    {
+        _callback += p => p.UpdateSampleIncrement();
     }
 
     public override float GetSample(int _sampleIndex)
     {
-        if (_sampleIndex >= SampleCount - 1)
+        int adjustedIndex = _sampleIndex - completedSamples;
+
+        if (adjustedIndex >= SampleCount - 1)
+        {
+            Debug.Log(adjustedIndex + " " + SampleCount);
+            completedSamples = _sampleIndex;
             NextTrack();
 
-        Channels = CurrentTrackW.Channels;
-        SampleRate = CurrentTrackW.SampleRate;
-        SampleCount = CurrentTrackW.SampleCount;
 
-        return CurrentTrackW.GetSample(_sampleIndex);
+            Debug.Log(completedSamples + " " + adjustedIndex + " " + (_sampleIndex - completedSamples));
+        }
+
+        Debug.Log(adjustedIndex + " " + _sampleIndex + " " + completedSamples);
+
+        return CurrentTrackW.GetSample(adjustedIndex);
     }
 
 
@@ -48,7 +69,25 @@ public class StationRadioTrack : RadioTrack
     {
         if (randomSequence)
         {
-            currentTrackIndex = random.Next(0, stationTrackWs.Count);
+            List<int> selectFrom = new();
+
+            for (int i = 0; i < remainingTracksBeforeRepeat.Length; i++)
+            {
+                if (remainingTracksBeforeRepeat[i] <= 0)
+                    selectFrom.Add(i);
+            }
+
+            int index = random.Next(0, selectFrom.Count);
+
+            if (thresholdBeforeRepeats > 0)
+            {
+                for (int t = 0; t < remainingTracksBeforeRepeat.Length; t++)
+                    remainingTracksBeforeRepeat[t]--;
+
+                remainingTracksBeforeRepeat[index] = (int)((stationTrackWs.Count - 1) * thresholdBeforeRepeats);
+            }
+
+            currentTrackIndex = index;
         }
         else
         {
@@ -57,5 +96,8 @@ public class StationRadioTrack : RadioTrack
             if (currentTrackIndex >= stationTrackWs.Count)
                 currentTrackIndex = 0;
         }
+
+        SampleRate = CurrentTrackW.SampleRate;
+        SampleCount = CurrentTrackW.SampleCount;
     }
 }

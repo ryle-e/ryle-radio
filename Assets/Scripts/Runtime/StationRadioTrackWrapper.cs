@@ -1,7 +1,8 @@
 using NaughtyAttributes;
-using System.Collections.Generic;
+using Unity.Multiplayer.Center.Common;
 using UnityEngine;
 
+[System.Serializable]
 public class StationRadioTrackWrapper
 {
     public enum TrackType // ADD TO THIS IF YOU HAVE ANY CUSTOM TRACK TYPES
@@ -13,34 +14,39 @@ public class StationRadioTrackWrapper
     [Range(0, 500)]
     public float gain = 100; // the volume of the track
 
+    [SerializeField, AllowNesting, OnValueChanged("CreateTrack")]
+    private TrackType trackType = TrackType.AudioClip;
+
     [SerializeReference]
     protected RadioTrack track; // the track itself
 
     public float SampleRate => track.SampleRate;
-    public int Channels => track.Channels;
     public int SampleCount => track.SampleCount;
 
 
     public StationRadioTrackWrapper(RadioTrack _track)
     {
         track = _track;
+        gain = 100;
+
+        CreateTrack();
+    }
+
+    public void Init()
+    {
+        track.Init();
     }
 
 
     // creates a new track in this wrapper, called when the track type is chosen
-    public RadioTrack CreateTrack(TrackType _trackType)
+    public void CreateTrack()
     {
-        switch (_trackType)
+        track = trackType switch
         {
-            case TrackType.AudioClip:
-                return new ClipRadioTrack();
-
-            case TrackType.Procedural:
-                return new ProceduralRadioTrack() { IsFinite = true };
-
-            default:
-                return null;
-        }
+            TrackType.AudioClip => new ClipRadioTrack(),
+            TrackType.Procedural => new ProceduralRadioTrack() { IsFinite = true },
+            _ => new ClipRadioTrack(),
+        };
     }
 
     public float GetGain(float _tune, float _otherGain)

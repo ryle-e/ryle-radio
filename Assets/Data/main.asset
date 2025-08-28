@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a748e9405d1fe748b3f60064475d081, type: 3}
-  m_Name: new test 1
+  m_Name: main
   m_EditorClassIdentifier: 
   trackWs:
   - id: music
@@ -48,62 +48,16 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 0
+    gain: 150
     attenuation: 0.1
-    isGlobal: 1
+    isGlobal: 0
     playOnInit: 1
     broadcasters:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
     - {fileID: 0}
     trackType: 0
     track:
       rid: 5678798957396885561
-  - id: white noise
+  - id: noise
     range: {x: 0, y: 1000}
     gainCurve:
       serializedVersion: 2
@@ -129,7 +83,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 0
+    gain: 79
     attenuation: 0.9
     isGlobal: 1
     playOnInit: 1
@@ -163,14 +117,14 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 98
-    attenuation: 0
+    gain: 100
+    attenuation: 0.35
     isGlobal: 1
     playOnInit: 1
     broadcasters: []
     trackType: 2
     track:
-      rid: 5678798957396885567
+      rid: 5678798978745368634
   references:
     version: 2
     RefIds:
@@ -181,12 +135,14 @@ MonoBehaviour:
     - rid: 5678798957396885564
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
-        proceduralType: 0
+        proceduralType: 1
         duration: 0
-        waveFrequency: 10
-    - rid: 5678798957396885567
+        waveFrequency: 306
+        brownWalkPower: 0.707
+    - rid: 5678798978745368634
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0
-        waveFrequency: 382
+        waveFrequency: 60
+        brownWalkPower: 0.5

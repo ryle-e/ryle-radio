@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class RadioTrackPlayer
@@ -15,8 +12,7 @@ public class RadioTrackPlayer
     //public RadioTrack Track { get; private set; }
     public RadioTrackWrapper TrackW { get; private set; }
 
-    public float Progress { get; private set; } = 0;
-    public int ProgressScaled => ((int) Progress) * TrackW.Channels;
+    public double Progress { get; private set; } = 0;
     public float ProgressFraction
     {
         get
@@ -25,7 +21,7 @@ public class RadioTrackPlayer
                 return 1;
 
             float maxSamples = TrackW.SampleCount - 1;
-            return Mathf.Clamp01(Progress / maxSamples);
+            return Mathf.Clamp01((float)Progress / maxSamples);
         }
     }
 
@@ -34,16 +30,21 @@ public class RadioTrackPlayer
     public Action<RadioTrackPlayer> DoDestroy { get; set; } = _ => { };
 
     public Action<RadioTrackPlayer> OnPlay { get; set; } = _ => { }; // when the track starts to play
-    public Action<RadioTrackPlayer> OnEnd { get; set; } = _ => { }; // when the track reaches the end, not when it stops (i.e when the loop happens)
     public Action<RadioTrackPlayer> OnStop { get; set; } = _ => { }; // when the track is stopped and destroyed
     public Action<RadioTrackPlayer> OnPause { get; set; } = _ => { }; // when the track is paused partway
     public Action<RadioTrackPlayer> OnSample { get; set; } = _ => { };
+    public Action<RadioTrackPlayer> OnEnd  // when the track reaches the end, not when it stops (i.e when the loop happens)
+    { 
+        get => onEnd; 
+        set => onEnd = value; 
+    }
 
     public bool Paused { get; set; } = false;
 
-    private float sampleIncrement;
-    private float scaledSampleCount;
+    private double sampleIncrement;
     private float baseSampleRate;
+
+    private Action<RadioTrackPlayer> onEnd = _ => { };
 
     private bool isStopped = false;
 
@@ -58,6 +59,10 @@ public class RadioTrackPlayer
         baseSampleRate = _baseSampleRate;
         UpdateSampleIncrement();
 
+        TrackW.AddToPlayerEndCallback(ref onEnd);
+
+        Debug.Log(baseSampleRate + " " + TrackW.SampleRate + " " + sampleIncrement);
+
         if (TrackW.broadcasters.Count <= 0 && !TrackW.isGlobal)
             Debug.LogWarning("Track " + TrackW.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
     }
@@ -65,7 +70,6 @@ public class RadioTrackPlayer
     public void UpdateSampleIncrement()
     {
         sampleIncrement = TrackW.SampleRate / baseSampleRate;
-        scaledSampleCount = TrackW.SampleCount / TrackW.Channels;
     }
 
 
@@ -78,7 +82,7 @@ public class RadioTrackPlayer
         }
 
         float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
-        float sample = TrackW.GetSample(ProgressScaled) * (_applyGain ? gain : 1);
+        float sample = TrackW.GetSample((int) Progress) * (_applyGain ? gain : 1);
 
         _outGain = gain;
 
@@ -87,7 +91,6 @@ public class RadioTrackPlayer
 
     public void IncrementSample()
     {
-        float lastProg = Progress;
         switch (PlayType)
         {
             case PlayerType.Loop:
@@ -99,7 +102,7 @@ public class RadioTrackPlayer
                 else
                 {
                     OnSample.Invoke(this);
-                    Progress = Mathf.Clamp(Progress + sampleIncrement, 0, scaledSampleCount - 1);
+                    Progress = Math.Clamp(Progress + sampleIncrement, 0, TrackW.SampleCount - 1);
                 }
 
                 break;
@@ -113,13 +116,11 @@ public class RadioTrackPlayer
                 else
                 {
                     OnSample.Invoke(this);
-                    Progress = Mathf.Clamp(Progress + sampleIncrement, 0, scaledSampleCount - 1);
+                    Progress = Math.Clamp(Progress + sampleIncrement, 0, TrackW.SampleCount - 1);
                 }
 
                 break;
         }
-
-        //Debug.Log(lastProg + " " + Progress);
     }
 
     public void Stop()

@@ -1,10 +1,6 @@
-using NaughtyAttributes;
+using NUnit.Framework;
 using System.Collections.Generic;
-using System.ComponentModel;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 
 [System.Serializable]
@@ -17,14 +13,34 @@ public class ClipRadioTrack : RadioTrack
     
     public override void Init()
     {
-        Samples = new float[clip.samples * clip.channels];
+        ReadClipAndForceToMono();
+
         SampleCount = Samples.Length;
         SampleRate = clip.frequency;
+    }
 
-        Channels = clip.channels;
+    public void ReadClipAndForceToMono()
+    {
+        float[] allSamples = new float[clip.samples * clip.channels];
+        Samples = new float[clip.samples];
 
-        if (!clip.GetData(Samples, 0))
+        if (!clip.GetData(allSamples, 0))
+        {
             Debug.LogError("Cannot access clip data from track " + clip.name);
+            return;
+        }
+
+        for (int sample = 0; sample < clip.samples; sample++)
+        {
+            float combined = 0;
+
+            for (int channel = 0; channel < clip.channels; channel++)
+                combined += allSamples[(sample * clip.channels) + channel];
+
+            //Debug.Log(sample + " " + clip.channels + " " + combined);
+            combined /= clip.channels;
+            Samples[sample] = combined;
+        }
     }
     
     public override float GetSample(int _sampleIndex)

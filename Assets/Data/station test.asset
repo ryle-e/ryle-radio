@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a748e9405d1fe748b3f60064475d081, type: 3}
+  m_Name: station test
+  m_EditorClassIdentifier: 
+  trackWs:
+  - id: main
+    range: {x: 0, y: 1000}
+    gainCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0.1
+    isGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    trackType: 1
+    track:
+      rid: 5678798978745368635
+  references:
+    version: 2
+    RefIds:
+    - rid: 5678798978745368635
+      type: {class: StationRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        randomSequence: 1
+        thresholdBeforeRepeats: 0
+        stationTrackWs:
+        - gain: 100
+          trackType: 1
+          track:
+            rid: 5678798978745368638
+        - gain: 100
+          trackType: 0
+          track:
+            rid: 5678798978745368640
+        - gain: 100
+          trackType: 0
+          track:
+            rid: 5678798978745368642
+        - gain: 100
+          trackType: 0
+          track:
+            rid: 5678798978745368644
+    - rid: 5678798978745368638
+      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        proceduralType: 3
+        duration: 2
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 5678798978745368640
+      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        clip: {fileID: 8300000, guid: 2e868e1ddc90f93489f8f7d19c0e135e, type: 3}
+    - rid: 5678798978745368642
+      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        clip: {fileID: 8300000, guid: abae3383400777a4dabf1bd1c53bc579, type: 3}
+    - rid: 5678798978745368644
+      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        clip: {fileID: 8300000, guid: 4cbe7708a64651f4186ea672231c260e, type: 3}

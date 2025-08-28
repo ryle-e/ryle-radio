@@ -136,9 +136,12 @@ public class RadioListener : MonoBehaviour
         }
     }
 
-    private void OnAudioFilterRead(float[] data, int channels)
+    private void OnAudioFilterRead(float[] _data, int _channels)
     {
-        for (int index = 0; index < data.Length; index += channels)
+        int monoSampleCount = _data.Length / _channels;
+        //Debug.Log(_data.Length + " " + _channels);
+
+        for (int index = 0; index < monoSampleCount; index++)
         {
             float sample = 0;
             float otherGain = 0;
@@ -146,24 +149,26 @@ public class RadioListener : MonoBehaviour
             // get combined audio
             foreach (RadioTrackPlayer player in players)
             {
-                sample += player.GetSample(index / channels, Tune, cachedPos, otherGain, out float outGain, true); // get the audio at this sample
-                otherGain += outGain; // store the gain so far so that trackWs with attenuation can adjust accordingly
-            }
-
-            foreach (RadioTrackPlayer player in players)
-            {
+                sample += player.GetSample(index, Tune, cachedPos, otherGain, out float outGain, true); // get the audio at this sample
                 player.IncrementSample();
+
+                //if (outGain > 0)
+                //    Debug.Log(sample);
+
+                otherGain += outGain; // store the gain so far so that trackWs with attenuation can adjust accordingly
             }
 
             //sample /= players.Count;
 
-            // this function uses data for each sample packed into one big list- each channel is joined end to end
-            // that means if there are multiple channels, we need to read through each of them before jumping to the next sample
+            // this function uses _data for each sample packed into one big list- each channel is joined end to end
+            // that means if there are multiple _channels, we need to read through each of them before jumping to the next sample
             // therefore we iterate through every channel, for every sample
-            for (int channel = index; channel < index + channels; channel++) 
-            {
-                data[channel] += sample; // apply the sample
-            }
+            int indexWithChannels = index * _channels;
+
+            for (int channel = indexWithChannels; channel < indexWithChannels + _channels; channel++) 
+                _data[channel] += sample; // apply the sample
+
+            //Debug.Log(_data[index] + " " + _data[index + 1] + " " + _data[Mathf.Clamp(index + 2, 0, _data.Length)]);
         }
 
     }
