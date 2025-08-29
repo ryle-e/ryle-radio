@@ -1,8 +1,9 @@
 using NaughtyAttributes;
 using System;
-using Unity.Multiplayer.Center.Common;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
-using UnityEngine.UI;
 
 [System.Serializable]
 public class StationRadioTrackWrapper
@@ -21,8 +22,8 @@ public class StationRadioTrackWrapper
 
     public Vector2 startAndEndRests = Vector2.zero;
 
-    [SerializeField, AllowNesting, OnValueChanged("CreateTrack")]
-    private TrackType trackType = TrackType.AudioClip;
+    [SerializeField, AllowNesting, OnValueChanged("CreateTrack"), Dropdown("TrackOptions")]
+    private string trackType = "None";
 
     [SerializeReference]
     protected RadioTrack track; // the track itself
@@ -38,6 +39,20 @@ public class StationRadioTrackWrapper
     }
 
     public string ID => id;
+
+    private List<string> trackOptions = new();
+    private List<string> TrackOptions { 
+        get 
+        {
+            trackOptions ??= RadioUtils.FindDerivedTypes(
+                    Assembly.GetExecutingAssembly(),
+                    typeof(IStationTrack)
+                ).Select(t => ((IStationTrack)t).DisplayName)
+                .ToList();
+
+            return trackOptions;
+        } 
+    };
 
 
     public StationRadioTrackWrapper(RadioTrack _track)

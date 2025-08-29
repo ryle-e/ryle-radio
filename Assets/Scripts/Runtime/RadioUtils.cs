@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 static class RadioUtils
@@ -23,5 +27,10 @@ static class RadioUtils
         Vector3 q = adjustedPoint.Abs() - _box.size;
 
         return q.magnitude + Mathf.Min(Mathf.Max(q.x, q.y, q.z), 0);
+    }
+
+    public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType)
+    {
+        return assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
     }
 }

@@ -4,13 +4,15 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class ClipRadioTrack : RadioTrack
+public class ClipRadioTrack : RadioTrack, IStationTrack
 {
+    public override string DisplayName => "Audio Clip";
+
     public AudioClip clip;
 
     protected float[] Samples { get; set; }
 
-    
+
     public override void Init()
     {
         ReadClipAndForceToMono();

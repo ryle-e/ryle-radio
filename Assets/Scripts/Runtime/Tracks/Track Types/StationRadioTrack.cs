@@ -7,6 +7,8 @@ using UnityEngine;
 [System.Serializable]
 public class StationRadioTrack : RadioTrack
 {
+    public override string DisplayName => "Station";
+
     public bool randomSequence;
 
     // how many other tracks need to be played before the same one is chosen again

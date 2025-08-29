@@ -3,6 +3,8 @@ using System;
 [System.Serializable]
 public abstract class RadioTrack
 {
+    public static abstract string DisplayName { get; }
+
     public float SampleRate { get; protected set; }
     public virtual int SampleCount { get; protected set; }
 
