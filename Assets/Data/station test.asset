@@ -63,31 +63,33 @@ MonoBehaviour:
       type: {class: StationRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         randomSequence: 1
-        thresholdBeforeRepeats: 0
+        thresholdBeforeRepeats: 0.5
         stationTrackWs:
-        - gain: 100
-          trackType: 1
-          track:
-            rid: 5678798978745368638
-        - gain: 100
+        - id: kid
+          gain: 100
           trackType: 0
           track:
             rid: 5678798978745368640
-        - gain: 100
+        - id: woman
+          gain: 100
           trackType: 0
           track:
             rid: 5678798978745368642
-        - gain: 100
+        - id: man
+          gain: 100
           trackType: 0
           track:
             rid: 5678798978745368644
-    - rid: 5678798978745368638
-      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
-      data:
-        proceduralType: 3
-        duration: 2
-        waveFrequency: 100
-        brownWalkPower: 0.5
+        - id: white noise
+          gain: 100
+          trackType: 1
+          track:
+            rid: 5678798996343095352
+        - id: white noise
+          gain: 100
+          trackType: 1
+          track:
+            rid: 5678798996343095354
     - rid: 5678798978745368640
       type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
       data:
@@ -100,3 +102,17 @@ MonoBehaviour:
       type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         clip: {fileID: 8300000, guid: 4cbe7708a64651f4186ea672231c260e, type: 3}
+    - rid: 5678798996343095352
+      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        proceduralType: 0
+        duration: 1
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 5678798996343095354
+      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        proceduralType: 3
+        duration: 3
+        waveFrequency: 677
+        brownWalkPower: 0.5

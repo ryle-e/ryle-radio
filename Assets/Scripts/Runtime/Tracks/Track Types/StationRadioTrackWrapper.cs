@@ -11,6 +11,9 @@ public class StationRadioTrackWrapper
         Procedural
     }
 
+    [SerializeField] 
+    private string id;
+
     [Range(0, 500)]
     public float gain = 100; // the volume of the track
 
@@ -22,6 +25,8 @@ public class StationRadioTrackWrapper
 
     public float SampleRate => track.SampleRate;
     public int SampleCount => track.SampleCount;
+
+    public string ID => id;
 
 
     public StationRadioTrackWrapper(RadioTrack _track)
