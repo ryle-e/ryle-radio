@@ -1,16 +1,22 @@
+using NaughtyAttributes;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "new test", menuName = "ryle radio/radio data")]
+[CreateAssetMenu(fileName = "New Radio Data", menuName = "Ryle Radio/Radio Data")]
 public class RadioData : ScriptableObject
 {
     public const float LOW_TUNE = 0;
     public const float HIGH_TUNE = 1000;
 
+    [SerializeField] private Color gizmoColor = new Color32(200, 180, 255, 255);
+    [SerializeField] private Color gizmoColorSecondary = new Color32(175, 105, 205, 255);
 
     [SerializeField]
     private List<RadioTrackWrapper> trackWs = new() { new() };
+
+    public Color GizmoColor => gizmoColor;
+    public Color GizmoColorSecondary => gizmoColorSecondary;
 
     public List<RadioTrackWrapper> TrackWrappers => trackWs;
 
@@ -62,8 +68,12 @@ public class RadioData : ScriptableObject
                 //Debug.LogWarning("A RadioTrack has the same ID as a previous one! Changed ID to " + track.id);
             }
 
-            trackNames.Add($"{track.id}, {track.range.x} - {track.range.y}");
+            string name = $"{track.id}, {track.range.x} - {track.range.y}";
+
+            trackNames.Add(name);
             trackIDs.Add(track.id);
+
+            track.name = name;
         }
     }
 
@@ -78,6 +88,7 @@ public class RadioData : ScriptableObject
             trackW.Init();
 
         RadioBroadcaster.InitBroadcasters();
+        RadioInsulationZone.InitInsulators();
     }
 
     public bool TryGetTrack(string _nameOrID, out RadioTrackWrapper _trackW, bool _useID = false)

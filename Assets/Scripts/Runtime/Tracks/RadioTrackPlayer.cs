@@ -81,7 +81,7 @@ public class RadioTrackPlayer
             return 0; 
         }
 
-        float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition);
+        float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition) * GetInsulation(_receiverPosition);
         float sample = TrackW.GetSample((int) Progress) * (_applyGain ? gain : 1);
 
         _outGain = gain;
@@ -157,6 +157,16 @@ public class RadioTrackPlayer
 
         foreach (RadioBroadcaster broadcaster in TrackW.broadcasters)
             outGain += broadcaster.GetPower(_receiverPosition);
+
+        return Mathf.Clamp01(outGain);
+    }
+
+    public float GetInsulation(Vector3 _receiverPosition)
+    {
+        float outGain = 1;
+
+        foreach (RadioInsulationZone insulator in TrackW.insulators)
+            outGain -= insulator.GetPower(_receiverPosition);
 
         return Mathf.Clamp01(outGain);
     }

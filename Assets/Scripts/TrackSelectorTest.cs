@@ -16,4 +16,10 @@ public class TrackSelectorTest : MonoBehaviour
     // some stuff about this https://stackoverflow.com/questions/22513519/how-can-i-convert-an-int-into-its-corresponding-set-of-bitwise-flags-without-any
 
     public List<string> TrackNames => data.TrackNames;
+
+    private void Start()
+    {
+        foreach (string s in MultiselectAttribute.To<string>(selectedNames, names.ToArray()))
+            Debug.Log(s);
+    }
 }

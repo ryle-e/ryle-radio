@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a748e9405d1fe748b3f60064475d081, type: 3}
   m_Name: main
   m_EditorClassIdentifier: 
+  gizmoColor: {r: 0.78431374, g: 0.7058824, b: 1, a: 1}
+  gizmoColorSecondary: {r: 0.6779662, g: 0.40677968, b: 0.8, a: 1}
   trackWs:
   - id: music
+    name: music, 250 - 750
     range: {x: 250, y: 750}
     gainCurve:
       serializedVersion: 2
@@ -54,10 +57,12 @@ MonoBehaviour:
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
+    - {fileID: 0}
     trackType: 0
     track:
       rid: 5678798957396885561
   - id: noise
+    name: noise, 0 - 1000
     range: {x: 0, y: 1000}
     gainCurve:
       serializedVersion: 2
@@ -92,6 +97,7 @@ MonoBehaviour:
     track:
       rid: 5678798957396885564
   - id: bass
+    name: bass, 0 - 1000
     range: {x: 0, y: 1000}
     gainCurve:
       serializedVersion: 2

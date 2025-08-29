@@ -22,6 +22,7 @@ public class RadioTrackWrapper
     private const float RANGE_DECIMAL_MULTIPLIER = 10f; // 2 ^ the number of decimal places that the range has, i.e 10 == 1dp, 100 == 2dp
 
     public string id; // the id used to find and use this track
+    [HideInInspector] public string name; // the name of this track for inspector usage
 
     [MinMaxSlider(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ScaleRange")]
     public Vector2 range; // the range of tune in which this track can be heard
@@ -39,6 +40,7 @@ public class RadioTrackWrapper
     public bool playOnInit = true; // does this track play on start?
 
     [HideInInspector] public List<RadioBroadcaster> broadcasters; // the broadcasters in the scene, controlling the gain of the track
+    [HideInInspector] public List<RadioInsulationZone> insulators; // the insulation zones in the scene, areas where the gain is weaker- inverse of broadcasters
 
     [SerializeField, Space(8), AllowNesting, OnValueChanged("CreateTrack")]
     private TrackType trackType;
@@ -64,9 +66,9 @@ public class RadioTrackWrapper
     {
         return (TrackType)_type switch
         {
-            TrackType.AudioClip => (ClipRadioTrack)Activator.CreateInstance(typeof(ClipRadioTrack)),
-            TrackType.Procedural => (ProceduralRadioTrack)Activator.CreateInstance(typeof(ProceduralRadioTrack)),
-            TrackType.Station => (StationRadioTrack)Activator.CreateInstance(typeof(StationRadioTrack)),
+            TrackType.AudioClip => new ClipRadioTrack(),
+            TrackType.Procedural => new ProceduralRadioTrack(),
+            TrackType.Station => new StationRadioTrack(),
             _ => new ClipRadioTrack(),
         };
     }
@@ -75,7 +77,9 @@ public class RadioTrackWrapper
     public void Init()
     {
         track.Init();
+
         broadcasters.Clear();
+        insulators.Clear();
     }
 
     public void CreateTrack()

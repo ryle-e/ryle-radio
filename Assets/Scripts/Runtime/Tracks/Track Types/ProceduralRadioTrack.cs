@@ -17,6 +17,7 @@ public class ProceduralRadioTrack : RadioTrack
     }
 
     private const float NOISE_MULTIPLIER = .2f;
+    private const float PINK_MULTIPLIER = .5f; // pink noise is slightly louder so we curb it a little
     private const float BASE_SAMPLE_RATE = 44100;
 
     public ProceduralType proceduralType = ProceduralType.WhiteNoise;
@@ -74,7 +75,7 @@ public class ProceduralRadioTrack : RadioTrack
                 float pink = p0 + p1 + p2 + p3 + p4 + p5 + p6 + white * 0.5362f;
                 p6 = white * 0.115926f;
 
-                return pink * NOISE_MULTIPLIER;
+                return pink * NOISE_MULTIPLIER * PINK_MULTIPLIER;
 
             // theory explained by gemini, adjusted from https://forum.juce.com/t/creating-colored-noise/30012/4
             case ProceduralType.BrownNoise:

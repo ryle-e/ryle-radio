@@ -10,7 +10,6 @@ using UnityEditor;
 
 public class RadioBroadcaster : MonoBehaviour
 {
-    private static Action initBroadcasters = new(() => { });
     public static Action InitBroadcasters { get; private set; }
 
     [SerializeField] protected RadioData data;

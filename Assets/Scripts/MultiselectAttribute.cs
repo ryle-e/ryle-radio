@@ -1,11 +1,13 @@
 using UnityEngine;
-using System.Reflection;
-using System.Collections;
-using System;
+using System.Linq;
 
 #if UNITY_EDITOR
 using NaughtyAttributes.Editor;
 using UnityEditor;
+
+using System.Reflection;
+using System.Collections;
+using System;
 #endif
 
 public class MultiselectAttribute : PropertyAttribute
@@ -15,6 +17,42 @@ public class MultiselectAttribute : PropertyAttribute
     public MultiselectAttribute(string _optionsName)
     {
         OptionsName = _optionsName;
+    }
+
+
+    public static int[] ZeroTo31 => new int[32] {
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30, 31
+    };
+
+    public static int[] OneTo32 => new int[32] {
+        1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30, 31,
+        32
+    };
+
+    public static T[] To<T>(int _flags, T[] _options)
+    {
+        int[] outIndexes = new int[32];
+
+        for (int i = 0; i < 32; i++)
+        {
+            if ((_flags & (1 << i)) != 0)
+                outIndexes[i] = i;
+            else
+                outIndexes[i] = -1;
+        }
+
+        T[] o = outIndexes
+            .Where(b => b >= 0)
+            .Select(i => _options[i])
+            .ToArray();
+
+        return o;
     }
 }
 

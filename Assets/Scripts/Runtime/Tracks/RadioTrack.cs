@@ -4,7 +4,7 @@ using System;
 public abstract class RadioTrack
 {
     public float SampleRate { get; protected set; }
-    public int SampleCount { get; protected set; }
+    public virtual int SampleCount { get; protected set; }
 
 
     public abstract void Init();

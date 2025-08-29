@@ -1,6 +1,8 @@
 using NaughtyAttributes;
+using System;
 using Unity.Multiplayer.Center.Common;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class StationRadioTrackWrapper
@@ -17,6 +19,8 @@ public class StationRadioTrackWrapper
     [Range(0, 500)]
     public float gain = 100; // the volume of the track
 
+    public Vector2 startAndEndRests = Vector2.zero;
+
     [SerializeField, AllowNesting, OnValueChanged("CreateTrack")]
     private TrackType trackType = TrackType.AudioClip;
 
@@ -24,7 +28,14 @@ public class StationRadioTrackWrapper
     protected RadioTrack track; // the track itself
 
     public float SampleRate => track.SampleRate;
-    public int SampleCount => track.SampleCount;
+
+    public int SampleCount
+    {
+        get
+        {
+            return track.SampleCount + (int)((startAndEndRests.x + startAndEndRests.y) * track.SampleRate);
+        }
+    }
 
     public string ID => id;
 
@@ -54,7 +65,17 @@ public class StationRadioTrackWrapper
         };
     }
 
-    public float GetGain(float _tune, float _otherGain)
+    public static RadioTrack CreateTrackEditor(int _type)
+    {
+        return (TrackType)_type switch
+        {
+            TrackType.AudioClip => new ClipRadioTrack(),
+            TrackType.Procedural => new ProceduralRadioTrack() { IsFinite = true },
+            _ => new ClipRadioTrack(),
+        };
+    }
+
+    public float GetGain()
     {
         float gainPower = gain / 100f; // get the volume based on the gain variable
 
@@ -63,6 +84,11 @@ public class StationRadioTrackWrapper
 
     public float GetSample(int _sampleIndex)
     {
+        if (_sampleIndex < startAndEndRests.x)
+            return 0;
+        else if (_sampleIndex > (track.SampleCount + startAndEndRests.x))
+            return 0;
+
         return track.GetSample(_sampleIndex);
     }
 }

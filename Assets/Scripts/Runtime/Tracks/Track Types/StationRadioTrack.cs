@@ -7,7 +7,6 @@ using UnityEngine;
 [System.Serializable]
 public class StationRadioTrack : RadioTrack
 {
-    [AllowNesting]
     public bool randomSequence;
 
     // how many other tracks need to be played before the same one is chosen again
@@ -17,10 +16,8 @@ public class StationRadioTrack : RadioTrack
     // i.e with four tracks and a threshold of 0.7f, rounddown((4 - 1 == 3) * 0.7) == 2 other tracks will need to be played before a repeat
     // i.e with eleven tracks and a threshold of 0.8f, rounddown((11 - 1 == 10) * 0.8f == 8 other tracks will need to be played before a repeat 
     // do note that if this is set to 1, the tracks are forced to play in the same randomized sequence repeatedly
-    [AllowNesting, ShowIf("randomSequence"), Range(0, 1)]
     public float thresholdBeforeRepeats;
 
-    [AllowNesting]
     public List<StationRadioTrackWrapper> stationTrackWs;
 
     private int currentTrackIndex;
@@ -53,7 +50,7 @@ public class StationRadioTrack : RadioTrack
 
     public override float GetSample(int _sampleIndex)
     {
-        return CurrentTrackW.GetSample(_sampleIndex);
+        return CurrentTrackW.GetSample(_sampleIndex) * CurrentTrackW.GetGain(); 
     }
 
 
