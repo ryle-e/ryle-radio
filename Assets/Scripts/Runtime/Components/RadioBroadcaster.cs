@@ -32,6 +32,9 @@ public class RadioBroadcaster : MonoBehaviour
 
     protected List<string> TrackNames => data != null ? data.TrackNames: new() { "Data not assigned!" };
 
+    public RadioData Data => data;
+
+
     private void Awake()
     {
         InitBroadcasters += AssignToTrack;
@@ -74,27 +77,3 @@ public class RadioBroadcaster : MonoBehaviour
         return distanceFalloff.Evaluate(power);
     }
 }
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(RadioBroadcaster))]
-public class RadioBroadcasterEditor : Editor
-{
-    private void OnSceneGUI()
-    {
-        RadioBroadcaster broadcaster = (RadioBroadcaster)target;
-        Vector2 o = broadcaster.broadcastRadius;
-
-        Handles.color = Color.magenta;
-
-        o.x = Mathf.Min(o.y, Handles.RadiusHandle(Quaternion.identity, broadcaster.transform.position, o.x));
-        o.y = Mathf.Max(o.x, Handles.RadiusHandle(Quaternion.identity, broadcaster.transform.position, o.y));
-
-        broadcaster.broadcastRadius = o;
-    }
-
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-    }
-}
-#endif

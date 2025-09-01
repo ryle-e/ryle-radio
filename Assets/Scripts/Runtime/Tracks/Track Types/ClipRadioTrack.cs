@@ -5,13 +5,15 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class ClipRadioTrack : RadioTrack<ClipRadioTrack>, IStationTrack
+public class ClipRadioTrack : RadioTrack, IStationTrack
 {
     public const string DISPLAY_NAME = "Audio Clip";
 
     public AudioClip clip;
 
     protected float[] Samples { get; set; }
+
+    public bool IsInStation { get; set; }
 
 
     public override void Init()

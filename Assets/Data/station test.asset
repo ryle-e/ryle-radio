@@ -99,7 +99,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 100
     attenuation: 0.1
-    isGlobal: 1
+    isGlobal: 0
     playOnInit: 1
     broadcasters: []
     insulators:
@@ -141,7 +141,7 @@ MonoBehaviour:
     broadcasters: []
     insulators:
     - {fileID: 0}
-    trackType: 1
+    trackType: Audio Clip
     track:
       rid: 5678798996343095427
   - id: noise
@@ -236,7 +236,7 @@ MonoBehaviour:
         thresholdBeforeRepeats: 0
         stationTrackWs:
         - id: big man
-          gain: 0
+          gain: 200
           startAndEndRests: {x: 0, y: 0}
           trackType: Audio Clip
           track:

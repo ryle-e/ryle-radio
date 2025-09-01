@@ -51,14 +51,17 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 150
+    gain: 200
     attenuation: 0.1
     isGlobal: 0
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
     - {fileID: 0}
-    trackType: 0
+    - {fileID: 0}
+    - {fileID: 0}
+    insulators: []
+    trackType: Audio Clip
     track:
       rid: 5678798957396885561
   - id: noise
@@ -93,7 +96,8 @@ MonoBehaviour:
     isGlobal: 1
     playOnInit: 1
     broadcasters: []
-    trackType: 2
+    insulators: []
+    trackType: Audio Clip
     track:
       rid: 5678798957396885564
   - id: bass
@@ -128,9 +132,46 @@ MonoBehaviour:
     isGlobal: 1
     playOnInit: 1
     broadcasters: []
-    trackType: 2
+    insulators: []
+    trackType: Audio Clip
     track:
       rid: 5678798978745368634
+  - id: bass2
+    name: bass2, 0 - 1000
+    range: {x: 0, y: 1000}
+    gainCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0.35
+    isGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    insulators: []
+    trackType: Procedural
+    track:
+      rid: 8723681415206273087
   references:
     version: 2
     RefIds:
@@ -151,4 +192,11 @@ MonoBehaviour:
         proceduralType: 3
         duration: 0
         waveFrequency: 60
+        brownWalkPower: 0.5
+    - rid: 8723681415206273087
+      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        proceduralType: 3
+        duration: 0
+        waveFrequency: 926
         brownWalkPower: 0.5

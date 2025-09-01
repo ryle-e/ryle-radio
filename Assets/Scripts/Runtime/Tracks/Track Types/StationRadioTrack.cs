@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class StationRadioTrack : RadioTrack<StationRadioTrack>
+public class StationRadioTrack : RadioTrack
 {
     public const string DISPLAY_NAME = "Station aka Multi-select";
 

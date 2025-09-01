@@ -2,9 +2,6 @@ using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Unity.VisualScripting;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 [System.Serializable]
@@ -98,9 +95,6 @@ public class RadioTrackWrapper
             return null;
 
         IRadioTrack outTrack = (IRadioTrack)Activator.CreateInstance(TrackTypes[index]);
-
-        if (outTrack is ProceduralRadioTrack procTrack)
-            procTrack.IsFinite = true;
 
         return outTrack;
     }

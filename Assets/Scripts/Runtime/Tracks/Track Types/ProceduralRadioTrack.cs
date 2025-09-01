@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class ProceduralRadioTrack : RadioTrack<ProceduralRadioTrack>, IStationTrack
+public class ProceduralRadioTrack : RadioTrack, IStationTrack
 {
     public const string DISPLAY_NAME = "Procedural";
 
@@ -24,7 +24,7 @@ public class ProceduralRadioTrack : RadioTrack<ProceduralRadioTrack>, IStationTr
 
     public ProceduralType proceduralType = ProceduralType.WhiteNoise;
 
-    [AllowNesting, ShowIf("IsFinite")]
+    [AllowNesting, ShowIf("IsInStation")]
     public float duration = 0;
 
     [AllowNesting, ShowIf("proceduralType", ProceduralType.SineWave), Range(1, 2000)]
@@ -37,10 +37,10 @@ public class ProceduralRadioTrack : RadioTrack<ProceduralRadioTrack>, IStationTr
 
     private float phase = 0;
 
-    public bool IsFinite { get; set; } = false;
+    private float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0;
+    private float lastBrown = 0;
 
-    float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0;
-    float lastBrown = 0;
+    public bool IsInStation { get; set; }
 
 
     public override void Init()
