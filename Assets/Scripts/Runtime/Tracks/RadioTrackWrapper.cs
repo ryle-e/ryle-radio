@@ -1,18 +1,15 @@
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Unity.VisualScripting;
+using UnityEditor.Callbacks;
 using UnityEngine;
 
 [System.Serializable]
 public class RadioTrackWrapper
 {
-    public enum TrackType // ADD TO THIS IF YOU HAVE ANY CUSTOM TRACK TYPES
-    {
-        AudioClip,
-        Station,
-        Procedural
-    }
-
     public static AnimationCurve DefaultGainCurve => new(new Keyframe[3] {  // the default curve used for gain, a bell curve-like shape
         new(0, 0, 0, 0), 
         new(0.5f, 1, 0, 0), 
@@ -42,35 +39,70 @@ public class RadioTrackWrapper
     [HideInInspector] public List<RadioBroadcaster> broadcasters; // the broadcasters in the scene, controlling the gain of the track
     [HideInInspector] public List<RadioInsulationZone> insulators; // the insulation zones in the scene, areas where the gain is weaker- inverse of broadcasters
 
-    [SerializeField, Space(8), AllowNesting, OnValueChanged("CreateTrack")]
-    private TrackType trackType;
+    [SerializeField, Space(8), AllowNesting, OnValueChanged("CreateTrack"), Dropdown("TrackNames")]
+    private string trackType;
 
     [SerializeReference]
-    protected RadioTrack track; // the track itself
+    protected IRadioTrack track; // the track itself
 
+    private static Type[] trackTypes;
+    private static Type[] TrackTypes
+    {
+        get
+        {
+            trackTypes ??= RadioUtils.FindDerivedTypes(typeof(IRadioTrack));
+
+            return trackTypes;
+        }
+    }
+
+    private static string[] trackNames;
+    private static string[] TrackNames
+    {
+        get
+        {
+            trackNames ??= TrackTypes
+                .Select(t => (string)t.GetField("DISPLAY_NAME").GetValue(null))
+                .ToArray();
+
+            return trackNames;
+        }
+    }
 
     //  we provide aliases here so that no other class can directly access RadioTracks- this isn't necessarily vital, but it's much safer
     public float SampleRate => track.SampleRate;
     public int SampleCount => track.SampleCount;
 
-    
+
+    public static void OnScriptReload()
+    {
+        Debug.Log("reloading");
+
+        trackTypes = null;
+        trackNames = null;
+    }
+
     public RadioTrackWrapper()
     {
         track = null;
-        trackType = TrackType.AudioClip;
+        trackType = "";
 
         CreateTrack();
     }
 
-    public static RadioTrack CreateTrackEditor(int _type)
+    public static IRadioTrack CreateTrackEditor(string _name)
     {
-        return (TrackType)_type switch
-        {
-            TrackType.AudioClip => new ClipRadioTrack(),
-            TrackType.Procedural => new ProceduralRadioTrack(),
-            TrackType.Station => new StationRadioTrack(),
-            _ => new ClipRadioTrack(),
-        };
+        int index = Array.IndexOf(TrackNames, _name);
+
+        if (index < 0)
+            return null;
+
+        IRadioTrack outTrack = (IRadioTrack)Activator.CreateInstance(TrackTypes[index]);
+
+        if (outTrack is ProceduralRadioTrack procTrack)
+            procTrack.IsFinite = true;
+
+        return outTrack;
     }
 
 
@@ -84,7 +116,7 @@ public class RadioTrackWrapper
 
     public void CreateTrack()
     {
-        track = CreateTrackEditor((int)trackType);
+        track = CreateTrackEditor(trackType);
     }
 
     public void AddToPlayerEndCallback(ref Action<RadioTrackPlayer> _callback)

@@ -59,7 +59,7 @@ public class StationRadioTrackEditor : PropertyDrawer
 
                 SerializedProperty gain = newElement.FindPropertyRelative("gain");
 
-                track.managedReferenceValue = StationRadioTrackWrapper.CreateTrackEditor(trackType.enumValueIndex);
+                track.managedReferenceValue = StationRadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
                 gain.floatValue = 100;
 
                 lastTrackWSize++;
@@ -68,9 +68,9 @@ public class StationRadioTrackEditor : PropertyDrawer
             { 
                 lastTrackWSize--; 
             }
-
-            property.serializedObject.ApplyModifiedProperties();
         }
+
+        property.serializedObject.ApplyModifiedProperties();
 
     }
 

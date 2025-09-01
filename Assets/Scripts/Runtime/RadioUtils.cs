@@ -29,8 +29,20 @@ static class RadioUtils
         return q.magnitude + Mathf.Min(Mathf.Max(q.x, q.y, q.z), 0);
     }
 
-    public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType)
+    public static Type[] FindDerivedTypes(Type baseType)
     {
-        return assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        IEnumerable<Type> types = new List<Type>();
+ 
+        foreach (Assembly assembly in assemblies)
+            types = types.Union(assembly.GetTypes().Where(t => 
+                t != baseType 
+                && baseType.IsAssignableFrom(t) 
+                && !t.IsInterface
+                && !t.IsGenericType
+                && !t.IsAbstract
+            ));
+
+        return types.ToArray();
     }
 }

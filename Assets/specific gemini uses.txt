@@ -1,2 +1,3 @@
 - noise generation
 - developing methodology for sample speed balancing
+- the idea of using generic classes and static constructors for DisplayName

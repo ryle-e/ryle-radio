@@ -5,8 +5,10 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class ProceduralRadioTrack : RadioTrack, IStationTrack
+public class ProceduralRadioTrack : RadioTrack<ProceduralRadioTrack>, IStationTrack
 {
+    public const string DISPLAY_NAME = "Procedural";
+
     public enum ProceduralType
     {
         WhiteNoise,
@@ -15,8 +17,6 @@ public class ProceduralRadioTrack : RadioTrack, IStationTrack
         SineWave,
         Silence,
     }
-
-    public override string DisplayName => "Procedural";
 
     private const float NOISE_MULTIPLIER = .2f;
     private const float PINK_MULTIPLIER = .5f; // pink noise is slightly louder so we curb it a little

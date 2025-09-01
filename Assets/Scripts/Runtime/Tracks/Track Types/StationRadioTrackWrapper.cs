@@ -3,17 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.VisualScripting;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor.Callbacks;
+#endif
 
 [System.Serializable]
 public class StationRadioTrackWrapper
 {
-    public enum TrackType // ADD TO THIS IF YOU HAVE ANY CUSTOM TRACK TYPES
-    {
-        AudioClip,
-        Procedural
-    }
-
     [SerializeField] 
     private string id;
 
@@ -22,11 +21,11 @@ public class StationRadioTrackWrapper
 
     public Vector2 startAndEndRests = Vector2.zero;
 
-    [SerializeField, AllowNesting, OnValueChanged("CreateTrack"), Dropdown("TrackOptions")]
+    [SerializeField, AllowNesting, OnValueChanged("CreateTrack"), Dropdown("TrackNames")]
     private string trackType = "None";
 
     [SerializeReference]
-    protected RadioTrack track; // the track itself
+    protected IStationTrack track; // the track itself
 
     public float SampleRate => track.SampleRate;
 
@@ -40,22 +39,36 @@ public class StationRadioTrackWrapper
 
     public string ID => id;
 
-    private List<string> trackOptions = new();
-    private List<string> TrackOptions { 
+    private static Type[] trackTypes;
+    private static Type[] TrackTypes
+    {
+        get
+        {
+            trackTypes ??= RadioUtils.FindDerivedTypes(typeof(IStationTrack));
+
+            return trackTypes;
+        }
+    }
+
+    private static string[] trackNames;
+    private static string[] TrackNames { 
         get 
         {
-            trackOptions ??= RadioUtils.FindDerivedTypes(
-                    Assembly.GetExecutingAssembly(),
-                    typeof(IStationTrack)
-                ).Select(t => ((IStationTrack)t).DisplayName)
-                .ToList();
+            trackNames ??= TrackTypes
+                .Select(t => (string)t.GetField("DISPLAY_NAME").GetValue(null))
+                .ToArray();
 
-            return trackOptions;
+            return trackNames;
         } 
-    };
+    }
 
+    public static void OnScriptReload()
+    {
+        trackTypes = null;
+        trackNames = null;
+    }
 
-    public StationRadioTrackWrapper(RadioTrack _track)
+    public StationRadioTrackWrapper(IStationTrack _track)
     {
         track = _track;
         gain = 100;
@@ -72,22 +85,21 @@ public class StationRadioTrackWrapper
     // creates a new track in this wrapper, called when the track type is chosen
     public void CreateTrack()
     {
-        track = trackType switch
-        {
-            TrackType.AudioClip => new ClipRadioTrack(),
-            TrackType.Procedural => new ProceduralRadioTrack() { IsFinite = true },
-            _ => new ClipRadioTrack(),
-        };
+        int index = Array.IndexOf(TrackNames, trackType);
+
+        track = (IStationTrack) Activator.CreateInstance(TrackTypes[index]);
     }
 
-    public static RadioTrack CreateTrackEditor(int _type)
+    public static IStationTrack CreateTrackEditor(string _name)
     {
-        return (TrackType)_type switch
-        {
-            TrackType.AudioClip => new ClipRadioTrack(),
-            TrackType.Procedural => new ProceduralRadioTrack() { IsFinite = true },
-            _ => new ClipRadioTrack(),
-        };
+        int index = Array.IndexOf(TrackNames, _name);
+
+        IStationTrack outTrack = (IStationTrack)Activator.CreateInstance(TrackTypes[index]);
+
+        if (outTrack is ProceduralRadioTrack procTrack)
+            procTrack.IsFinite = true;
+
+        return outTrack;
     }
 
     public float GetGain()

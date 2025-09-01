@@ -1,4 +1,3 @@
-public interface IStationTrack
+public interface IStationTrack : IRadioTrack
 {
-    public string DisplayName { get; }
 }

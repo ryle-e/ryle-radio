@@ -5,9 +5,9 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class StationRadioTrack : RadioTrack
+public class StationRadioTrack : RadioTrack<StationRadioTrack>
 {
-    public override string DisplayName => "Station";
+    public const string DISPLAY_NAME = "Station aka Multi-select";
 
     public bool randomSequence;
 

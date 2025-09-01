@@ -58,7 +58,7 @@ MonoBehaviour:
     broadcasters: []
     insulators:
     - {fileID: 0}
-    trackType: 1
+    trackType: Audio Clip
     track:
       rid: 5678798978745368635
   - id: secondary
@@ -104,7 +104,7 @@ MonoBehaviour:
     broadcasters: []
     insulators:
     - {fileID: 0}
-    trackType: 1
+    trackType: Audio Clip
     track:
       rid: 5678798996343095391
   - id: music??
@@ -177,7 +177,7 @@ MonoBehaviour:
     playOnInit: 1
     broadcasters: []
     insulators: []
-    trackType: 2
+    trackType: Audio Clip
     track:
       rid: 5678798996343095425
   references:
@@ -192,43 +192,39 @@ MonoBehaviour:
         - id: kid
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 0
+          trackType: Audio Clip
           track:
-            rid: 5678798978745368640
+            rid: 8723681415206273080
         - id: woman
           gain: 164
           startAndEndRests: {x: 0, y: 0}
-          trackType: 0
+          trackType: Audio Clip
           track:
             rid: 5678798978745368642
         - id: man
           gain: 335
           startAndEndRests: {x: 0, y: 0}
-          trackType: 0
+          trackType: Audio Clip
           track:
             rid: 5678798996343095413
         - id: brown
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Audio Clip
           track:
             rid: 5678798996343095417
         - id: white
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Audio Clip
           track:
             rid: 5678798996343095422
         - id: pink
           gain: 77
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Audio Clip
           track:
             rid: 5678798996343095423
-    - rid: 5678798978745368640
-      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
-      data:
-        clip: {fileID: 8300000, guid: 2e868e1ddc90f93489f8f7d19c0e135e, type: 3}
     - rid: 5678798978745368642
       type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
       data:
@@ -242,7 +238,7 @@ MonoBehaviour:
         - id: big man
           gain: 0
           startAndEndRests: {x: 0, y: 0}
-          trackType: 0
+          trackType: Audio Clip
           track:
             rid: 5678798996343095403
     - rid: 5678798996343095403
@@ -391,3 +387,7 @@ MonoBehaviour:
         duration: 0.1
         waveFrequency: 800
         brownWalkPower: 0.5
+    - rid: 8723681415206273080
+      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        clip: {fileID: 8300000, guid: 2e868e1ddc90f93489f8f7d19c0e135e, type: 3}

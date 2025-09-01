@@ -49,7 +49,7 @@ public class RadioDataEditor : Editor
 
                 SerializedProperty gain = newElement.FindPropertyRelative("gain");
 
-                radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.enumValueIndex);
+                radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
                 gain.floatValue = 100;
 
                 lastTrackWSize++;

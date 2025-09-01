@@ -1,12 +1,13 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 
 [System.Serializable]
-public class ClipRadioTrack : RadioTrack, IStationTrack
+public class ClipRadioTrack : RadioTrack<ClipRadioTrack>, IStationTrack
 {
-    public override string DisplayName => "Audio Clip";
+    public const string DISPLAY_NAME = "Audio Clip";
 
     public AudioClip clip;
 
