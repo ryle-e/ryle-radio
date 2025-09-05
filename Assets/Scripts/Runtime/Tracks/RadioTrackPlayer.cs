@@ -9,7 +9,6 @@ public class RadioTrackPlayer
         OneShot,
     }
 
-    //public RadioTrack Track { get; private set; }
     public RadioTrackWrapper TrackW { get; private set; }
 
     public double Progress { get; private set; } = 0;
@@ -35,7 +34,7 @@ public class RadioTrackPlayer
     public Action<RadioTrackPlayer> OnSample { get; set; } = new(_ => { });
     public Action<RadioTrackPlayer> OnEnd  // when the track reaches the end, not when it stops (i.e when the loop happens)
     { 
-        get => onEnd; 
+        get => onEnd; // we need an alias here as we're adressing the delegate with a ref in the constructor- we can't use ref on a property
         set => onEnd = value; 
     }
 
@@ -65,9 +64,6 @@ public class RadioTrackPlayer
         UpdateSampleIncrement();
 
         TrackW.AddToPlayerEndCallback(ref onEnd);
-
-        if (TrackW.broadcasters.Count <= 0 && !TrackW.isGlobal)
-            Debug.LogWarning("Track " + TrackW.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
     }
 
     public void UpdateSampleIncrement()
@@ -110,6 +106,7 @@ public class RadioTrackPlayer
                 {
                     OnEnd.Invoke(this);
                     Progress = 0;
+                    OnPlay.Invoke(this);
                 }
                 else
                 {
@@ -162,13 +159,18 @@ public class RadioTrackPlayer
 
     public float GetBroadcastPower(Vector3 _receiverPosition)
     {
-        if (TrackW.isGlobal)
+        if (TrackW.forceGlobal)
             return 1;
 
         float outGain = 0;
 
-        foreach (RadioBroadcaster broadcaster in TrackW.broadcasters)
-            outGain += broadcaster.GetPower(_receiverPosition);
+        if (TrackW.broadcasters.Count > 0)
+        {
+            foreach (RadioBroadcaster broadcaster in TrackW.broadcasters)
+                outGain += broadcaster.GetPower(_receiverPosition);
+        }
+        else
+            outGain = 1;
 
         return Mathf.Clamp01(outGain);
     }
@@ -177,7 +179,7 @@ public class RadioTrackPlayer
     {
         float outGain = 1;
 
-        foreach (RadioInsulationZone insulator in TrackW.insulators)
+        foreach (RadioInsulator insulator in TrackW.insulators)
             outGain -= insulator.GetPower(_receiverPosition);
 
         return Mathf.Clamp01(outGain);

@@ -15,8 +15,16 @@ public class RadioBroadcasterEditor : Editor
         if (broadcaster == null)
             broadcaster = (RadioBroadcaster) target;
 
-        innerColor = broadcaster.Data.GizmoColorSecondary;
-        outerColor = broadcaster.Data.GizmoColor;
+        if (broadcaster.Data != null)
+        {
+            innerColor = broadcaster.Data.GizmoColorSecondary;
+            outerColor = broadcaster.Data.GizmoColor;
+        }
+        else
+        {
+            innerColor = Color.white;
+            outerColor = Color.white;
+        }
     }
 
     private void OnSceneGUI()

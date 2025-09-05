@@ -53,7 +53,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 200
     attenuation: 0.1
-    isGlobal: 0
+    forceGlobal: 0
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
@@ -93,7 +93,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 79
     attenuation: 0.9
-    isGlobal: 1
+    forceGlobal: 1
     playOnInit: 1
     broadcasters: []
     insulators: []
@@ -129,7 +129,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 100
     attenuation: 0.35
-    isGlobal: 1
+    forceGlobal: 1
     playOnInit: 1
     broadcasters: []
     insulators: []
@@ -165,7 +165,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 100
     attenuation: 0.35
-    isGlobal: 1
+    forceGlobal: 1
     playOnInit: 1
     broadcasters: []
     insulators: []

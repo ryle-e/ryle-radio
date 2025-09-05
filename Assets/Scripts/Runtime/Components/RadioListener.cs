@@ -6,6 +6,7 @@ using UnityEngine;
 
 using Random = UnityEngine.Random;
 
+[AddComponentMenu("Ryle Radio/Radio Listener")]
 [RequireComponent(typeof(AudioSource))]
 public class RadioListener : MonoBehaviour
 {
@@ -78,8 +79,6 @@ public class RadioListener : MonoBehaviour
         }
 
         players.Add(_player);
-
-        _player.OnPlay(_player);
     }
 
     private void StartPlayers()

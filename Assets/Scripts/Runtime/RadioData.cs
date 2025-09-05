@@ -91,7 +91,7 @@ public class RadioData : ScriptableObject
             trackW.Init();
 
         RadioBroadcaster.InitBroadcasters();
-        RadioInsulationZone.InitInsulators();
+        RadioInsulator.InitInsulators();
 
         OnInit(this);
     }

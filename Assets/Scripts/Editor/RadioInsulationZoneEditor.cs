@@ -4,18 +4,18 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 
-[CustomEditor(typeof(RadioInsulationZone))]
+[CustomEditor(typeof(RadioInsulator))]
 public class RadioInsulationZoneEditor : Editor
 {
     private readonly BoxBoundsHandle outerBoundsHandle = new();
     private readonly BoxBoundsHandle innerBoundsHandle = new();
 
-    private RadioInsulationZone zone = null;
+    private RadioInsulator zone = null;
 
     private void OnEnable()
     {
         if (zone == null)
-            zone = (RadioInsulationZone)target;
+            zone = (RadioInsulator)target;
 
         outerBoundsHandle.SetColor(zone.Data.GizmoColor);
         innerBoundsHandle.SetColor(zone.Data.GizmoColorSecondary);
@@ -24,7 +24,7 @@ public class RadioInsulationZoneEditor : Editor
     private void OnSceneGUI()
     {
         if (zone == null)
-            zone = (RadioInsulationZone)target;
+            zone = (RadioInsulator)target;
 
         Bounds outerBounds = zone.outerBox;
         Bounds innerBounds = zone.innerBox;

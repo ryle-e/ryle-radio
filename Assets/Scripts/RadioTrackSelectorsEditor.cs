@@ -62,7 +62,7 @@ public class RadioTrackSelectorDrawer : PropertyDrawer
             //index = namesProperty.arr
             //index = Mathf.Max(0, data.Tracks.IndexOf((RadioTrack) property.boxedValue));
         }
-        catch (InvalidCastException e)
+        catch (InvalidCastException)
         {
             Debug.LogError(property.name + " is not a RadioTrack, but has the RadioTrackSelectorAttribute!");
 

@@ -13,16 +13,16 @@ public class RadioTrackWrapper
         new(1, 0, 0, 0) 
     });
 
-    private const float RANGE_DECIMAL_MULTIPLIER = 10f; // 2 ^ the number of decimal places that the range has, i.e 10 == 1dp, 100 == 2dp
+    private const float RANGE_DECIMAL_MULTIPLIER = 10f; // 2 ^ the number of decimal places that the clampedRange has, i.e 10 == 1dp, 100 == 2dp
 
     public string id; // the id used to find and use this track
     [HideInInspector] public string name; // the name of this track for inspector usage
 
     [MinMaxSlider(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ScaleRange")]
-    public Vector2 range; // the range of tune in which this track can be heard
+    public Vector2 range; // the clampedRange of tune in which this track can be heard
 
     [CurveRange(0, 0, 1, 1)]
-    public AnimationCurve gainCurve = new(DefaultGainCurve.keys); // the volume of the track over its range
+    public AnimationCurve gainCurve = new(DefaultGainCurve.keys); // the volume of the track over its clampedRange
 
     [Range(0, 500)]
     public float gain = 100; // the volume of the track
@@ -30,17 +30,18 @@ public class RadioTrackWrapper
     [Range(0, 1)]
     public float attenuation = 0.1f; // the amount that the track dims when another track is playing above it, e.g static becoming quieter when clip is audible
 
-    public bool isGlobal = true; // does this track ignore any RadioBroadcasters and play everywhere?
+    public bool forceGlobal = true; // does this track ignore any RadioBroadcasters and play everywhere?
     public bool playOnInit = true; // does this track play on start?
 
     [HideInInspector] public List<RadioBroadcaster> broadcasters; // the broadcasters in the scene, controlling the gain of the track
-    [HideInInspector] public List<RadioInsulationZone> insulators; // the insulation zones in the scene, areas where the gain is weaker- inverse of broadcasters
+    [HideInInspector] public List<RadioInsulator> insulators; // the insulation zones in the scene, areas where the gain is weaker- inverse of broadcasters
 
     [SerializeField, Space(8), AllowNesting, OnValueChanged("CreateTrack"), Dropdown("TrackNames")]
     private string trackType;
 
-    [SerializeReference]
-    protected IRadioTrack track; // the track itself
+    // the track itself
+    // we keep this private so that no other classes can access the track directly- this isn't really necessary but is very safe when it comes to custom tracks
+    [SerializeReference] protected IRadioTrack track;
 
     public Action<RadioTrackWrapper> OnInit { get; set; } = new(_ => { });
     public Action<RadioTrackWrapper> BeforeInit { get; set; } = new(_ => { });
@@ -48,8 +49,8 @@ public class RadioTrackWrapper
     public Action<RadioBroadcaster, RadioTrackWrapper> OnAddBroadcaster { get; set; } = new((_,_) => { });
     public Action<RadioBroadcaster, RadioTrackWrapper> OnRemoveBroadcaster { get; set; } = new((_,_) => { });
 
-    public Action<RadioInsulationZone, RadioTrackWrapper> OnAddInsulator { get; set; } = new((_,_) => { });
-    public Action<RadioInsulationZone, RadioTrackWrapper> OnRemoveInsulator { get; set; } = new((_,_) => { });
+    public Action<RadioInsulator, RadioTrackWrapper> OnAddInsulator { get; set; } = new((_,_) => { });
+    public Action<RadioInsulator, RadioTrackWrapper> OnRemoveInsulator { get; set; } = new((_,_) => { });
 
     private static Type[] trackTypes;
     private static Type[] TrackTypes
@@ -132,23 +133,23 @@ public class RadioTrackWrapper
         track.AddToPlayerEndCallback(ref _callback);
     }
 
-    // rounds range to decimal points
+    // rounds clampedRange to decimal points
     private void ScaleRange()
     {
         range = new(
-            ((int)(range.x * RANGE_DECIMAL_MULTIPLIER)) / RANGE_DECIMAL_MULTIPLIER, // increase the size of the range value, then cut its decimals and shrink it back down
+            ((int)(range.x * RANGE_DECIMAL_MULTIPLIER)) / RANGE_DECIMAL_MULTIPLIER, // increase the size of the clampedRange clampedValue, then cut its decimals and shrink it back down
             ((int)(range.y * RANGE_DECIMAL_MULTIPLIER)) / RANGE_DECIMAL_MULTIPLIER
         );
     }
 
 
-    // calculate the volume of the track at a specific tune value
+    // calculate the volume of the track at a specific tune clampedValue
     public float GetGain(float _tune, float _otherGain)
     {
-        if (_tune < range.x || _tune > range.y) // if the tune is out of this track's range, it cannot be heard
+        if (_tune < range.x || _tune > range.y) // if the tune is out of this track's clampedRange, it cannot be heard
             return 0;
 
-        float tunePower = gainCurve.Evaluate(_tune.Remap(range.x, range.y, 0f, 1f)); // get the volume based on the tune and where it sits on the range curve
+        float tunePower = gainCurve.Evaluate(_tune.Remap(range.x, range.y, 0f, 1f)); // get the volume based on the tune and where it sits on the clampedRange curve
         float gainPower = gain / 100f; // get the volume based on the gain variable
         float attenPower = 1f - (Mathf.Clamp01(_otherGain) * attenuation); // get the volume based on attenuation and other playing trackWs
 

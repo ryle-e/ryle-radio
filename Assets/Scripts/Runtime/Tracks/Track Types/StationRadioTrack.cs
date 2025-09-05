@@ -13,10 +13,11 @@ public class StationRadioTrack : RadioTrack
 
     // how many other tracks need to be played before the same one is chosen again
     // effectively stops the same track from playing back-to-back, and forces more variety in which tracks are played
-    // the number of tracks to be played before one can be repeated is  rounddown( (track count - 1) * threshold )
+    // the number of tracks to be played before one can be repeated is  round_down( (track_count - 1) * threshold )
     // i.e with four tracks and a threshold of 0.5f, rounddown((4 - 1 == 3) * 0.5) == 1 other track will need to be played before a repeat
     // i.e with four tracks and a threshold of 0.7f, rounddown((4 - 1 == 3) * 0.7) == 2 other tracks will need to be played before a repeat
-    // i.e with eleven tracks and a threshold of 0.8f, rounddown((11 - 1 == 10) * 0.8f == 8 other tracks will need to be played before a repeat 
+    // i.e with four tracks and a threshold of 1f, rounddown((4 - 1 == 3) * 1) == 3, aka all other tracks will need to be played before a repeat
+    // i.e with eleven tracks and a threshold of 0.8f, rounddown((11 - 1 == 10) * 0.8f == 8 other tracks will need to be played before a repeat
     // do note that if this is set to 1, the tracks are forced to play in the same randomized sequence repeatedly
     public float thresholdBeforeRepeats;
 

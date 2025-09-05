@@ -1,19 +1,12 @@
 using NaughtyAttributes;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using TMPro;
 using System;
-using Unity.VisualScripting;
 
 
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditor.IMGUI.Controls;
-#endif
-
-public class RadioInsulationZone : MonoBehaviour
+[AddComponentMenu("Ryle Radio/Radio Insulator")]
+public class RadioInsulator : MonoBehaviour
 {
     public static Action InitInsulators { get; private set; }
 
@@ -38,7 +31,7 @@ public class RadioInsulationZone : MonoBehaviour
     public Bounds OuterBoxAdjusted { get; private set; }
     public Bounds InnerBoxAdjusted { get; private set; }
 
-    public Action<RadioInsulationZone> OnInit { get; set; } = new(_ => { });
+    public Action<RadioInsulator> OnInit { get; set; } = new(_ => { });
 
     private List<string> Tracks => data.TrackNames;
 

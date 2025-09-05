@@ -8,6 +8,7 @@ using System;
 using UnityEditor;
 #endif
 
+[AddComponentMenu("Ryle Radio/Radio Broadcaster")]
 public class RadioBroadcaster : MonoBehaviour
 {
     public static Action InitBroadcasters { get; private set; }
@@ -17,7 +18,6 @@ public class RadioBroadcaster : MonoBehaviour
     [SerializeField, Dropdown("TrackNames")]
     protected string selectedTrack;
 
-    //[Radii]
     public Vector2 broadcastRadius;
 
     [SerializeField, CurveRange(0, 0, 1, 1)] 

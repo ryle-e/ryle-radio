@@ -18,7 +18,7 @@ public class ResourceTest : MonoBehaviour
 
     private float samplePos = 0;// the progression through the source data in realtime- this is added to over the course of every OnAudioFilterRead
                                 // each OnAudioFilterRead, a buffer of samples of length n is passed in
-                                // the samplepos is increased by this value n each event call, and is reset when it exceeds the length of the source data- that is, it loops
+                                // the samplepos is increased by this clampedValue n each event call, and is reset when it exceeds the length of the source data- that is, it loops
 
     void Awake()
     {
@@ -42,7 +42,7 @@ public class ResourceTest : MonoBehaviour
         //sampleRate = sourceClip1.frequency;
 
         // We want our beats to repeat at a known interval, so let's just have them play
-        // once every half a second or so. We need this value in samples, not seconds, so
+        // once every half a second or so. We need this clampedValue in samples, not seconds, so
         // we have to multiply by the sample rate.
         repeatRate = (int)(2f * sampleRate);
     }

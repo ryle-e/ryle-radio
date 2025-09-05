@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: dda21914aeb84c9499e29ae6963bf49f, type: 2}
-  selectedTrack: secondary, 523.2 - 767.3
+  selectedTrack: main, 152.6 - 396.7
   broadcastRadius: {x: 2, y: 14.40243}
   distanceFalloff:
     serializedVersion: 2
@@ -220,12 +220,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   listener: {fileID: 398591043}
-  affectedTracks: 2
+  affectedTracks: 8
   events:
   - type: 0
     comparison: 1
-    value: 0.5
-    range: {x: 0, y: 0}
+    clampedValue: 0.65
+    tuneValue: 0
+    clampedRange: {x: 0, y: 0}
+    tuneRange: {x: 0, y: 0}
     showEvents: 0
     onTrigger:
       m_PersistentCalls:
@@ -251,8 +253,10 @@ MonoBehaviour:
     staying: 0
   - type: 2
     comparison: 1
-    value: 0.5
-    range: {x: 0, y: 0}
+    clampedValue: 0.5
+    tuneValue: 0
+    clampedRange: {x: 0, y: 0}
+    tuneRange: {x: 0, y: 0}
     showEvents: 0
     onTrigger:
       m_PersistentCalls:
@@ -274,12 +278,26 @@ MonoBehaviour:
         m_Calls: []
     onEnd:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 1084673284}
+          m_TargetAssemblyTypeName: ObserverTest, Assembly-CSharp
+          m_MethodName: BroadcastPower
+          m_Mode: 3
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 1
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
     staying: 0
   - type: 1
     comparison: 1
-    value: 0.5
-    range: {x: 0, y: 0}
+    clampedValue: 0.5
+    tuneValue: 0
+    clampedRange: {x: 0, y: 0}
+    tuneRange: {x: 0, y: 0}
     showEvents: 0
     onTrigger:
       m_PersistentCalls:
@@ -304,9 +322,11 @@ MonoBehaviour:
         m_Calls: []
     staying: 0
   - type: 3
-    comparison: 1
-    value: 0.5
-    range: {x: 0, y: 0}
+    comparison: 3
+    clampedValue: 0.5
+    tuneValue: 0
+    clampedRange: {x: 0, y: 0}
+    tuneRange: {x: 0, y: 0}
     showEvents: 0
     onTrigger:
       m_PersistentCalls:
@@ -330,14 +350,28 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     staying: 0
-  - type: 4
+  - type: 7
     comparison: 1
-    value: 0.5
-    range: {x: 0, y: 0}
-    showEvents: 0
+    clampedValue: 0
+    tuneValue: 0
+    clampedRange: {x: 0, y: 0}
+    tuneRange: {x: 0, y: 0}
+    showEvents: 1
     onTrigger:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 1084673284}
+          m_TargetAssemblyTypeName: ObserverTest, Assembly-CSharp
+          m_MethodName: TrackEnd
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
     onStay:
       m_PersistentCalls:
         m_Calls: []
@@ -345,11 +379,13 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     staying: 0
-  - type: 5
+  - type: 7
     comparison: 1
-    value: 0.5
-    range: {x: 0, y: 0}
-    showEvents: 0
+    clampedValue: 0
+    tuneValue: 0
+    clampedRange: {x: 0, y: 0}
+    tuneRange: {x: 0, y: 0}
+    showEvents: 1
     onTrigger:
       m_PersistentCalls:
         m_Calls:
@@ -374,8 +410,10 @@ MonoBehaviour:
     staying: 0
   - type: 6
     comparison: 5
-    value: 0.5
-    range: {x: 300, y: 350}
+    clampedValue: 0.639
+    tuneValue: 409
+    clampedRange: {x: 0.6509186, y: 1}
+    tuneRange: {x: 0, y: 200}
     showEvents: 0
     onTrigger:
       m_PersistentCalls:
@@ -597,10 +635,8 @@ MonoBehaviour:
     m_Extent: {x: 6, y: 6, z: 6}
   insulation: {x: 0, y: 1}
   insulationCurve:
-    serializedVersion: 2
     m_Curve:
-    - serializedVersion: 3
-      time: 0
+    - time: 0
       value: 0
       inSlope: 1
       outSlope: 1
@@ -608,8 +644,7 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
-    - serializedVersion: 3
-      time: 1
+    - time: 1
       value: 1
       inSlope: 1
       outSlope: 1
@@ -621,6 +656,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   affectedTracks: 14
+  lastAffectedTracks: 0
+  <OuterBoxAdjusted>k__BackingField:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  <InnerBoxAdjusted>k__BackingField:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!4 &529688325
 Transform:
   m_ObjectHideFlags: 0
