@@ -30,6 +30,8 @@ public class RadioBroadcaster : MonoBehaviour
 
     private Vector3 cachedPos;
 
+    public Action<RadioBroadcaster> OnInit { get; set; } = new(_ => { });
+
     protected List<string> TrackNames => data != null ? data.TrackNames: new() { "Data not assigned!" };
 
     public RadioData Data => data;
@@ -37,12 +39,12 @@ public class RadioBroadcaster : MonoBehaviour
 
     private void Awake()
     {
-        InitBroadcasters += AssignToTrack;
+        InitBroadcasters += Init;
     }
 
     private void OnDestroy()
     {
-        InitBroadcasters -= AssignToTrack;
+        InitBroadcasters -= Init;
     }
 
     private void Update()
@@ -50,19 +52,30 @@ public class RadioBroadcaster : MonoBehaviour
         cachedPos = transform.position;
     }
 
+    private void Init()
+    {
+        AssignToTrack();
+        OnInit(this);
+    }
+
     public void AssignToTrack()
     {
         if (lastTrackAssignedToName != "")
         {
-            if (data.TryGetTrack(lastTrackAssignedToName, out RadioTrackWrapper lastTrack))
+            if (data.TryGetTrack(lastTrackAssignedToName, out RadioTrackWrapper lastTrack, false))
+            { 
                 lastTrack.broadcasters.Remove(this);
+                lastTrack.OnRemoveBroadcaster(this, lastTrack);
+            }
             else
                 Debug.LogWarning("Couldn't remove broadcaster " + gameObject.name + " from track " + lastTrackAssignedToName + "!");
         }
 
-        if (data.TryGetTrack(selectedTrack, out RadioTrackWrapper track))
+        if (data.TryGetTrack(selectedTrack, out RadioTrackWrapper track, false))
         { 
             track.broadcasters.Add(this);
+            track.OnAddBroadcaster(this, track);
+
             lastTrackAssignedToName = selectedTrack;
         }
         else

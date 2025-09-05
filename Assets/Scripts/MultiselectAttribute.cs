@@ -54,6 +54,11 @@ public class MultiselectAttribute : PropertyAttribute
 
         return o;
     }
+
+    public static int[] ToInt(int _flags)
+    {
+        return To<int>(_flags, ZeroTo31);
+    }
 }
 
 #if UNITY_EDITOR

@@ -1,6 +1,10 @@
+using NaughtyAttributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(AudioSource))]
 public class RadioListener : MonoBehaviour
@@ -14,23 +18,30 @@ public class RadioListener : MonoBehaviour
 
     [SerializeField] private RadioData data;
 
-    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE)] 
-    private float tune;
+    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ExecOnTune")] 
+    protected float tune;
 
-    private List<RadioTrackPlayer> players = new();
+    protected List<RadioTrackPlayer> players = new();
 
-    private Vector3 cachedPos;
+    protected Vector3 cachedPos;
 
     private float baseSampleRate;
 
     public List<string> TrackIDs => data.TrackNames;
 
     public RadioData Data => data;
+
+    public List<RadioObserver> Observers { get; private set; } = new();
+    public Action<float> OnTune { get; set; } = new(_ => { });
     
     public float Tune 
     { 
-        get => tune; 
-        set => tune = Mathf.Clamp(tune, RadioData.LOW_TUNE, RadioData.HIGH_TUNE); 
+        get => tune;
+        set
+        {
+            tune = Mathf.Clamp(value, RadioData.LOW_TUNE, RadioData.HIGH_TUNE);
+            OnTune(tune);
+        }
     }
 
 
@@ -39,18 +50,36 @@ public class RadioListener : MonoBehaviour
         Init();
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         cachedPos = transform.position;
     }
 
-    public void Init()
+    private void ExecOnTune()
+    {
+        OnTune(tune);
+    }
+
+    public virtual void Init()
     {
         baseSampleRate = AudioSettings.outputSampleRate;
 
         data.Init();
 
         StartPlayers();
+    }
+
+    public void PlayerCreation(RadioTrackPlayer _player)
+    {
+        foreach (RadioObserver observer in Observers)
+        {
+            if (observer.AffectedTracks.Contains(_player.TrackW.name))
+                observer.AssignEvents(_player);
+        }
+
+        players.Add(_player);
+
+        _player.OnPlay(_player);
     }
 
     private void StartPlayers()
@@ -60,7 +89,7 @@ public class RadioListener : MonoBehaviour
             if (trackW.playOnInit)
             {
                 RadioTrackPlayer player = new RadioTrackPlayer(trackW, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
-                players.Add(player);
+                PlayerCreation(player);
             }
         }
     }
@@ -70,9 +99,9 @@ public class RadioListener : MonoBehaviour
         if (Data.TryGetTrack(_id, out RadioTrackWrapper track))
         {
             RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.OneShot, baseSampleRate);
-            player.DoDestroy += player => players.Remove(player);
+            PlayerCreation(player);
 
-            players.Add(player);
+            player.DoDestroy += player => players.Remove(player);
 
             return player;
         }
@@ -85,7 +114,7 @@ public class RadioListener : MonoBehaviour
         if (Data.TryGetTrack(_id, out RadioTrackWrapper track))
         {
             RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
-            players.Add(player);
+            PlayerCreation(player);
 
             return player;
         }
@@ -136,10 +165,9 @@ public class RadioListener : MonoBehaviour
         }
     }
 
-    private void OnAudioFilterRead(float[] _data, int _channels)
+    protected virtual void OnAudioFilterRead(float[] _data, int _channels)
     {
         int monoSampleCount = _data.Length / _channels;
-        //Debug.Log(_data.Length + " " + _channels);
 
         for (int index = 0; index < monoSampleCount; index++)
         {

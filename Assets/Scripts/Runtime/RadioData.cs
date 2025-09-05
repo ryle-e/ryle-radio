@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -19,6 +20,9 @@ public class RadioData : ScriptableObject
     public Color GizmoColorSecondary => gizmoColorSecondary;
 
     public List<RadioTrackWrapper> TrackWrappers => trackWs;
+
+    public Action<RadioData> OnInit { get; set; } = new(_ => { });
+    public Action<RadioData> BeforeInit { get; set; } = new(_ => { });
 
     public List<string> TrackNames {
         get
@@ -63,10 +67,7 @@ public class RadioData : ScriptableObject
             var othersWithID = trackWs.Where(t => t.id == track.id);
 
             if (othersWithID.Count() > 1)
-            {
                 track.id += othersWithID.Count();
-                //Debug.LogWarning("A RadioTrack has the same ID as a previous one! Changed ID to " + track.id);
-            }
 
             string name = $"{track.id}, {track.range.x} - {track.range.y}";
 
@@ -84,21 +85,25 @@ public class RadioData : ScriptableObject
 
     public void Init()
     {
+        BeforeInit(this);
+
         foreach (RadioTrackWrapper trackW in TrackWrappers)
             trackW.Init();
 
         RadioBroadcaster.InitBroadcasters();
         RadioInsulationZone.InitInsulators();
+
+        OnInit(this);
     }
 
-    public bool TryGetTrack(string _nameOrID, out RadioTrackWrapper _trackW, bool _useID = false)
+    public bool TryGetTrack(string _idOrName, out RadioTrackWrapper _trackW, bool _useID = true)
     {
         string id = "";
 
         if (_useID)
-            id = _nameOrID;
+            id = _idOrName;
         else
-            id = NameToID(_nameOrID);
+            id = NameToID(_idOrName);
 
         var found = TrackWrappers.Find(t => t.id == id);
 

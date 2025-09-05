@@ -42,6 +42,15 @@ public class RadioTrackWrapper
     [SerializeReference]
     protected IRadioTrack track; // the track itself
 
+    public Action<RadioTrackWrapper> OnInit { get; set; } = new(_ => { });
+    public Action<RadioTrackWrapper> BeforeInit { get; set; } = new(_ => { });
+
+    public Action<RadioBroadcaster, RadioTrackWrapper> OnAddBroadcaster { get; set; } = new((_,_) => { });
+    public Action<RadioBroadcaster, RadioTrackWrapper> OnRemoveBroadcaster { get; set; } = new((_,_) => { });
+
+    public Action<RadioInsulationZone, RadioTrackWrapper> OnAddInsulator { get; set; } = new((_,_) => { });
+    public Action<RadioInsulationZone, RadioTrackWrapper> OnRemoveInsulator { get; set; } = new((_,_) => { });
+
     private static Type[] trackTypes;
     private static Type[] TrackTypes
     {
@@ -69,6 +78,7 @@ public class RadioTrackWrapper
     //  we provide aliases here so that no other class can directly access RadioTracks- this isn't necessarily vital, but it's much safer
     public float SampleRate => track.SampleRate;
     public int SampleCount => track.SampleCount;
+
 
 
     public static void OnScriptReload()
@@ -102,10 +112,14 @@ public class RadioTrackWrapper
 
     public void Init()
     {
+        BeforeInit(this);
+
         track.Init();
 
         broadcasters.Clear();
         insulators.Clear();
+
+        OnInit(this);
     }
 
     public void CreateTrack()

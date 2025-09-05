@@ -38,6 +38,8 @@ public class RadioInsulationZone : MonoBehaviour
     public Bounds OuterBoxAdjusted { get; private set; }
     public Bounds InnerBoxAdjusted { get; private set; }
 
+    public Action<RadioInsulationZone> OnInit { get; set; } = new(_ => { });
+
     private List<string> Tracks => data.TrackNames;
 
     public RadioData Data => data;
@@ -45,12 +47,12 @@ public class RadioInsulationZone : MonoBehaviour
 
     private void Awake()
     {
-        InitInsulators += AssignToTrack;
+        InitInsulators += Init;
     }
 
     private void OnDestroy()
     {
-        InitInsulators -= AssignToTrack;
+        InitInsulators -= Init;
     }
 
     private void Update()
@@ -59,18 +61,27 @@ public class RadioInsulationZone : MonoBehaviour
         InnerBoxAdjusted = new(innerBox.center + transform.position, innerBox.size);
     }
 
+    public void Init()
+    {
+        AssignToTrack();
+        OnInit(this);
+    }
+
     public void AssignToTrack()
     {
         if (lastAffectedTracks != affectedTracks)
         {
             int removedTrack = lastAffectedTracks ^ affectedTracks;
-            int[] index = MultiselectAttribute.To<int>(removedTrack, MultiselectAttribute.ZeroTo31);
+            int[] index = MultiselectAttribute.ToInt(removedTrack);
             //Debug.Log("removing from track " + data.TrackNames[index[0]]);
-                 
-            data.TrackWrappers[index[0]].insulators.Remove(this);
+
+            RadioTrackWrapper track = data.TrackWrappers[index.First()];
+
+            track.insulators.Remove(this);
+            track.OnRemoveInsulator(this, track);
         }
 
-        int[] affectedIndexes = MultiselectAttribute.To<int>(affectedTracks, MultiselectAttribute.ZeroTo31);
+        int[] affectedIndexes = MultiselectAttribute.ToInt(affectedTracks);
         lastAffectedTracks = 0;
 
         for (int i = 0; i < affectedIndexes.Length; i++)
@@ -80,6 +91,8 @@ public class RadioInsulationZone : MonoBehaviour
 
             track.insulators.Add(this);
             lastAffectedTracks |= affectedIndexes[i];
+
+            track.OnAddInsulator(this, track);
         }
     }
 

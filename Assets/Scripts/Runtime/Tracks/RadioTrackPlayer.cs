@@ -27,17 +27,22 @@ public class RadioTrackPlayer
 
     public PlayerType PlayType { get; private set; }
 
-    public Action<RadioTrackPlayer> DoDestroy { get; set; } = _ => { };
+    public Action<RadioTrackPlayer> DoDestroy { get; set; } = new(_ => { });
 
-    public Action<RadioTrackPlayer> OnPlay { get; set; } = _ => { }; // when the track starts to play
-    public Action<RadioTrackPlayer> OnStop { get; set; } = _ => { }; // when the track is stopped and destroyed
-    public Action<RadioTrackPlayer> OnPause { get; set; } = _ => { }; // when the track is paused partway
-    public Action<RadioTrackPlayer> OnSample { get; set; } = _ => { };
+    public Action<RadioTrackPlayer> OnPlay { get; set; } = new(_ => { }); // when the track starts to play
+    public Action<RadioTrackPlayer> OnStop { get; set; } = new(_ => { }); // when the track is stopped and destroyed
+    public Action<RadioTrackPlayer> OnPause { get; set; } = new(_ => { }); // when the track is paused partway
+    public Action<RadioTrackPlayer> OnSample { get; set; } = new(_ => { });
     public Action<RadioTrackPlayer> OnEnd  // when the track reaches the end, not when it stops (i.e when the loop happens)
     { 
         get => onEnd; 
         set => onEnd = value; 
     }
+
+    public Action<RadioTrackPlayer, float> OnVolume { get; set; } = new((_,_) => { });
+    public Action<RadioTrackPlayer, float> OnGain { get; set; } = new((_,_) => { });
+    public Action<RadioTrackPlayer, float> OnBroadcastPower { get; set; } = new((_,_) => { });
+    public Action<RadioTrackPlayer, float> OnInsulation { get; set; } = new((_,_) => { });
 
     public bool Paused { get; set; } = false;
 
@@ -61,8 +66,6 @@ public class RadioTrackPlayer
 
         TrackW.AddToPlayerEndCallback(ref onEnd);
 
-        Debug.Log(baseSampleRate + " " + TrackW.SampleRate + " " + sampleIncrement);
-
         if (TrackW.broadcasters.Count <= 0 && !TrackW.isGlobal)
             Debug.LogWarning("Track " + TrackW.id + " is not global, but has no RadioBroadcasters in the scene! It will not be heard playing until a RadioBroadcaster is created.");
     }
@@ -73,18 +76,27 @@ public class RadioTrackPlayer
     }
 
 
-    public float GetSample(int _channel, float _tune, Vector3 _receiverPosition, float _otherGain, out float _outGain, bool _applyGain = true)
+    public float GetSample(int _channel, float _tune, Vector3 _receiverPosition, float _otherVolume, out float _outVolume, bool _applyVolume = true)
     {
         if (isStopped || Paused)
         {
-            _outGain = 0f;
+            _outVolume = 0f;
             return 0; 
         }
 
-        float gain = TrackW.GetGain(_tune, _otherGain) * GetBroadcastPower(_receiverPosition) * GetInsulation(_receiverPosition);
-        float sample = TrackW.GetSample((int) Progress) * (_applyGain ? gain : 1);
+        float gain = TrackW.GetGain(_tune, _otherVolume);
+        float broadcastPower = GetBroadcastPower(_receiverPosition);
+        float insulation = GetInsulation(_receiverPosition);
 
-        _outGain = gain;
+        float volume = gain * broadcastPower * insulation;
+        float sample = TrackW.GetSample((int) Progress) * (_applyVolume ? volume : 1);
+
+        OnVolume(this, volume);
+        OnGain(this, gain);
+        OnBroadcastPower(this, broadcastPower);
+        OnInsulation(this, insulation);
+
+        _outVolume = volume;
 
         return sample;
     }
