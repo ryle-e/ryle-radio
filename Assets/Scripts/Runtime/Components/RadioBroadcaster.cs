@@ -9,15 +9,9 @@ using UnityEditor;
 #endif
 
 [AddComponentMenu("Ryle Radio/Radio Broadcaster")]
-public class RadioBroadcaster : MonoBehaviour
+public class RadioBroadcaster : RadioComponentTrackAccessor
 {
-    public static Action InitBroadcasters { get; private set; }
-
-    [SerializeField] protected RadioData data;
-
-    [SerializeField, Dropdown("TrackNames")]
-    protected string selectedTrack;
-
+    [Space(8)]
     public Vector2 broadcastRadius;
 
     [SerializeField, CurveRange(0, 0, 1, 1)] 
@@ -26,60 +20,24 @@ public class RadioBroadcaster : MonoBehaviour
         new(1, 0, 0, 0)
     });
 
-    private string lastTrackAssignedToName = "";
-
     private Vector3 cachedPos;
 
-    public Action<RadioBroadcaster> OnInit { get; set; } = new(_ => { });
-
-    protected List<string> TrackNames => data != null ? data.TrackNames: new() { "Data not assigned!" };
-
-    public RadioData Data => data;
-
-
-    private void Awake()
-    {
-        InitBroadcasters += Init;
-    }
-
-    private void OnDestroy()
-    {
-        InitBroadcasters -= Init;
-    }
 
     private void Update()
     {
         cachedPos = transform.position;
     }
 
-    private void Init()
+    protected override void AssignToTrack(RadioTrackWrapper _track)
     {
-        AssignToTrack();
-        OnInit(this);
+        _track.broadcasters.Add(this);
+        _track.OnAddBroadcaster(this, _track);
     }
 
-    public void AssignToTrack()
+    protected override void RemoveFromTrack(RadioTrackWrapper _track)
     {
-        if (lastTrackAssignedToName != "")
-        {
-            if (data.TryGetTrack(lastTrackAssignedToName, out RadioTrackWrapper lastTrack, false))
-            { 
-                lastTrack.broadcasters.Remove(this);
-                lastTrack.OnRemoveBroadcaster(this, lastTrack);
-            }
-            else
-                Debug.LogWarning("Couldn't remove broadcaster " + gameObject.name + " from track " + lastTrackAssignedToName + "!");
-        }
-
-        if (data.TryGetTrack(selectedTrack, out RadioTrackWrapper track, false))
-        { 
-            track.broadcasters.Add(this);
-            track.OnAddBroadcaster(this, track);
-
-            lastTrackAssignedToName = selectedTrack;
-        }
-        else
-            Debug.LogWarning("Couldn't add broadcaster " + gameObject.name + " to track " + selectedTrack + "!");
+        _track.broadcasters.Remove(this);
+        _track.OnRemoveBroadcaster(this, _track);
     }
 
     public float GetPower(Vector3 _receiverPos)

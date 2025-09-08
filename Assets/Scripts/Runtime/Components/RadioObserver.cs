@@ -6,9 +6,10 @@ using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 
-// a premade class used to watch for specific happenings on a RadioListener, e.g: a clip being a certain volume, a track starting, the tune being in a certain range
+// a component used to watch for specific happenings on a RadioListener, e.g: a clip being a certain volume, a track starting, the tune being in a certain range
+// we don't inherit from RadioComponent here since we don't need to use a RadioData ref, but it's very similar
 [AddComponentMenu("Ryle Radio/Radio Observer")]
-public class RadioObserver : MonoBehaviour
+public partial class RadioObserver : MonoBehaviour
 {
     // the event an observer is looking for
     public enum EventType
@@ -34,117 +35,6 @@ public class RadioObserver : MonoBehaviour
         LessThanOrEqual,
         BetweenInclusive, // between x and y, including if it's equal to x or y
         BetweenExclusive, // between x and y, but not equal to x or y
-    }
-
-    [System.Serializable]
-    public class ObserverEvent
-    {
-        public EventType type;
-
-        [AllowNesting, ShowIf("NeedComparison")]
-        public ComparisonType comparison;
-
-        // a value to compare to- clamped between 0 and 1
-        // shows if the event has a comparison, is not using a range, and is not set to tune
-        [AllowNesting, ShowIf(EConditionOperator.And, "NeedComparison", "NotNeedVector", "NotIsTune"), Range(0, 1)]
-        public float clampedValue;
-
-        // a value to compare to- clamped between 0 and 1000
-        // shows if the event has a comparison, is not using a range, and is set to tune
-        [AllowNesting, ShowIf(EConditionOperator.And, "NeedComparison", "NotNeedVector", "IsTune"), Range(0.0f, 1000.0f)]
-        public float tuneValue;
-
-        // a range to compare to- clamped between 0 and 1
-        // shows if the event has a comparison, is using a range, and is not set to tune
-        [AllowNesting, ShowIf(EConditionOperator.And, "NeedComparison", "NeedVector", "NotIsTune"), MinMaxSlider(0, 1)]
-        public Vector2 clampedRange;
-
-        // a range to compare to- clamped between 0 and 100
-        // shows if the event has a comparison, is using a range, and is set to tune
-        [AllowNesting, ShowIf(EConditionOperator.And, "NeedComparison", "NeedVector", "IsTune"), MinMaxSlider(0, 1000)]
-        public Vector2 tuneRange;
-
-        // for inspector cleanliness, show/hide the events as they are quite big
-        public bool showEvents;
-
-        // called when the event is triggered
-        // if this has a comparison, then it can be triggered more than once while the comparison is true- e.g the volume can remain above 0.5
-        // therefore, with a comparison, this changes to mean the FIRST time the event is triggered
-        [ShowIf("showEvents"), AllowNesting] 
-        public UnityEvent onTrigger;
-
-        // called when the event remains triggered
-        // this is not called without a comparison
-        // with a comparison, this is called if the event is triggered, and has been triggered just before
-        [ShowIf(EConditionOperator.And, "showEvents", "NeedComparison"), AllowNesting] 
-        public UnityEvent onStay;
-
-        // called when the event ends
-        // this is not called without a comparison
-        [ShowIf(EConditionOperator.And, "showEvents", "NeedComparison"), AllowNesting] 
-        public UnityEvent onEnd;
-
-        // tracks if the event has happened before
-        [HideInInspector] public bool staying = false;
-
-        // if this event needs a value to compare to
-        public bool NotNeedComparison => !NeedComparison;
-        public bool NeedComparison =>
-            type == EventType.OutputVolume
-            || type == EventType.GainTune
-            || type == EventType.BroadcastPower
-            || type == EventType.Insulation
-            || type == EventType.Tune;
-
-        // if this event needs a range to compare to
-        public bool NotNeedVector => !NeedVector;
-        public bool NeedVector =>
-            comparison == ComparisonType.BetweenInclusive
-            || comparison == ComparisonType.BetweenExclusive;
-
-        // if this event is set to track Tune
-        public bool NotIsTune => !IsTune;
-        public bool IsTune => 
-            type == EventType.Tune;
-
-
-        // if this event is a comparison, check if the comparison is satisfied
-        public bool EvaluateComparison(float _cValue)
-        {
-            // if the event is not a comparison you should not be calling this method (unless it's being used on many events at once)
-            if (NotNeedComparison)
-                return false;
-
-            float value;
-            Vector2 range;
-
-            // if this event uses Tune, then make sure we're comparing to the tune values
-            if (IsTune)
-            {
-                range = tuneRange;
-                value = tuneValue;
-            }
-            else
-            {
-                value = clampedValue;
-                range = clampedRange;
-            }
-
-            // evaluate the specific comparison- just logical operators
-            return comparison switch
-            {
-                ComparisonType.Equal => _cValue == value,
-                ComparisonType.GreaterThan => _cValue > value,
-                ComparisonType.GreaterThanOrEqual => _cValue >= value,
-                ComparisonType.LessThan => _cValue < value,
-                ComparisonType.LessThanOrEqual => _cValue <= value,
-
-                ComparisonType.BetweenExclusive => range.x < _cValue && _cValue < range.y, // i want (x < value < y) notation >:)
-                ComparisonType.BetweenInclusive => range.x <= _cValue && _cValue <= range.y,
-
-                _ => false,
-            };
-        }
     }
     
     // the listener this observer is attached to

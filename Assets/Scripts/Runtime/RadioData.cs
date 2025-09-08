@@ -60,7 +60,7 @@ public class RadioData : ScriptableObject
         trackNames = new List<string>();
         trackIDs = new List<string>();
 
-        for (int i = TrackWrappers.Count - 1; i >= 0; i--)
+        for (int i = 0; i < TrackWrappers.Count; i++)
         {
             RadioTrackWrapper track = TrackWrappers[i];
 
@@ -90,8 +90,7 @@ public class RadioData : ScriptableObject
         foreach (RadioTrackWrapper trackW in TrackWrappers)
             trackW.Init();
 
-        RadioBroadcaster.InitBroadcasters();
-        RadioInsulator.InitInsulators();
+        RadioComponent.InitAllComponents();
 
         OnInit(this);
     }
@@ -119,14 +118,14 @@ public class RadioData : ScriptableObject
         }
     }
 
-    public bool TryGetTrackIndex(string _nameOrID, out int _index, bool _useID = false)
+    public bool TryGetTrackIndex(string _idOrName, out int _index, bool _useID = true)
     {
         string id = "";
 
         if (_useID)
-            id = _nameOrID;
+            id = _idOrName;
         else
-            id = NameToID(_nameOrID);
+            id = NameToID(_idOrName);
 
         var found = TrackWrappers.Find(t => t.id == id);
 

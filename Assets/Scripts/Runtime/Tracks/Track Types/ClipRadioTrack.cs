@@ -4,13 +4,16 @@ using UnityEditor;
 using UnityEngine;
 
 
+// a track that plays from a chosen AudioClip
 [System.Serializable]
 public class ClipRadioTrack : RadioTrack, IStationTrack
 {
     public const string DISPLAY_NAME = "Audio Clip";
 
+    // the clip you're providing to this track
     public AudioClip clip;
 
+    // we read the clip into an array of individual samples so that we can play it sample-by-sample as tracks are required to
     protected float[] Samples { get; set; }
 
     public bool IsInStation { get; set; }

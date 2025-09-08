@@ -57,8 +57,7 @@ MonoBehaviour:
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
-    insulators:
-    - {fileID: 0}
+    insulators: []
     trackType: Audio Clip
     track:
       rid: 5678798978745368635
@@ -103,8 +102,7 @@ MonoBehaviour:
     forceGlobal: 0
     playOnInit: 1
     broadcasters: []
-    insulators:
-    - {fileID: 0}
+    insulators: []
     trackType: Audio Clip
     track:
       rid: 5678798996343095391
@@ -140,8 +138,7 @@ MonoBehaviour:
     forceGlobal: 0
     playOnInit: 1
     broadcasters: []
-    insulators:
-    - {fileID: 0}
+    insulators: []
     trackType: Audio Clip
     track:
       rid: 5678798996343095427
@@ -284,111 +281,111 @@ MonoBehaviour:
         randomSequence: 1
         thresholdBeforeRepeats: 0.4
         stationTrackWs:
-        - id: 
+        - id: 0
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095430
-        - id: 
+            rid: 8723681572653367354
+        - id: 1
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095431
-        - id: 
+            rid: 8723681572653367355
+        - id: 2
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095432
-        - id: 
+            rid: 8723681572653367356
+        - id: 3
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095433
-        - id: 
+            rid: 8723681572653367357
+        - id: 4
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095434
-        - id: 
+            rid: 8723681572653367358
+        - id: 5
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095435
-        - id: 
+            rid: 8723681572653367359
+        - id: 6
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095436
-        - id: 
+            rid: 8723681572653367360
+        - id: 7
           gain: 100
           startAndEndRests: {x: 0, y: 0}
-          trackType: 1
+          trackType: Procedural
           track:
-            rid: 5678798996343095437
-    - rid: 5678798996343095430
+            rid: 8723681572653367363
+    - rid: 8723681415206273080
+      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
+      data:
+        clip: {fileID: 8300000, guid: 2e868e1ddc90f93489f8f7d19c0e135e, type: 3}
+    - rid: 8723681572653367354
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 100
         brownWalkPower: 0.5
-    - rid: 5678798996343095431
+    - rid: 8723681572653367355
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 200
         brownWalkPower: 0.5
-    - rid: 5678798996343095432
+    - rid: 8723681572653367356
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 300
         brownWalkPower: 0.5
-    - rid: 5678798996343095433
+    - rid: 8723681572653367357
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 400
         brownWalkPower: 0.5
-    - rid: 5678798996343095434
+    - rid: 8723681572653367358
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 500
         brownWalkPower: 0.5
-    - rid: 5678798996343095435
+    - rid: 8723681572653367359
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 600
         brownWalkPower: 0.5
-    - rid: 5678798996343095436
+    - rid: 8723681572653367360
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 700
         brownWalkPower: 0.5
-    - rid: 5678798996343095437
+    - rid: 8723681572653367363
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:
         proceduralType: 3
         duration: 0.1
         waveFrequency: 800
         brownWalkPower: 0.5
-    - rid: 8723681415206273080
-      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
-      data:
-        clip: {fileID: 8300000, guid: 2e868e1ddc90f93489f8f7d19c0e135e, type: 3}

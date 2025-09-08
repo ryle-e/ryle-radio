@@ -60,7 +60,7 @@ public class RadioTrackSelectorDrawer : PropertyDrawer
         try
         {
             //index = namesProperty.arr
-            //index = Mathf.Max(0, data.Tracks.IndexOf((RadioTrack) property.boxedValue));
+            //index = Mathf.Max(0, data.TrackNames.IndexOf((RadioTrack) property.boxedValue));
         }
         catch (InvalidCastException)
         {

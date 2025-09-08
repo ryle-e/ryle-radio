@@ -6,111 +6,71 @@ using System;
 
 
 [AddComponentMenu("Ryle Radio/Radio Insulator")]
-public class RadioInsulator : MonoBehaviour
+public class RadioInsulator : RadioComponentTrackAccessor
 {
-    public static Action InitInsulators { get; private set; }
+    [Space(8)]
+    public Vector3 innerBoxSize = Vector3.one * 0.8f;
+    public Vector3 outerBoxSize = Vector3.one;
 
-    [SerializeField] private RadioData data;
-
-    [Space(12)]
-    public Bounds outerBox = new(Vector3.zero, Vector3.one);
-    public Bounds innerBox = new(Vector3.zero, Vector3.one * 0.8f);
-
-    [Space(12)]
+    [Space(8)]
     [SerializeField, MinMaxSlider(0, 1)] 
     private Vector2 insulation = new(0, 0.5f);
 
     [SerializeField, CurveRange(0, 0, 1, 1)]
     private AnimationCurve insulationCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    [Space(12)]
-    [SerializeField, Multiselect("Tracks")]
-    private int affectedTracks;
-    private int lastAffectedTracks;
-
-    public Bounds OuterBoxAdjusted { get; private set; }
-    public Bounds InnerBoxAdjusted { get; private set; }
-
-    public Action<RadioInsulator> OnInit { get; set; } = new(_ => { });
-
-    private List<string> Tracks => data.TrackNames;
-
-    public RadioData Data => data;
+    private Vector3 cachedPos;
 
 
-    private void Awake()
-    {
-        InitInsulators += Init;
-    }
+    public Vector3 InnerBoxSizeAdjusted { get; private set; }
+    public Vector3 OuterBoxSizeAdjusted { get; private set; }
 
-    private void OnDestroy()
-    {
-        InitInsulators -= Init;
-    }
 
     private void Update()
     {
-        OuterBoxAdjusted = new(outerBox.center + transform.position, outerBox.size);
-        InnerBoxAdjusted = new(innerBox.center + transform.position, innerBox.size);
+        InnerBoxSizeAdjusted = transform.localToWorldMatrix * innerBoxSize;
+        OuterBoxSizeAdjusted = transform.localToWorldMatrix * outerBoxSize;
+
+        cachedPos = transform.position;
     }
 
-    public void Init()
+    protected override void AssignToTrack(RadioTrackWrapper _track)
     {
-        AssignToTrack();
-        OnInit(this);
+        _track.insulators.Add(this);
+        _track.OnAddInsulator(this, _track);
     }
 
-    public void AssignToTrack()
+    protected override void RemoveFromTrack(RadioTrackWrapper _track)
     {
-        if (lastAffectedTracks != affectedTracks)
-        {
-            int removedTrack = lastAffectedTracks ^ affectedTracks;
-            int[] index = MultiselectAttribute.ToInt(removedTrack);
-            //Debug.Log("removing from track " + data.TrackNames[index[0]]);
-
-            RadioTrackWrapper track = data.TrackWrappers[index.First()];
-
-            track.insulators.Remove(this);
-            track.OnRemoveInsulator(this, track);
-        }
-
-        int[] affectedIndexes = MultiselectAttribute.ToInt(affectedTracks);
-        lastAffectedTracks = 0;
-
-        for (int i = 0; i < affectedIndexes.Length; i++)
-        {
-            RadioTrackWrapper track = data.TrackWrappers[i];
-            //Debug.Log("adding to track " + track.name);
-
-            track.insulators.Add(this);
-            lastAffectedTracks |= affectedIndexes[i];
-
-            track.OnAddInsulator(this, track);
-        }
+        _track.insulators.Remove(this);
+        _track.OnRemoveInsulator(this, _track);
     }
 
     public float GetPower(Vector3 _position)
     {
         float t = 0;
 
-        if (InnerBoxAdjusted.Contains(_position))
+        Bounds innerBounds = new Bounds(cachedPos, InnerBoxSizeAdjusted);
+        Bounds outerBounds = new Bounds(cachedPos, OuterBoxSizeAdjusted);
+
+        if (innerBounds.Contains(_position))
             t = 1;
 
-        else if (!OuterBoxAdjusted.Contains(_position))
+        else if (!outerBounds.Contains(_position))
             t = 0;
 
         else
         {
-            Vector3 dir = (_position - OuterBoxAdjusted.center).normalized;
-            Vector3 scaledDir = new Vector3(dir.x * OuterBoxAdjusted.size.x, dir.y * OuterBoxAdjusted.size.y, dir.z * OuterBoxAdjusted.size.z);
+            Vector3 dir = (_position - outerBounds.center).normalized;
+            Vector3 scaledDir = new Vector3(dir.x * outerBounds.size.x, dir.y * outerBounds.size.y, dir.z * outerBounds.size.z);
 
-            Ray ray = new Ray(OuterBoxAdjusted.center, scaledDir);
+            Ray ray = new Ray(outerBounds.center, scaledDir);
 
-            OuterBoxAdjusted.IntersectRay(ray, out float distance);
-            InnerBoxAdjusted.IntersectRay(ray, out float distance2);
+            innerBounds.IntersectRay(ray, out float distance2);
+            outerBounds.IntersectRay(ray, out float distance);
 
-            Vector3 closestOnOuter = OuterBoxAdjusted.center + ray.direction.normalized * -distance;
-            Vector3 closestOnInner = OuterBoxAdjusted.center + ray.direction.normalized * -distance2;
+            Vector3 closestOnInner = innerBounds.center + ray.direction.normalized * -distance2;
+            Vector3 closestOnOuter = outerBounds.center + ray.direction.normalized * -distance;
 
             float outerInnerDistance = Vector3.Distance(closestOnOuter, closestOnInner);
             float d = Vector3.Distance(_position, closestOnInner);

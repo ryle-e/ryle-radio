@@ -81,6 +81,10 @@ public class RadioTrackWrapper
     public int SampleCount => track.SampleCount;
 
 
+    public override string ToString()
+    {
+        return "Wrapper for " + name;
+    }
 
     public static void OnScriptReload()
     {

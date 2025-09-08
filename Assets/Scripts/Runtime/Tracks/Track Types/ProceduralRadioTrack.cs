@@ -82,6 +82,7 @@ public class ProceduralRadioTrack : RadioTrack, IStationTrack
             // theory explained by gemini, adjusted from https://forum.juce.com/t/creating-colored-noise/30012/4
             case ProceduralType.BrownNoise:
                 white = ((float)random.NextDouble() * 2) - 1;
+
                 lastBrown += white * brownWalkPower;
                 lastBrown = Mathf.Clamp(lastBrown, -1, 1) * 0.998f;
 

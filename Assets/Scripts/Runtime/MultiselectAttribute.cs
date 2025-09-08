@@ -112,7 +112,7 @@ public class MultiselectDrawer : PropertyDrawer
 
                     // convert the options to strings for displaying
                     for (int i = 0; i < list.Count; i++)
-                        optionNames[i] = list[i].ToString();
+                        optionNames[i] = list[i].ToString(); // display the options in reverse order with ^i
 
                     // draw the field
                     mask = EditorGUILayout.MaskField(mask, optionNames);
