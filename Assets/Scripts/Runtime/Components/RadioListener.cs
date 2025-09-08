@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 [AddComponentMenu("Ryle Radio/Radio Listener")]
 [RequireComponent(typeof(AudioSource))]
-public class RadioListener : MonoBehaviour
+public class RadioListener : RadioComponent
 {
     public enum MultiplePlayersSelector
     {
@@ -16,8 +16,6 @@ public class RadioListener : MonoBehaviour
         Oldest,
         Random
     }
-
-    [SerializeField] private RadioData data;
 
     [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ExecOnTune")] 
     protected float tune;
@@ -27,10 +25,6 @@ public class RadioListener : MonoBehaviour
     protected Vector3 cachedPos;
 
     private float baseSampleRate;
-
-    public List<string> TrackIDs => data.TrackNames;
-
-    public RadioData Data => data;
 
     public List<RadioObserver> Observers { get; private set; } = new();
     public Action<float> OnTune { get; set; } = new(_ => { });
@@ -45,12 +39,6 @@ public class RadioListener : MonoBehaviour
         }
     }
 
-
-    private void Start()
-    {
-        Init();
-    }
-
     protected virtual void Update()
     {
         cachedPos = transform.position;
@@ -61,7 +49,7 @@ public class RadioListener : MonoBehaviour
         OnTune(tune);
     }
 
-    public virtual void Init()
+    protected override void Init()
     {
         baseSampleRate = AudioSettings.outputSampleRate;
 
