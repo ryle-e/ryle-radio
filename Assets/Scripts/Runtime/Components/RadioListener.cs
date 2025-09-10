@@ -6,10 +6,14 @@ using UnityEngine;
 
 using Random = UnityEngine.Random;
 
+// a component that plays a RadioData through an AudioSource
+// most of the documentation explaining specific parts of playback is in RadioTrackPlayer.cs, so check there as well
 [AddComponentMenu("Ryle Radio/Radio Listener")]
 [RequireComponent(typeof(AudioSource))]
 public class RadioListener : RadioComponent
 {
+    // when attempting to pull a RadioTrackPlayer from this listener, you can choose the method by which it picks it
+    // this only matters if you're playing a bunch of one-shots of the same track
     public enum MultiplePlayersSelector
     {
         Youngest,
@@ -17,16 +21,25 @@ public class RadioListener : RadioComponent
         Random
     }
 
+    // the current tune of this Listener- controls what tracks can be heard and when
     [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ExecOnTune")] 
     protected float tune;
 
+    // the players applied to this listener;
     protected List<RadioTrackPlayer> players = new();
 
+    // the position of this listener as of the last update
+    // we need to cache this value as audio is on a separate thread to the rest of Unity- this means we get errors if we access position as
+    // transform.position rather than caching it here
     protected Vector3 cachedPos;
 
+    // the sample rate of the player
     private float baseSampleRate;
 
+    // all observers associated with this listener
     public List<RadioObserver> Observers { get; private set; } = new();
+
+    // called whenever the tune is changed
     public Action<float> OnTune { get; set; } = new(_ => { });
     
     public float Tune 
@@ -34,98 +47,164 @@ public class RadioListener : RadioComponent
         get => tune;
         set
         {
+            // clamp the tune to the available range (not needed in inspector, needed if tune changed in code)
             tune = Mathf.Clamp(value, RadioData.LOW_TUNE, RadioData.HIGH_TUNE);
+
+            // invoke the tune change callback
             OnTune(tune);
         }
     }
 
-    protected virtual void Update()
-    {
-        cachedPos = transform.position;
-    }
 
+    // called when the tune is changed in the inspector
     private void ExecOnTune()
     {
+        // we invoke the callback here too so that it reacts when the tune is changed in the inspector
         OnTune(tune);
     }
 
-    protected override void Init()
-    {
-        baseSampleRate = AudioSettings.outputSampleRate;
 
+    protected virtual void Update()
+    {
+        // cache the position of this listener
+        cachedPos = transform.position;
+    }
+
+    // starts the radio system- this component basically serves as a manager
+    private void Start()
+    {
+        LocalInit();
+    }
+
+    // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
+    // this is just how the RadioComponent class works really
+    protected void LocalInit()
+    {
+        // initialize the associated RadioData
+        // note: this should be the only component that calls this- just for safety
         data.Init();
 
+    }
+
+    public override void Init()
+    {
+        // save the sample rate of the whole Unity player
+        baseSampleRate = AudioSettings.outputSampleRate;
+
+        // create and start all track players
         StartPlayers();
     }
 
+    // stores a new RadioTrackPlayer and alerts any observers
     public void PlayerCreation(RadioTrackPlayer _player)
     {
         foreach (RadioObserver observer in Observers)
         {
+            // if an observer is watching this track
             if (observer.AffectedTracks.Contains(_player.TrackW.name))
-                observer.AssignEvents(_player);
+                observer.AssignEvents(_player); // point it towards this new player
         }
 
+        // store the player
         players.Add(_player);
     }
 
+    // create all RadioTrackPlayers for this Listener
     private void StartPlayers()
     {
+        // for every track in the RadioData
         foreach (RadioTrackWrapper trackW in Data.TrackWrappers)
         {
+            // if the track is supposed to play on game start
             if (trackW.playOnInit)
             {
+                // create a looping player for it
                 RadioTrackPlayer player = new RadioTrackPlayer(trackW, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
+
+                // and store the player
                 PlayerCreation(player);
             }
         }
     }
 
+    // play a track as a one-shot- a one-shot destroys itself after the track ends
     public RadioTrackPlayer PlayOneShot(string _id)
     {
+        // get the track with the given id
         if (Data.TryGetTrack(_id, out RadioTrackWrapper track))
         {
+            // create a new player for the track, set to one-shot
             RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.OneShot, baseSampleRate);
+
+            // store the player
             PlayerCreation(player);
 
+            // ensure that the new player is cleaned up when it's destroyed
             player.DoDestroy += player => players.Remove(player);
 
+            // return the player
             return player;
         }
-
-        return null;
+        // if it can't find a player with the id, warn the user
+        else
+        {
+            Debug.LogWarning($"Can't find track with id {_id} to play as a one-shot!");
+            return null;
+        }
     }
 
+    // play a track as a loop- it will restart when the track ends, and keep playing
     public RadioTrackPlayer PlayLoop(string _id)
     {
+        // get the track with the given id
         if (Data.TryGetTrack(_id, out RadioTrackWrapper track))
         {
+            // create a new player for the track, set to loop
             RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
+
+            // store the player
             PlayerCreation(player);
 
+            // return the player
             return player;
         }
+        // if it can't find a player with the id, warn the user
+        else
+        {
+            Debug.LogWarning($"Can't find track with id {_id} to play as a loop!");
+            return null;
+        }
 
-        return null;
     }
 
-    public bool TryGetPlayer(string _trackID, out RadioTrackPlayer _player, bool _createNew, MultiplePlayersSelector _multiplePlayerSelector = MultiplePlayersSelector.Youngest)
+    // try to find an active RadioTrackPlayer on this Listener
+    public bool TryGetPlayer(
+        string _trackID, 
+        out RadioTrackPlayer _player, 
+        bool _createNew, 
+        MultiplePlayersSelector _multiplePlayerSelector = MultiplePlayersSelector.Youngest
+    )
     {
+        // find any players associated with the track with the given id
         var found = players.Where(p => p.TrackW.id == _trackID);
 
+        // if there are multiple players,
         if (found.Count() > 1)
         {
+            // select one based off the given selector
             switch (_multiplePlayerSelector)
             {
-                default:
+                default: // choose the youngest player
                 case MultiplePlayersSelector.Youngest:
                     _player = found.Last();
                     break;
 
+                // choose the oldest player
                 case MultiplePlayersSelector.Oldest:
                     _player = found.First();
                     break;
 
+                // choose a random player
                 case MultiplePlayersSelector.Random:
                     int index = Random.Range(0, found.Count());
                     _player = found.ElementAt(index);
@@ -133,58 +212,77 @@ public class RadioListener : RadioComponent
                     break;
             }
 
+            // a player was found, so return true
             return true;
         }
+        // if there is one player,
         else if (found.Count() > 0)
         {
+            // choose it and return true
             _player = found.First();
             return true;
         }
+
+        // if there aren't any players for this track,
+
+        // and the method is set to make a new one,
         else if (_createNew)
         {
-            _player = PlayLoop(_trackID);
-            return true;
+            // create a new player for this track
+            // if you want it to be a loop, play it manually- this is more of an error catch than an actual method of creation
+            _player = PlayOneShot(_trackID);
+            return true; // and return true
         }
+        // and we aren't creating a new one,
         else
         {
-            _player = null;
-            return false;
+            _player = null; // there is no player
+            return false; // so we return false
         }
     }
 
+    // the core method- this is where the audio is output to the linked AudioSource
+    // this method appears to have initially been introduced for custom audio filters, but we can use it for custom audio output too
+    //
+    // _data here is whatever other audio is playing from the source- normally is nothing, unless you wanted some other audio playing
+    // if you do want this i would recommend using a separate audiosource so that you can control the volume separately
     protected virtual void OnAudioFilterRead(float[] _data, int _channels)
     {
+        // the listener only plays back one channel, so we have to account for this
+
+        // the number of samples for, total- the _data array has an entry for each channel by default. e.g if _data was 2048
+        // entries long, and there were two channels- there would actually only be 1024 samples
         int monoSampleCount = _data.Length / _channels;
 
+        // for every sample in the data array
         for (int index = 0; index < monoSampleCount; index++)
         {
+            // we want to store the sample itself, and the added volume of all previous tracks
             float sample = 0;
-            float otherGain = 0;
+            float combinedVolume = 0;
 
-            // get combined audio
+            // for every active track,
             foreach (RadioTrackPlayer player in players)
             {
-                sample += player.GetSample(index, Tune, cachedPos, otherGain, out float outGain, true); // get the audio at this sample
+                // get the audio in this sample
+                sample += player.GetSample(Tune, cachedPos, combinedVolume, out float outVolume, true);
+
+                // then move along to the next sample
                 player.IncrementSample();
 
-                //if (outGain > 0)
-                //    Debug.Log(sample);
-
-                otherGain += outGain; // store the gain so far so that trackWs with attenuation can adjust accordingly
+                // store the volume so far so that tracks with attenuation can adjust accordingly- see RadioTrackPlayer.GetSample()
+                combinedVolume += outVolume;
             }
 
-            //sample /= players.Count;
-
             // this function uses _data for each sample packed into one big list- each channel is joined end to end
-            // that means if there are multiple _channels, we need to read through each of them before jumping to the next sample
+            // that means if there are multiple _channels, we need to apply the audio to each of them before jumping to the next sample
             // therefore we iterate through every channel, for every sample
             int indexWithChannels = index * _channels;
 
+            // for each channel,
             for (int channel = indexWithChannels; channel < indexWithChannels + _channels; channel++) 
                 _data[channel] += sample; // apply the sample
-
-            //Debug.Log(_data[index] + " " + _data[index + 1] + " " + _data[Mathf.Clamp(index + 2, 0, _data.Length)]);
         }
-
     }
+
 }

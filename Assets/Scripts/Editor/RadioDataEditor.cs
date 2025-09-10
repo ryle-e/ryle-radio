@@ -22,6 +22,16 @@ public class RadioDataEditor : Editor
 
         trackWs = serializedObject.FindProperty("trackWs");
         lastTrackWSize = trackWs.arraySize;
+
+        for (int i = 0; i < trackWs.arraySize; i++)
+        {
+            SerializedProperty track = trackWs.GetArrayElementAtIndex(i);
+
+            SerializedProperty radioTrack = track.FindPropertyRelative("track");
+            SerializedProperty trackType = track.FindPropertyRelative("trackType");
+
+            trackType.stringValue = RadioTrackWrapper.GetTrackType(radioTrack.managedReferenceValue.ToString());
+        }
     }
 
     public override void OnInspectorGUI()
@@ -58,9 +68,9 @@ public class RadioDataEditor : Editor
             { 
                 lastTrackWSize--; 
             }
-
-            serializedObject.ApplyModifiedProperties();
         }
+
+        serializedObject.ApplyModifiedProperties();
     }
 }
 #endif

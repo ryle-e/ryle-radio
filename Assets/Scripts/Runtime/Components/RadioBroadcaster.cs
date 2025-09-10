@@ -8,6 +8,7 @@ using System;
 using UnityEditor;
 #endif
 
+// a broadcaster for a RadioTrack- the closer the listener is, the louder the track
 [AddComponentMenu("Ryle Radio/Radio Broadcaster")]
 public class RadioBroadcaster : RadioComponentTrackAccessor
 {

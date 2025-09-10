@@ -44,6 +44,12 @@ public class MultiselectAttribute : PropertyAttribute
     // converts a multiselect int to a list of whatever type you like
     public static T[] To<T>(int _flags, T[] _options)
     {
+        if (_flags < 0)
+        {
+            Debug.LogWarning("A value less than 0 is being used as the flag variable in a MultiselectAttribute.To<T>() call!");
+            return new T[0];
+        }
+
         int[] outIndexes = new int[32];
 
         // for each number 0 - 32,

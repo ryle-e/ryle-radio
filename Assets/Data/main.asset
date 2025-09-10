@@ -97,7 +97,7 @@ MonoBehaviour:
     playOnInit: 1
     broadcasters: []
     insulators: []
-    trackType: Audio Clip
+    trackType: Procedural
     track:
       rid: 5678798957396885564
   - id: bass
@@ -133,7 +133,7 @@ MonoBehaviour:
     playOnInit: 1
     broadcasters: []
     insulators: []
-    trackType: Audio Clip
+    trackType: Procedural
     track:
       rid: 5678798978745368634
   - id: bass2

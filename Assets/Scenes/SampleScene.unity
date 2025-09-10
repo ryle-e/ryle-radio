@@ -315,7 +315,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &250196779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   listener: {fileID: 398591043}
-  affectedTracks: 4
+  affectedTracks: 0
   events:
   - type: 0
     comparison: 1
@@ -603,7 +603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f1646434eb92044af287452a342cf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: dda21914aeb84c9499e29ae6963bf49f, type: 2}
+  data: {fileID: 11400000, guid: caefe113e6c848443abd76f96e9d0eae, type: 2}
   tune: 1000
 --- !u!82 &398591044
 AudioSource:
