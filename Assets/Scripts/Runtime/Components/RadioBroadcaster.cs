@@ -1,34 +1,35 @@
 using NaughtyAttributes;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
 
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 // a broadcaster for a RadioTrack- the closer the listener is, the louder the track
 [AddComponentMenu("Ryle Radio/Radio Broadcaster")]
 public class RadioBroadcaster : RadioComponentTrackAccessor
 {
+    // the inner and outer radii of this broadcaster- if the listener is in the inner radius, the broadcast radiusProg is 1. if it's between the inner
+    // and outer radii, the radiusProg is between 0 and 1. if it's outside both, the radiusProg is 0.
     [Space(8)]
     public Vector2 broadcastRadius;
 
+    // the falloff between the inner and outer broadcast ranges- you probably don't need to touch this but it's here if needed
     [SerializeField, CurveRange(0, 0, 1, 1)] 
     protected AnimationCurve distanceFalloff = new(new Keyframe[2] {
         new(0, 1, 0, 0),
         new(1, 0, 0, 0)
     });
 
+    // the position of the broadcaster at the last frame
+    // we cache this as we cannot use transform.position in GetPower, as audio is on a different thread and we would otherwise get errors
     private Vector3 cachedPos;
 
 
     private void Update()
     {
+        // cache the position
         cachedPos = transform.position;
     }
-
+    
+    // link and unlink this broadcaster to a track
     protected override void AssignToTrack(RadioTrackWrapper _track)
     {
         _track.broadcasters.Add(this);
@@ -41,11 +42,16 @@ public class RadioBroadcaster : RadioComponentTrackAccessor
         _track.OnRemoveBroadcaster(this, _track);
     }
 
+    // get the radiusProg of the listener at a certain position relative to this broadcaster
     public float GetPower(Vector3 _receiverPos)
     {
+        // the distance between the listener and this broadcaster
         float distance = Vector3.Distance(cachedPos, _receiverPos);
-        float power = Mathf.Clamp01(Mathf.InverseLerp(broadcastRadius.x, broadcastRadius.y, distance));
 
-        return distanceFalloff.Evaluate(power);
+        // how far between the inner and outer radii the distance is
+        float radiusProg = Mathf.Clamp01(Mathf.InverseLerp(broadcastRadius.x, broadcastRadius.y, distance));
+
+        // return the distance scaled by the distance falloff
+        return distanceFalloff.Evaluate(radiusProg);
     }
 }

@@ -4,13 +4,16 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+// random utilities used throughout the radio system
 static class RadioUtils
 {
+    // remaps a value from between two to between two others
     public static float Remap(this float value, float from1, float to1, float from2, float to2)
     {
         return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
     }
 
+    // absolute value of a whole vector
     public static Vector3 Abs(this Vector3 _value)
     {
         return new Vector3(
@@ -20,17 +23,10 @@ static class RadioUtils
         );
     }
 
-    // adjusted from https://iquilezles.org/articles/distfunctions/
-    public static float SignedDistanceToBox(Vector3 _point, Bounds _box)
-    {
-        Vector3 adjustedPoint = _point - _box.center;
-        Vector3 q = adjustedPoint.Abs() - _box.size;
-
-        return q.magnitude + Mathf.Min(Mathf.Max(q.x, q.y, q.z), 0);
-    }
-
+    // gets all types derived from a given type
     public static Type[] FindDerivedTypes(Type baseType)
     {
+        // get all assemblies used in the project
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
         IEnumerable<Type> types = new List<Type>();
  
