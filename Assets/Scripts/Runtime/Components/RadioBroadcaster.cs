@@ -3,6 +3,7 @@ using UnityEngine;
 
 
 // a broadcaster for a RadioTrack- the closer the listener is, the louder the track
+// this has a custom inspector in RadioBroadcasterEditor.cs
 [AddComponentMenu("Ryle Radio/Radio Broadcaster")]
 public class RadioBroadcaster : RadioComponentTrackAccessor
 {

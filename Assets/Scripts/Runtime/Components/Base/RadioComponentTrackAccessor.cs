@@ -23,8 +23,10 @@ public abstract class RadioComponentTrackAccessor : RadioComponent
 
     public override void Init()
     {
+        // apply this component to selected tracks
         AssignToTracksGeneric();
 
+        // initialize the rest of this component
         OnInit(this);
         AccessorInit();
     }

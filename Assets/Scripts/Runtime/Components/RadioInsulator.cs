@@ -3,6 +3,7 @@ using UnityEngine;
 
 
 // an insulator for a RadioTrack- the further in the listener, the quieter the track
+// this has a custom editor in RadioInsulatorEditor.cs
 [AddComponentMenu("Ryle Radio/Radio Insulator")]
 public class RadioInsulator : RadioComponentTrackAccessor
 {
@@ -26,7 +27,7 @@ public class RadioInsulator : RadioComponentTrackAccessor
     // if minimum insulation is greater than 0, we need to know if it applies to all listeners outside of the insulator as well
     // if this is set to true and min insulation is set to 0.1, for example, every listener outside of the insulator will still have 0.1 insulation
     // applied to it
-    [SerializeField, ShowIf("ShowApplyToAllListeners")]
+    [SerializeField, AllowNesting, ShowIf("ShowApplyToAllListeners")]
     private bool applyToAllListenersOutside = false;
 
     // the position of this insulator at the last frame

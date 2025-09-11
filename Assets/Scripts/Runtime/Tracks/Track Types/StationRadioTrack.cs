@@ -8,6 +8,8 @@ using UnityEngine;
 // this is meant to emulate a radio station by storing many individual clips or audio then switching between them
 // it can be used for really any purpose that requires switching tracks (at the end of the previous) though
 // e.g ''''procedural'''' music by shuffling procedural sine waves
+
+// this has a custom editor in StationRadioTrackEditor.cs
 [System.Serializable]
 public class StationRadioTrack : RadioTrack
 {

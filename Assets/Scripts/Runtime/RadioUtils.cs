@@ -30,15 +30,17 @@ static class RadioUtils
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
         IEnumerable<Type> types = new List<Type>();
  
+        // search through every assembly applicable classes
         foreach (Assembly assembly in assemblies)
-            types = types.Union(assembly.GetTypes().Where(t => 
-                t != baseType 
-                && baseType.IsAssignableFrom(t) 
-                && !t.IsInterface
-                && !t.IsGenericType
-                && !t.IsAbstract
+            types = types.Union(assembly.GetTypes().Where(t => // find classes that,
+                t != baseType // aren't the given type
+                && baseType.IsAssignableFrom(t)  // inherit from the given type
+                && !t.IsInterface // aren't interfaces
+                && !t.IsGenericType // aren't generic
+                && !t.IsAbstract // aren't abstract
             ));
 
+        // returns the types
         return types.ToArray();
     }
 }
