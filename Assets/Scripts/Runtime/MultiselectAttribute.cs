@@ -14,7 +14,7 @@ using System;
 // NOTE: due to int limitations there can only be a max of 32 options
 public class MultiselectAttribute : PropertyAttribute
 {
-    // name of the options variable this is referencing
+    // id of the options variable this is referencing
     public string OptionsName { get; private set; }
 
     public MultiselectAttribute(string _optionsName)
@@ -46,7 +46,7 @@ public class MultiselectAttribute : PropertyAttribute
     {
         if (_flags < 0)
         {
-            Debug.LogWarning("A value less than 0 is being used as the flag variable in a MultiselectAttribute.To<T>() call!");
+            Debug.LogWarning("A value less than 0 is being used as the flag variable in a MultiselectAttribute.To<T>() call! The value is " + _flags);
             return new T[0];
         }
 
@@ -95,7 +95,7 @@ public class MultiselectDrawer : PropertyDrawer
     {
         // make the selection a bit mask
         int mask = property.intValue;
-        string dataName = ((MultiselectAttribute)attribute).OptionsName; // save the name of the variable in the attribute
+        string dataName = ((MultiselectAttribute)attribute).OptionsName; // save the id of the variable in the attribute
 
         object options = GetValues(property, dataName); // get the options from that variable
         string[] optionNames;
@@ -106,7 +106,7 @@ public class MultiselectDrawer : PropertyDrawer
         if (options != null) // if there are options, display them
         {
             // we have to use the individual collection types here as there's no way (that i know of) to access IEnumerable without
-            // specifying a generic type- and since we only have the variable name, we can't do that
+            // specifying a generic type- and since we only have the variable id, we can't do that
 
             // if anyone knows of an alternate way to do this please do share :)
 
@@ -154,7 +154,7 @@ public class MultiselectDrawer : PropertyDrawer
                 EditorGUILayout.LabelField($"{dataName} is not a List or an Array!");
             }
         }
-        else // the attribute has been given an invalid options variable name- tell the user
+        else // the attribute has been given an invalid options variable id- tell the user
             EditorGUILayout.LabelField($"Invalid collection at {dataName}! Cannot display multiselect!");
 
         EditorGUILayout.EndHorizontal();

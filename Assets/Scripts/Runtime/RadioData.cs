@@ -58,14 +58,14 @@ public class RadioData : ScriptableObject
     }
 
 
-    // slices a given name to get the id
+    // slices a given id to get the id
     public static string NameToID(string _name)
     {
         return _name.Split(", ")[0];
     }
 
-    // fill the track name and id lists to match the current tracks
-    public void PopulateTrackIDs()
+    // fill the track id and id lists to match the current tracks
+    private void PopulateTrackIDs()
     {
         // if there are no tracks, don't try to get the names
         if (trackWs.Count <= 0)
@@ -76,7 +76,7 @@ public class RadioData : ScriptableObject
         trackIDs = new List<string>();
 
         // for every track in the radio
-        for (int i = 0; i < TrackWrappers.Count; i++)
+        for (int i = TrackWrappers.Count - 1; i >= 0; i--)
         {
             // cache the track
             RadioTrackWrapper track = TrackWrappers[i];
@@ -90,20 +90,20 @@ public class RadioData : ScriptableObject
                 track.id += othersWithID.Count(); // you can only add one new track at a time, so we just append the count to the end
                                                   // e.g a adding a track with the last one's id "music" will make the id of the new track "music2"
 
-            // combine some track info into a display name
+            // combine some track info into a display id
             string name = $"{track.id}, {track.range.x} - {track.range.y}";
 
-            // store the name and id
+            // store the id and id
             trackNames.Add(name);
             trackIDs.Add(track.id);
 
-            // assign the name
+            // assign the id
             track.name = name;
         }
     }
 
     // when tracks are changed, update their info
-    public void OnValidate()
+    private void OnValidate()
     {
         PopulateTrackIDs();
     }
@@ -117,21 +117,21 @@ public class RadioData : ScriptableObject
         foreach (RadioTrackWrapper trackW in TrackWrappers)
             trackW.Init();
 
-        // initialize all components, e.g broadcasters, insulators, listeners
+        // initialize all components, e.g broadcasters, insulators, outputs
         RadioComponent.InitAllComponents();
 
         OnInit(this);
     }
 
-    // attempt to get a track from this radio using an id or name
+    // attempt to get a track from this radio using an id or id
     public bool TryGetTrack(string _idOrName, out RadioTrackWrapper _trackW, bool _useID = true)
     {
-        // either an id or name can be supplied here, but we always convert it to an id for this
+        // either an id or id can be supplied here, but we always convert it to an id for this
         string id = "";
 
         if (_useID) // if an id was provided, use it
             id = _idOrName;
-        else // if a name was provided, convert it to the id
+        else // if a id was provided, convert it to the id
             id = NameToID(_idOrName);
 
         // find any track with that id

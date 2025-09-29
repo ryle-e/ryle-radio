@@ -2,10 +2,10 @@ using NaughtyAttributes;
 using UnityEngine;
 
 
-// an insulator for a RadioTrack- the further in the listener, the quieter the track
+// an insulator for a RadioTrack- the further in the output, the quieter the track
 // this has a custom editor in RadioInsulatorEditor.cs
 [AddComponentMenu("Ryle Radio/Radio Insulator")]
-public class RadioInsulator : RadioComponentTrackAccessor
+public class RadioInsulator : RadioComponentDataAccessor
 {
     // the inner and outer sizes of the insulator- if it's in the inner box, insulation power is at the maximum. if it's between the outer and inner
     // boxes, insulation power is between the minimum and the maximum. if it's outside both, insulation power is at the minimum.
@@ -15,7 +15,7 @@ public class RadioInsulator : RadioComponentTrackAccessor
 
     [Space(8)] 
 
-    // the minimum and maximum insulation- how high the insulation is when the listener is inside the inner box or between the inner and
+    // the minimum and maximum insulation- how high the insulation is when the output is inside the inner box or between the inner and
     // outer boxes
     [SerializeField, MinMaxSlider(0, 1)] 
     private Vector2 insulation = new(0, 0.5f);
@@ -24,11 +24,11 @@ public class RadioInsulator : RadioComponentTrackAccessor
     [SerializeField, CurveRange(0, 0, 1, 1)]
     private AnimationCurve insulationCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-    // if minimum insulation is greater than 0, we need to know if it applies to all listeners outside of the insulator as well
-    // if this is set to true and min insulation is set to 0.1, for example, every listener outside of the insulator will still have 0.1 insulation
+    // if minimum insulation is greater than 0, we need to know if it applies to all outputss outside of the insulator as well
+    // if this is set to true and min insulation is set to 0.1, for example, every output outside of the insulator will still have 0.1 insulation
     // applied to it
-    [SerializeField, AllowNesting, ShowIf("ShowApplyToAllListeners")]
-    private bool applyToAllListenersOutside = false;
+    [SerializeField, AllowNesting, ShowIf("ShowApplyToAllOutputs")]
+    private bool applyToAllOutputsOutside = false;
 
     // the position of this insulator at the last frame
     // we cache this as we cannot use transform.position in GetPower, as audio is on a different thread and we would otherwise get errors
@@ -38,7 +38,7 @@ public class RadioInsulator : RadioComponentTrackAccessor
     public Vector3 InnerBoxSizeAdjusted { get; private set; }
     public Vector3 OuterBoxSizeAdjusted { get; private set; }
 
-    private bool ShowApplyToAllListeners => insulation.x > 0;
+    private bool ShowApplyToAllOutputs => insulation.x > 0;
 
 
     private void Update()
@@ -64,24 +64,24 @@ public class RadioInsulator : RadioComponentTrackAccessor
         _track.OnRemoveInsulator(this, _track);
     }
 
-    // gets the power of this insulator with the listener at position
+    // gets the power of this insulator with the output at position
     public float GetPower(Vector3 _position)
     {
         float power = 0;
 
-        // converts the boxes to bounds so that we can use the basic methods associated
+        // converts the boxes to bounds so that we can use the basic methods in the bounds class
         Bounds innerBounds = new Bounds(cachedPos, InnerBoxSizeAdjusted);
         Bounds outerBounds = new Bounds(cachedPos, OuterBoxSizeAdjusted);
 
-        // if the listener is in the inner bounds, insulation is at maximum
+        // if the output is in the inner bounds, insulation is at maximum
         if (innerBounds.Contains(_position))
             power = 1;
 
-        // if the listener is outside the outer bounds, insulation is at minimum
+        // if the output is outside the outer bounds, insulation is at minimum
         else if (!outerBounds.Contains(_position))
             power = 0;
 
-        // if the listener is between the inner and outer bounds, calculate how far between them it is
+        // if the output is between the inner and outer bounds, calculate how far between them it is
         else
         {
             // originally i used a signed distance field for this, but for reasons i do not recall it didn't end up working as i wanted-
@@ -118,7 +118,7 @@ public class RadioInsulator : RadioComponentTrackAccessor
         float adjustedT = insulationCurve.Evaluate(power);
 
         // if it's outside the boxes and does not universally apply, set the insulation to 0
-        if (adjustedT <= 0 && (ShowApplyToAllListeners && !applyToAllListenersOutside))
+        if (adjustedT <= 0 && (ShowApplyToAllOutputs && !applyToAllOutputsOutside))
             return 0;
 
         // return the actual insulation using the min and max values

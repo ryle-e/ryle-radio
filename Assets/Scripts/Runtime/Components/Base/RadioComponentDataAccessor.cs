@@ -6,7 +6,7 @@ using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 // an expansion of a RadioComponent that can access specific tracks
-public abstract class RadioComponentTrackAccessor : RadioComponent
+public abstract class RadioComponentDataAccessor : RadioComponent
 {
     [SerializeField, Multiselect("TrackNames")]
     private int affectedTracks; // the tracks to affect

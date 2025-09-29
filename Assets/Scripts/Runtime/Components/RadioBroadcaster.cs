@@ -2,12 +2,12 @@ using NaughtyAttributes;
 using UnityEngine;
 
 
-// a broadcaster for a RadioTrack- the closer the listener is, the louder the track
+// a broadcaster for a RadioTrack- the closer the output is, the louder the track
 // this has a custom inspector in RadioBroadcasterEditor.cs
 [AddComponentMenu("Ryle Radio/Radio Broadcaster")]
-public class RadioBroadcaster : RadioComponentTrackAccessor
+public class RadioBroadcaster : RadioComponentDataAccessor
 {
-    // the inner and outer radii of this broadcaster- if the listener is in the inner radius, the broadcast radiusProg is 1. if it's between the inner
+    // the inner and outer radii of this broadcaster- if the output is in the inner radius, the broadcast radiusProg is 1. if it's between the inner
     // and outer radii, the radiusProg is between 0 and 1. if it's outside both, the radiusProg is 0.
     [Space(8)]
     public Vector2 broadcastRadius;
@@ -43,10 +43,11 @@ public class RadioBroadcaster : RadioComponentTrackAccessor
         _track.OnRemoveBroadcaster(this, _track);
     }
 
-    // get the radiusProg of the listener at a certain position relative to this broadcaster
+    // get the radiusProg of the output at a certain position relative to this broadcaster
+    // i.e a value from 0-1 for how close the output is to this broadcaster, that can be used as a multiplier to the audio
     public float GetPower(Vector3 _receiverPos)
     {
-        // the distance between the listener and this broadcaster
+        // the distance between the output and this broadcaster
         float distance = Vector3.Distance(cachedPos, _receiverPos);
 
         // how far between the inner and outer radii the distance is

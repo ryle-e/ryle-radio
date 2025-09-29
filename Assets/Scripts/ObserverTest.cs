@@ -36,4 +36,9 @@ public class ObserverTest : MonoBehaviour
     {
         Debug.Log("tune in range");
     }
+
+    public void Log(string msg)
+    {
+        Debug.Log(msg);
+    }
 }

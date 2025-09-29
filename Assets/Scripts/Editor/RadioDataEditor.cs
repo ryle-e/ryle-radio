@@ -41,9 +41,21 @@ public class RadioDataEditor : Editor
             SerializedProperty radioTrack = track.FindPropertyRelative("track");
             SerializedProperty trackType = track.FindPropertyRelative("trackType");
 
-            // set the track type to whatever the internal track class is
-            trackType.stringValue = RadioTrackWrapper.GetTrackType(radioTrack.managedReferenceValue.ToString());
+            // if the track itself is null somehow, (e.g it's the first track added when the data is created)
+            if (radioTrack.managedReferenceValue == null)
+            { 
+                // set a default track class based on the listed track type string
+                radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue); 
+            }
+            else
+            {
+                // set the track type string to whatever the internal track class is
+                trackType.stringValue = RadioTrackWrapper.GetTrackType(radioTrack.managedReferenceValue.ToString());
+            }
         }
+
+        // apply the changes
+        serializedObject.ApplyModifiedProperties();
     }
 
     public override void OnInspectorGUI()
@@ -81,9 +93,15 @@ public class RadioDataEditor : Editor
                 // get the gain
                 SerializedProperty gain = newElement.FindPropertyRelative("gain");
 
-                // reset the internal class and gain
+                // get the gain curve
+                SerializedProperty gainCurve = newElement.FindPropertyRelative("gainCurve");
+
+                // reset the internal track class
                 radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
+
+                // reset the gain and the gain curve
                 gain.floatValue = 100;
+                gainCurve.animationCurveValue = new(RadioTrackWrapper.DefaultGainCurve.keys);
 
                 // store the new track list size
                 lastTrackWSize++;

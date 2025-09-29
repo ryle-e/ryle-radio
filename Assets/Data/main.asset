@@ -178,7 +178,7 @@ MonoBehaviour:
     - rid: 5678798957396885561
       type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
       data:
-        clip: {fileID: 8300000, guid: 09815b9b8b9de244594fb05b52fc3dfe, type: 3}
+        clip: {fileID: 8300000, guid: 54be3c7a37e8ad84887df2c80274bfea, type: 3}
     - rid: 5678798957396885564
       type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
       data:

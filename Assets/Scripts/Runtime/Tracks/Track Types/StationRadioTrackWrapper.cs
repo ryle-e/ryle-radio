@@ -94,7 +94,7 @@ public class StationRadioTrackWrapper
         track.Init();
     }
 
-    // gets a new track of type depending on the provided name
+    // gets a new track of type depending on the provided id
     // note that this is static
     // also note that this uses IStationTrack, unlike RadioTrackWrapper
     public static IStationTrack CreateTrackEditor(string _name)

@@ -183,7 +183,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: -3846018093981099296, guid: 617740cc60c71b043aaf03845606b53f, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -315,7 +315,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &250196779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,8 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b735eee3b5bb5364da462ace404f2aec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  listener: {fileID: 398591043}
-  affectedTracks: 0
+  output: {fileID: 398591046}
+  affectedTracks: 16
   events:
   - type: 0
     comparison: 1
@@ -415,11 +415,11 @@ MonoBehaviour:
     staying: 0
   - type: 1
     comparison: 1
-    clampedValue: 0.5
+    clampedValue: 0.9
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
     tuneRange: {x: 0, y: 0}
-    showEvents: 0
+    showEvents: 1
     onTrigger:
       m_PersistentCalls:
         m_Calls:
@@ -435,12 +435,36 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+        - m_Target: {fileID: 2145585589}
+          m_TargetAssemblyTypeName: RadioInteractorGroup, Assembly-CSharp
+          m_MethodName: Stop
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
     onStay:
       m_PersistentCalls:
         m_Calls: []
     onEnd:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 1084673284}
+          m_TargetAssemblyTypeName: ObserverTest, Assembly-CSharp
+          m_MethodName: Gain
+          m_Mode: 3
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 1
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
     staying: 0
   - type: 3
     comparison: 3
@@ -471,7 +495,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     staying: 0
-  - type: 7
+  - type: 4
     comparison: 1
     clampedValue: 0
     tuneValue: 0
@@ -500,7 +524,7 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     staying: 0
-  - type: 7
+  - type: 5
     comparison: 1
     clampedValue: 0
     tuneValue: 0
@@ -535,7 +559,7 @@ MonoBehaviour:
     tuneValue: 409
     clampedRange: {x: 0.6509186, y: 1}
     tuneRange: {x: 0, y: 200}
-    showEvents: 0
+    showEvents: 1
     onTrigger:
       m_PersistentCalls:
         m_Calls: []
@@ -557,6 +581,59 @@ MonoBehaviour:
     onEnd:
       m_PersistentCalls:
         m_Calls: []
+    staying: 0
+  - type: 6
+    comparison: 5
+    clampedValue: 0.639
+    tuneValue: 409
+    clampedRange: {x: 0.6509186, y: 1}
+    tuneRange: {x: 92.088745, y: 635.3286}
+    showEvents: 1
+    onTrigger:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1084673284}
+          m_TargetAssemblyTypeName: ObserverTest, Assembly-CSharp
+          m_MethodName: Log
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: tune in range 2
+            m_BoolArgument: 0
+          m_CallState: 2
+    onStay:
+      m_PersistentCalls:
+        m_Calls: []
+    onEnd:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2145585589}
+          m_TargetAssemblyTypeName: RadioInteractorGroup, Assembly-CSharp
+          m_MethodName: PlayLoop
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1084673284}
+          m_TargetAssemblyTypeName: ObserverTest, Assembly-CSharp
+          m_MethodName: Log
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: tune out of range 2
+            m_BoolArgument: 0
+          m_CallState: 2
     staying: 0
 --- !u!4 &250196780
 Transform:
@@ -583,7 +660,7 @@ GameObject:
   m_Component:
   - component: {fileID: 398591045}
   - component: {fileID: 398591044}
-  - component: {fileID: 398591043}
+  - component: {fileID: 398591046}
   m_Layer: 0
   m_Name: Radio
   m_TagString: Untagged
@@ -591,20 +668,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &398591043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 398591042}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8f1646434eb92044af287452a342cf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: caefe113e6c848443abd76f96e9d0eae, type: 2}
-  tune: 1000
 --- !u!82 &398591044
 AudioSource:
   m_ObjectHideFlags: 0
@@ -727,6 +790,20 @@ Transform:
   - {fileID: 1624260779}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &398591046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398591042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f28a12e049e7cc449e36b069886f019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: dda21914aeb84c9499e29ae6963bf49f, type: 2}
+  tune: 0
 --- !u!1 &529688323
 GameObject:
   m_ObjectHideFlags: 0
@@ -800,7 +877,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  applyToAllListenersOutside: 0
+  applyToAllOutputsOutside: 0
 --- !u!1 &539997984
 GameObject:
   m_ObjectHideFlags: 0
@@ -1207,8 +1284,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2145585588}
+  - component: {fileID: 2145585589}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Interactor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1229,14 +1307,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2145585589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145585587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39c1b9e24c215a340adc3822d6c85f8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  output: {fileID: 398591046}
+  affectedTracks: 16
+  playerSelector: 0
+  debugAll: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 963194228}
   - {fileID: 705507995}
-  - {fileID: 539997986}
   - {fileID: 398591045}
+  - {fileID: 539997986}
   - {fileID: 157476169}
   - {fileID: 529688325}
   - {fileID: 250196780}

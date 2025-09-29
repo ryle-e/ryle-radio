@@ -67,7 +67,7 @@ public class RadioTrackWrapper
     }
 
     // the possibke track types that can be assigned here, with their typenames as strings- this is not the DISPLAY_NAME in the RadioTrack script, this is
-    // the name of the type itself. used to reassign trackType on editor reload, as it sets itself back to default otherwise
+    // the id of the type itself. used to reassign trackType on editor reload, as it sets itself back to default otherwise
     private static string[] trackTypesAsStrings;
     private static string[] TrackTypesAsStrings
     {
@@ -147,7 +147,7 @@ public class RadioTrackWrapper
         return TrackNames[index];
     }
 
-    // gets a new track of type depending on the provided name
+    // gets a new track of type depending on the provided id
     // note that this is static
     public static IRadioTrack CreateTrackEditor(string _name)
     {

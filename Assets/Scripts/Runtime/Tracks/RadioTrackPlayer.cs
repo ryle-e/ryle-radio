@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// a class that plays a given RadioTrack at runtime- this manages the playback in a Listener, and as such will be created newly for each Listener
+// a class that plays a given RadioTrack at runtime- this manages the playback in a output, and as such will be created newly for each Output
 // this is effectively a central point for most documentation about how a track is played
 public class RadioTrackPlayer
 {
@@ -66,7 +66,7 @@ public class RadioTrackPlayer
     }
 
     private float sampleIncrement; // the amount that the sample progress is increased every increment
-    private float baseSampleRate; // the sample rate of the Listener this is associated with
+    private float baseSampleRate; // the sample rate of the Output this is associated with
 
     private bool isStopped = false; // if this player has been stopped already, e.g reaches the end of a one-shot
 
@@ -79,7 +79,7 @@ public class RadioTrackPlayer
 
         PlayType = _playerType;
 
-        // assign the sample rate of the Listener
+        // assign the sample rate of the Oistener
         baseSampleRate = _baseSampleRate;
         UpdateSampleIncrement();
 
@@ -90,11 +90,11 @@ public class RadioTrackPlayer
     // update the increment added to the progress each sample
     public void UpdateSampleIncrement()
     {
-        // we need to have a float variable for sampleIncrement as the sample rate of the track and the sample rate of the listener may be different
+        // we need to have a float variable for sampleIncrement as the sample rate of the track and the sample rate of the output may be different
         // if they're different, it means that incrememnting Progress by 1 will make this track sound faster or slower depending on its SampleRate
         // in order to counteract this, we set up a specific increment as the ratio between these two sample rates
         // 
-        // let's say that the Listener's sampleRate is 44100, but the track's sample rate is 48000
+        // let's say that the Output's sampleRate is 44100, but the track's sample rate is 48000
         // if we incremented Progress by 1 every sample, then, the track would sound slightly slower than usual as we're using the wrong SampleRate
         // if we use this method though, we get an increment of ~0.92
         // if we increment it by 0.92 every sample, then, the track sounds to be playing at the correct speed!
@@ -127,8 +127,8 @@ public class RadioTrackPlayer
             // long explanation of each method is in here so this can be kind of a core script for documentation
 
             // get the gain of the track- this is a combination of the track's individual Gain variable, as well as its tuning power and attenuation
-            // the tuning power is defined by how closely the Listener is tuned to this track. e.g, if this track's range is 100 - 300, and the
-            // Listener's tune is 200, the track will likely be very loud- but if the tune is 120, it will be very quiet- the amount of loudness or
+            // the tuning power is defined by how closely the Output is tuned to this track. e.g, if this track's range is 100 - 300, and the
+            // Output's tune is 200, the track will likely be very loud- but if the tune is 120, it will be very quiet- the amount of loudness or
             // quietness defined by the tune is named tune power here
             //
             // as well as the tuning power, this value is created with attenutation: how much quieter this track is when there are others playing
@@ -140,18 +140,18 @@ public class RadioTrackPlayer
             float gain = TrackW.GetGain(_tune, _otherVolume);
             OnGain(this, gain);
 
-            // get the broadcast power of the track- this is dependent on where the Listener is in relation to any RadioBroadcasters in the scene
-            // if the range of a Broadcaster is 100 units, and the listener is 5 units away from it, it will likely hear the track loudly
-            // if the listener is 95 units away, though, it will be heard quietly
-            // this works with many broadcasters and listeners- see RadioBroadcaster for more info
+            // get the broadcast power of the track- this is dependent on where the Output is in relation to any RadioBroadcasters in the scene
+            // if the range of a Broadcaster is 100 units, and the output is 5 units away from it, it will likely hear the track loudly
+            // if the output is 95 units away, though, it will be heard quietly
+            // this works with many broadcasters and outputs- see RadioBroadcaster for more info
             float broadcastPower = GetBroadcastPower(_receiverPosition);
             OnBroadcastPower(this, broadcastPower);
 
-            // get the insulation of the track- this is effectively the inverse of broadcastPower, and is dependent on the position of the Listener
-            // if the Insulator is a box 100 units wide, and the listener is outside of it- the insulationMultiplier will be set to 1, as the track
-            // is not being insulated at all. if the listener is inside the box, though, insulationMultiplier will be < 1 depending on the power in
+            // get the insulation of the track- this is effectively the inverse of broadcastPower, and is dependent on the position of the Output
+            // if the Insulator is a box 100 units wide, and the output is outside of it- the insulationMultiplier will be set to 1, as the track
+            // is not being insulated at all. if the output is inside the box, though, insulationMultiplier will be < 1 depending on the power in
             // the RadioInsulator script.
-            // this was introduced to simulate "dead zones", or areas in which a broadcast can't be heard. if your listener is inside an Insulator,
+            // this was introduced to simulate "dead zones", or areas in which a broadcast can't be heard. if your output is inside an Insulator,
             // the track will sound quieter- hence a lower insulationMultiplier the stronger the insulation
             float insulationMultiplier = GetInsulation(_receiverPosition);
             OnInsulation(this, insulationMultiplier);
@@ -164,7 +164,7 @@ public class RadioTrackPlayer
         // get the sample at this moment from the track, and apply the volume to it
         float sample = TrackW.GetSample((int) Progress) * volume;
 
-        // give back the volume to the Listener
+        // give back the volume to the Output
         _outVolume = volume;
 
         // and return the sample
@@ -235,6 +235,12 @@ public class RadioTrackPlayer
 
         // destroy this player
         DoDestroy(this);
+    }
+
+    // resets the progress of this player to 0
+    public void ResetProgress()
+    {
+        Progress = 0;
     }
 
     // get the broadcast power of the current track depending on its position

@@ -3,16 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 // a component that plays a RadioData through an AudioSource
 // most of the documentation explaining specific parts of playback is in RadioTrackPlayer.cs, so check there as well
-[AddComponentMenu("Ryle Radio/Radio Listener")]
+[AddComponentMenu("Ryle Radio/Radio Output")]
 [RequireComponent(typeof(AudioSource))]
-public class RadioListener : RadioComponent
+public class RadioOutput : RadioComponent
 {
-    // when attempting to pull a RadioTrackPlayer from this listener, you can choose the method by which it picks it
+    // when attempting to pull a RadioTrackPlayer from this output, you can choose the method by which it picks it
     // this only matters if you're playing a bunch of one-shots of the same track
     public enum MultiplePlayersSelector
     {
@@ -21,14 +21,14 @@ public class RadioListener : RadioComponent
         Random
     }
 
-    // the current tune of this Listener- controls what tracks can be heard and when
-    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ExecOnTune")] 
+    // the current tune of this output- controls what tracks can be heard and when
+    [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ExecOnTune")]
     protected float tune;
 
-    // the players applied to this listener;
+    // the players applied to this output;
     protected List<RadioTrackPlayer> players = new();
 
-    // the position of this listener as of the last update
+    // the position of this output as of the last update
     // we need to cache this value as audio is on a separate thread to the rest of Unity- this means we get errors if we access position as
     // transform.position rather than caching it here
     protected Vector3 cachedPos;
@@ -36,7 +36,9 @@ public class RadioListener : RadioComponent
     // the sample rate of the player
     private float baseSampleRate;
 
-    // all observers associated with this listener
+    private Action playEvents = () => { };
+
+    // all observers associated with this output
     public List<RadioObserver> Observers { get; private set; } = new();
 
     // called whenever the tune is changed
@@ -66,7 +68,7 @@ public class RadioListener : RadioComponent
 
     protected virtual void Update()
     {
-        // cache the position of this listener
+        // cache the position of this output
         cachedPos = transform.position;
     }
 
@@ -93,23 +95,50 @@ public class RadioListener : RadioComponent
 
         // create and start all track players
         StartPlayers();
+
+        OnTune(tune);
     }
 
     // stores a new RadioTrackPlayer and alerts any observers
-    public void PlayerCreation(RadioTrackPlayer _player)
+    protected void PlayerCreation(RadioTrackPlayer _player)
     {
         foreach (RadioObserver observer in Observers)
         {
             // if an observer is watching this track
             if (observer.AffectedTracks.Contains(_player.TrackW.name))
+            {
                 observer.AssignEvents(_player); // point it towards this new player
+            }
+        }
+
+        // below here is a section where we insert the new player into the list while preserving the order of the tracks in the Data inspector.
+        // we do this so that attenuation is preserved. if we just added players to the list one by one, the order would change, and so tracks
+        // that are supposed to get quieter when another is played (attenuate) will not do so if the other player was created afterwards.
+
+        // the index of the track in the RadioData track list- the order of the Data in the inspector
+        int indexInData = Data.TrackIDs.IndexOf(_player.TrackW.name);
+
+        // the index at which to put the newly created player
+        int indexForNewPlayer = players.Count;
+
+        // search through the currently existent players to find one with a higher index in Data
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (Data.TrackIDs.IndexOf(players[i].TrackW.id) > indexInData)
+            { 
+                indexForNewPlayer = i;
+                break;
+            }
         }
 
         // store the player
-        players.Add(_player);
+        if (players.Count == 0)
+            players.Add(_player);
+        else
+            players.Insert(indexForNewPlayer + 1, _player);
     }
 
-    // create all RadioTrackPlayers for this Listener
+    // create all RadioTrackPlayers for this output
     private void StartPlayers()
     {
         // for every track in the RadioData
@@ -137,10 +166,15 @@ public class RadioListener : RadioComponent
             RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.OneShot, baseSampleRate);
 
             // store the player
-            PlayerCreation(player);
+            lock (playEvents)
+                playEvents += () => PlayerCreation(player);
 
             // ensure that the new player is cleaned up when it's destroyed
-            player.DoDestroy += player => players.Remove(player);
+            player.DoDestroy += player => 
+            {
+                lock (playEvents)
+                    playEvents += () => players.Remove(player);
+            };
 
             // return the player
             return player;
@@ -163,7 +197,8 @@ public class RadioListener : RadioComponent
             RadioTrackPlayer player = new(track, RadioTrackPlayer.PlayerType.Loop, baseSampleRate);
 
             // store the player
-            PlayerCreation(player);
+            lock(playEvents)
+                playEvents += () => PlayerCreation(player);
 
             // return the player
             return player;
@@ -177,7 +212,7 @@ public class RadioListener : RadioComponent
 
     }
 
-    // try to find an active RadioTrackPlayer on this Listener
+    // try to find an active RadioTrackPlayer on this output
     public bool TryGetPlayer(
         string _trackID, 
         out RadioTrackPlayer _player, 
@@ -248,7 +283,8 @@ public class RadioListener : RadioComponent
     // if you do want this i would recommend using a separate audiosource so that you can control the volume separately
     protected virtual void OnAudioFilterRead(float[] _data, int _channels)
     {
-        // the listener only plays back one channel, so we have to account for this
+        // the output only plays back one channel, so we have to account for this when the radio is using
+        // tracks with more than one channel
 
         // the number of samples for, total- the _data array has an entry for each channel by default. e.g if _data was 2048
         // entries long, and there were two channels- there would actually only be 1024 samples
@@ -282,6 +318,12 @@ public class RadioListener : RadioComponent
             // for each channel,
             for (int channel = indexWithChannels; channel < indexWithChannels + _channels; channel++) 
                 _data[channel] += sample; // apply the sample
+        }
+
+        lock (playEvents)
+        {
+            playEvents();
+            playEvents = () => { };
         }
     }
 

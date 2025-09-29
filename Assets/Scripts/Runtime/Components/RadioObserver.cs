@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 
-// a component used to watch for specific happenings on a RadioListener, e.g: a clip being a certain volume, a track starting, the tune being in a certain range
+// a component used to watch for specific happenings on a RadioOutput, e.g: a clip being a certain volume, a track starting, the tune being in a certain range
 // we don't inherit from RadioComponent here since we don't need to use a RadioData ref, but it's very similar
 [AddComponentMenu("Ryle Radio/Radio Observer")]
 public partial class RadioObserver : MonoBehaviour
@@ -15,12 +15,12 @@ public partial class RadioObserver : MonoBehaviour
     public enum EventType
     {
         OutputVolume, // the volume of the track:  gain * broadcast power * insulation
-        GainTune, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the listener
-        BroadcastPower, // the broadcast power of the track:  how close to any active RadioBroadcasters the listener is
-        Insulation, // the insulation of the track:  the higher the value the less insulation- the power of any RadioInsulator the listener is in
+        GainTune, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the output
+        BroadcastPower, // the broadcast power of the track:  how close to any active RadioBroadcasters the output is
+        Insulation, // the insulation of the track:  the higher the value the less insulation- the power of any RadioInsulator the output is in
         TrackEnds, // the track ends, or loops
         TrackStarts, // the track starts, or loops (happens after TrackEnds)
-        Tune, // the tune on the listener is changed
+        Tune, // the tune on the output is changed
 
         None // empty, mainly to temporarily disable an event without deleting it
     }
@@ -37,8 +37,8 @@ public partial class RadioObserver : MonoBehaviour
         BetweenExclusive, // between x and y, but not equal to x or y
     }
     
-    // the listener this observer is attached to
-    [SerializeField] private RadioListener listener;
+    // the output this observer is attached to
+    [SerializeField] private RadioOutput output;
 
     // the tracks that this observer is watching for events on
     // due to editor attribute limitations, all these events apply to the same tracks. if you want different events for different tracks, you need to make new observers
@@ -54,7 +54,7 @@ public partial class RadioObserver : MonoBehaviour
     private List<Action> toDoOnUpdate = new();
 
     // the names that the multiselect can pull from
-    private List<string> TrackNames => listener != null ? listener.Data.TrackNames : new() { "Listener not assigned!" };
+    private List<string> TrackNames => output != null ? output.Data.TrackNames : new() { "Output not assigned!" };
 
     // the affected tracks as a list of names rather than an int
     // cached
@@ -73,13 +73,13 @@ public partial class RadioObserver : MonoBehaviour
     
     private void Awake()
     {
-        // attach this observer to the listener
-        listener.Observers.Add(this);
+        // attach this observer to the output
+        output.Observers.Add(this);
     }
 
     private void OnDestroy()
     {
-        listener.Observers.Remove(this);
+        output.Observers.Remove(this);
     }
 
     private void Update()
@@ -139,9 +139,9 @@ public partial class RadioObserver : MonoBehaviour
                     _player.OnEnd += (player) => { TriggerEvent(e); };
                     break;
 
-                // this event watches the tune of the listener- it doesn't actually use a player here
+                // this event watches the tune of the output- it doesn't actually use a player here
                 case EventType.Tune:
-                    listener.OnTune += (tune) => { StayEvent(e, tune); };
+                    output.OnTune += (tune) => { StayEvent(e, tune); };
                     break;
 
                 // an empty event gets no behaviour - gandhi
@@ -196,7 +196,8 @@ public partial class RadioObserver : MonoBehaviour
 
                 // call the onEnd event
                 lock (toDoOnUpdate) 
-                    toDoOnUpdate.Add(() => _event.onEnd.Invoke());            }
+                    toDoOnUpdate.Add(() => _event.onEnd.Invoke());            
+            }
         }
     }
 
