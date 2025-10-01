@@ -63,7 +63,7 @@ MonoBehaviour:
     insulators: []
     trackType: Audio Clip
     track:
-      rid: 5678798957396885561
+      rid: 7468379982762082358
   - id: noise
     name: noise, 0 - 1000
     range: {x: 0, y: 1000}
@@ -99,7 +99,7 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 5678798957396885564
+      rid: 7468379982762082359
   - id: bass
     name: bass, 0 - 1000
     range: {x: 0, y: 1000}
@@ -135,7 +135,7 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 5678798978745368634
+      rid: 7468379982762082360
   - id: bass2
     name: bass2, 0 - 1000
     range: {x: 0, y: 1000}
@@ -171,32 +171,32 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 8723681415206273087
+      rid: 7468379982762082361
   references:
     version: 2
     RefIds:
-    - rid: 5678798957396885561
-      type: {class: ClipRadioTrack, ns: , asm: Assembly-CSharp}
+    - rid: 7468379982762082358
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        clip: {fileID: 8300000, guid: 54be3c7a37e8ad84887df2c80274bfea, type: 3}
-    - rid: 5678798957396885564
-      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
+        clip: {fileID: 0}
+    - rid: 7468379982762082359
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        proceduralType: 1
+        proceduralType: 0
         duration: 0
-        waveFrequency: 306
-        brownWalkPower: 0.707
-    - rid: 5678798978745368634
-      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
-      data:
-        proceduralType: 3
-        duration: 0
-        waveFrequency: 60
+        waveFrequency: 100
         brownWalkPower: 0.5
-    - rid: 8723681415206273087
-      type: {class: ProceduralRadioTrack, ns: , asm: Assembly-CSharp}
+    - rid: 7468379982762082360
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        proceduralType: 3
+        proceduralType: 0
         duration: 0
-        waveFrequency: 926
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 7468379982762082361
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+      data:
+        proceduralType: 0
+        duration: 0
+        waveFrequency: 100
         brownWalkPower: 0.5
