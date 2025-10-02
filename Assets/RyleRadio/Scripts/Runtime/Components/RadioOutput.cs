@@ -61,6 +61,16 @@ namespace RyleRadio.Components
             }
         }
 
+        public float Tune01
+        {
+            get => Mathf.InverseLerp(RadioData.LOW_TUNE, RadioData.HIGH_TUNE, Tune);
+        }
+
+        public float DisplayTune
+        {
+            get => Mathf.Round(tune * 10) / 10;
+        }
+
 
         // called when the tune is changed in the inspector
         private void ExecOnTune()
@@ -120,7 +130,7 @@ namespace RyleRadio.Components
             // that are supposed to get quieter when another is played (attenuate) will not do so if the other player was created afterwards.
 
             // the index of the track in the RadioData track list- the order of the Data in the inspector
-            int indexInData = Data.TrackIDs.IndexOf(_player.TrackW.name);
+            int indexInData = Data.TrackIDs.IndexOf(_player.TrackW.id);
 
             // the index at which to put the newly created player
             int indexForNewPlayer = players.Count;
@@ -128,7 +138,7 @@ namespace RyleRadio.Components
             // search through the currently existent players to find one with a higher index in Data
             for (int i = 0; i < players.Count; i++)
             {
-                if (Data.TrackIDs.IndexOf(players[i].TrackW.id) > indexInData)
+                if (Data.TrackIDs.IndexOf(players[i].TrackW.id) < indexInData)
                 {
                     indexForNewPlayer = i;
                     break;
@@ -139,7 +149,7 @@ namespace RyleRadio.Components
             if (players.Count == 0)
                 players.Add(_player);
             else
-                players.Insert(indexForNewPlayer + 1, _player);
+                players.Insert(indexForNewPlayer, _player);
         }
 
         // create all RadioTrackPlayers for this output

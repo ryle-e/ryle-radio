@@ -111,6 +111,9 @@ namespace RyleRadio.Tracks
             //
             // note: this explanation was mostly for my own future reference if i forget how this works lol
             sampleIncrement = TrackW.SampleRate / baseSampleRate;
+
+            //if (TrackW.id == "music_old2")
+            //    Debug.Log(TrackW.SampleCount);
         }
 
         // gets the sample at the current progress, using the tune, broadcaster/insulators, attenuation, gain, etc
@@ -190,6 +193,8 @@ namespace RyleRadio.Tracks
                 // increment progress with the sampleIncrement, and clamp it between 0 and the maximum sample count
                 // see UpdateSampleIncrement() for more info on the sampleIncrement
                 Progress = Math.Clamp(Progress + sampleIncrement, 0, TrackW.SampleCount - 1);
+
+                UpdateSampleIncrement();
             }
 
             switch (PlayType)

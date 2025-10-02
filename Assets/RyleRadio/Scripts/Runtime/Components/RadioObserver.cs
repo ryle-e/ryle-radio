@@ -155,7 +155,7 @@ namespace RyleRadio.Components
         }
 
         // a generic approach to an event tracking a value- we use a method here since we'd just be duplicating the code otherwise
-        private void StayEvent(ObserverEvent _event, float _value)
+        private void StayEvent(ObserverEvent _event, float _value) 
         {
             // if this event doesn't use a comparison, this method should not have been called- tell the user
             if (!_event.NeedComparison)
@@ -176,14 +176,18 @@ namespace RyleRadio.Components
 
                     // call the onTrigger event
                     lock (toDoOnUpdate)
-                        toDoOnUpdate.Add(() => _event.onTrigger.Invoke());
+                    { 
+                        toDoOnUpdate.Add(() => _event.onTrigger.Invoke()); 
+                    }
                 }
                 // and this is not the first time the event is called,
                 else
                 {
                     // call the onStay event
                     lock (toDoOnUpdate)
-                        toDoOnUpdate.Add(() => _event.onStay.Invoke());
+                    { 
+                        toDoOnUpdate.Add(() => _event.onStay.Invoke()); 
+                    }
                 }
             }
             else
@@ -197,7 +201,9 @@ namespace RyleRadio.Components
 
                     // call the onEnd event
                     lock (toDoOnUpdate)
+                    {
                         toDoOnUpdate.Add(() => _event.onEnd.Invoke());
+                    }
                 }
             }
         }
