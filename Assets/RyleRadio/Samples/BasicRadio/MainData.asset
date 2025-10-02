@@ -51,7 +51,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 100
+    gain: 238
     attenuation: 0
     forceGlobal: 1
     playOnInit: 1
@@ -96,7 +96,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 304
+    gain: 437
     attenuation: 0
     forceGlobal: 1
     playOnInit: 1
@@ -186,7 +186,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 85
+    gain: 92
     attenuation: 0
     forceGlobal: 1
     playOnInit: 1
@@ -259,7 +259,7 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     gain: 100
-    attenuation: 1
+    attenuation: 0.95
     forceGlobal: 1
     playOnInit: 1
     broadcasters: []
@@ -285,10 +285,10 @@ MonoBehaviour:
     - rid: 7468379981816266828
       type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        proceduralType: 3
+        proceduralType: 2
         duration: 0
         waveFrequency: 474
-        brownWalkPower: 0.5
+        brownWalkPower: 0.248
     - rid: 7468379981816266830
       type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
