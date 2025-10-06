@@ -1,8 +1,5 @@
 using System;
-using UnityEditor.AssetImporters;
-using UnityEditor.PackageManager.UI;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class ClipTest : MonoBehaviour
 {

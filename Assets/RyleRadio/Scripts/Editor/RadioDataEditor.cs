@@ -6,6 +6,7 @@ namespace RyleRadio.Editor
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using UnityEngine.UIElements;
 
     // the editor for a RadioData object
     // the main purpose for this is to reset tracks when new ones are added- if we don't do this, they link- changing one track changes all of them
@@ -20,6 +21,9 @@ namespace RyleRadio.Editor
         private SerializedProperty gizmoColor; // colour of gizmos associated with the data
         private SerializedProperty gizmoColorSecondary;
 
+        private SerializedProperty forceClipSampleRate; // whether or not all AudioClips are overriden to a specific sample rate
+        private SerializedProperty forcedSampleRate; // the specific sample rate
+
         // for a foldout hiding advanced vars
         private bool showAdvanced = false;
 
@@ -30,6 +34,9 @@ namespace RyleRadio.Editor
             // store gizmo colours
             gizmoColor = serializedObject.FindProperty("gizmoColor");
             gizmoColorSecondary = serializedObject.FindProperty("gizmoColorSecondary");
+
+            forceClipSampleRate = serializedObject.FindProperty("forceClipSampleRate");
+            forcedSampleRate = serializedObject.FindProperty("forcedSampleRate");
 
             // store tracks
             trackWs = serializedObject.FindProperty("trackWs");
@@ -77,8 +84,17 @@ namespace RyleRadio.Editor
                 EditorGUILayout.PropertyField(gizmoColor, new GUIContent("Gizmo Colour"));
                 EditorGUILayout.PropertyField(gizmoColorSecondary, new GUIContent("Secondary Gizmo Colour"));
 
+                forceClipSampleRate.boolValue = EditorGUILayout.BeginToggleGroup("Force sample rate on Clips", forceClipSampleRate.boolValue);
+                EditorGUILayout.PropertyField(forcedSampleRate, new GUIContent("Forced sample rate"));
+
+                if (GUILayout.Button(new GUIContent("Force Clips to sample rate")))
+                    ForceClipsToSampleRate();
+
+                EditorGUILayout.EndToggleGroup();
+
                 if (GUILayout.Button(new GUIContent("Clear Cache")))
-                    ((RadioData) serializedObject.targetObject).ClearCache();
+                    ((RadioData)serializedObject.targetObject).ClearCache();
+
             }
 
             // display the tracks
@@ -123,6 +139,41 @@ namespace RyleRadio.Editor
 
             // apply inspector changes
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void ForceClipsToSampleRate()
+        {
+            for (int i = 0; i < trackWs.arraySize; i++)
+            {
+                SerializedProperty wrapper = trackWs.GetArrayElementAtIndex(i);
+
+                if (wrapper.FindPropertyRelative("track").managedReferenceValue is ClipRadioTrack clipTrack)
+                {
+                    ForceSingleClipToSampleRate(clipTrack.clip);
+                }
+                else if (wrapper.FindPropertyRelative("track").managedReferenceValue is StationRadioTrack stationTrack)
+                {
+                    foreach (StationRadioTrackWrapper sTrackW in stationTrack.stationTrackWs)
+                    {
+                        if (sTrackW.EditorChildClip != null)
+                            ForceSingleClipToSampleRate(sTrackW.EditorChildClip);
+                    }
+                }
+            }
+        }
+
+        private void ForceSingleClipToSampleRate(AudioClip _clip)
+        {
+            AudioImporter importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(_clip)) as AudioImporter;
+
+            string buildTarget = BuildPipeline.GetBuildTargetName(EditorUserBuildSettings.activeBuildTarget);
+
+            var sampleSettings = importer.GetOverrideSampleSettings(buildTarget);
+
+            sampleSettings.sampleRateSetting = AudioSampleRateSetting.OverrideSampleRate;
+            sampleSettings.sampleRateOverride = (uint)forcedSampleRate.intValue;
+
+            importer.SetOverrideSampleSettings(buildTarget, sampleSettings);
         }
     }
 #endif

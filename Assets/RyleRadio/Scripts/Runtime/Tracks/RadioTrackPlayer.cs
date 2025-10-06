@@ -20,8 +20,8 @@ namespace RyleRadio.Tracks
         public RadioTrackWrapper TrackW { get; private set; }
 
         // how many samples through the track are we
-        // we use floats here so that we can easily translate between sample rates- see UpdateSampleIncrement()
-        public float Progress { get; private set; } = 0;
+        // we use a double here to increase precision- if we use a float, we start to get clipping or distortion when converting between sample rates
+        public double Progress { get; private set; } = 0;
         public float ProgressFraction // progress through the track from 0 - 1
         {
             get
@@ -31,7 +31,7 @@ namespace RyleRadio.Tracks
                     return 1;
 
                 float maxSamples = TrackW.SampleCount - 1; // get the total samples
-                return Mathf.Clamp01(Progress / maxSamples); // get the progress at those samples
+                return Mathf.Clamp01((float)Progress / maxSamples); // get the progress at those samples
             }
         }
 

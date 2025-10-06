@@ -9,6 +9,8 @@ namespace RyleRadio.Tracks
     {
         public const string DISPLAY_NAME = "Audio Clip";
 
+        private const bool FORCE_SAMPLE_RATE = true;
+
         // the clip you're providing to this track
         public AudioClip clip;
 

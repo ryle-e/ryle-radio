@@ -51,15 +51,11 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 200
+    gain: 500
     attenuation: 0.1
     forceGlobal: 0
     playOnInit: 1
-    broadcasters:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    broadcasters: []
     insulators: []
     trackType: Audio Clip
     track:
@@ -178,7 +174,7 @@ MonoBehaviour:
     - rid: 7468379982762082358
       type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        clip: {fileID: 0}
+        clip: {fileID: 8300000, guid: 99cb3a6d99a6f854ab97e624b3f3a51f, type: 3}
     - rid: 7468379982762082359
       type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
@@ -189,14 +185,14 @@ MonoBehaviour:
     - rid: 7468379982762082360
       type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        proceduralType: 0
+        proceduralType: 3
         duration: 0
         waveFrequency: 100
         brownWalkPower: 0.5
     - rid: 7468379982762082361
       type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
       data:
-        proceduralType: 0
+        proceduralType: 3
         duration: 0
-        waveFrequency: 100
+        waveFrequency: 300
         brownWalkPower: 0.5

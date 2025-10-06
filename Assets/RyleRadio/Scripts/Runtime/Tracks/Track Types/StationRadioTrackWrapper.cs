@@ -72,6 +72,10 @@ namespace RyleRadio.Tracks
             }
         }
 
+#if UNITY_EDITOR
+        public AudioClip EditorChildClip => (track is ClipRadioTrack clipTrack) ? clipTrack.clip : null;
+#endif
+
 
         public StationRadioTrackWrapper(IStationTrack _track)
         {
