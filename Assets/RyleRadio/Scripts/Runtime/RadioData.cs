@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+#pragma warning disable 0414 // we do this as the force clip sample rate variables are technically not used in code- but they are in the inspector
+
 namespace RyleRadio
 {
 

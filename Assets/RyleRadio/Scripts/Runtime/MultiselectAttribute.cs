@@ -29,16 +29,17 @@ namespace RyleRadio
         // self-explanatory
         // useful for list indexes
         public static int[] ZeroTo31 => new int[32] {
-        0, 1, 2, 3, 4, 5, 6, 7, 8,
-        9, 10, 11, 12, 13, 14, 15, 16,
+        0,  
+        1,  2,  3,  4,  5,  6,  7,  8,
+        9,  10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 21, 22, 23, 24,
         25, 26, 27, 28, 29, 30, 31
     };
 
         // useful for reverse list indexes(?? i haven't really used this one but thought i'd include it nonetheless)
         public static int[] OneTo32 => new int[32] {
-        1, 2, 3, 4, 5, 6, 7, 8,
-        9, 10, 11, 12, 13, 14, 15, 16,
+        1,  2,  3,  4,  5,  6,  7,  8,
+        9,  10, 11, 12, 13, 14, 15, 16,
         17, 18, 19, 20, 21, 22, 23, 24,
         25, 26, 27, 28, 29, 30, 31,
         32
@@ -121,7 +122,9 @@ namespace RyleRadio
 
                         // convert the options to strings for displaying
                         for (int i = 0; i < list.Count; i++)
-                            optionNames[i] = list[i].ToString(); // display the options in reverse order with ^i
+                            optionNames[i] = list[i].ToString();
+
+                        optionNames = optionNames.Reverse().ToArray();
 
                         // draw the field
                         mask = EditorGUILayout.MaskField(mask, optionNames);
@@ -141,6 +144,8 @@ namespace RyleRadio
                         // convert the options to strings for displaying
                         for (int i = 0; i < array.Length; i++)
                             optionNames[i] = array.GetValue(i).ToString();
+
+                        optionNames = optionNames.Reverse().ToArray();
 
                         // draw the field
                         mask = EditorGUILayout.MaskField(mask, optionNames);

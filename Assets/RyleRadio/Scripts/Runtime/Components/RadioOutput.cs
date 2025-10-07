@@ -40,6 +40,7 @@ namespace RyleRadio.Components
         // the sample rate of the player
         private float baseSampleRate;
 
+        // a delegate that is called at the end of every audio sample iteration so that we don't interrupt threads when manipulating RadioTrackPlayers
         private Action playEvents = () => { };
 
         // all observers associated with this output
@@ -334,10 +335,11 @@ namespace RyleRadio.Components
                     _data[channel] += sample; // apply the sample
             }
 
+            // execute all events waiting for this read sequence to end
             lock (playEvents)
             {
-                playEvents();
-                playEvents = () => { };
+                playEvents(); // execute the delegate
+                playEvents = () => { }; // clear it
             }
         }
 
