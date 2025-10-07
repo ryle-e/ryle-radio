@@ -84,14 +84,22 @@ namespace RyleRadio.Editor
                 EditorGUILayout.PropertyField(gizmoColor, new GUIContent("Gizmo Colour"));
                 EditorGUILayout.PropertyField(gizmoColorSecondary, new GUIContent("Secondary Gizmo Colour"));
 
+
+                // toggle for whether or not the user wants to force a sample rate on clips referenced in this radio
                 forceClipSampleRate.boolValue = EditorGUILayout.BeginToggleGroup("Force sample rate on Clips", forceClipSampleRate.boolValue);
+                
+                // the sample rate to force on the clips
                 EditorGUILayout.PropertyField(forcedSampleRate, new GUIContent("Forced sample rate"));
 
+                // a button to manually perform the sample rate forcing
                 if (GUILayout.Button(new GUIContent("Force Clips to sample rate")))
                     ForceClipsToSampleRate();
 
+                // finish the toggled area
                 EditorGUILayout.EndToggleGroup();
 
+
+                // button to manually clear the name and ID caches of the radio
                 if (GUILayout.Button(new GUIContent("Clear Cache")))
                     ((RadioData)serializedObject.targetObject).ClearCache();
 
@@ -141,38 +149,65 @@ namespace RyleRadio.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
+        // get all AudioClips referenced in this radio, and override their sample rates in one go
+        // we do this to stop distortion in RadioOutput when converting between sample rates- optional if you're okay with a little distortion
         private void ForceClipsToSampleRate()
         {
+            // for every track in this radio,
             for (int i = 0; i < trackWs.arraySize; i++)
             {
+                // get its wrapper
                 SerializedProperty wrapper = trackWs.GetArrayElementAtIndex(i);
 
+                // if the wrapper is a clip,
                 if (wrapper.FindPropertyRelative("track").managedReferenceValue is ClipRadioTrack clipTrack)
                 {
+                    // force the clip's sample rate
                     ForceSingleClipToSampleRate(clipTrack.clip);
                 }
+                // otherwise if the wrapper is a station (and therefore could contain a clip)
                 else if (wrapper.FindPropertyRelative("track").managedReferenceValue is StationRadioTrack stationTrack)
                 {
+                    // for every track in this station
                     foreach (StationRadioTrackWrapper sTrackW in stationTrack.stationTrackWs)
                     {
+                        // if the track has a referenced clip (is a ClipRadioTrack)
                         if (sTrackW.EditorChildClip != null)
-                            ForceSingleClipToSampleRate(sTrackW.EditorChildClip);
+                            ForceSingleClipToSampleRate(sTrackW.EditorChildClip); // force its sample rate
                     }
                 }
             }
         }
 
+        // force the sample rate on a specific clip
         private void ForceSingleClipToSampleRate(AudioClip _clip)
         {
+            // get the import settings for the clip
             AudioImporter importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(_clip)) as AudioImporter;
 
+            // get the current build target of the game
             string buildTarget = BuildPipeline.GetBuildTargetName(EditorUserBuildSettings.activeBuildTarget);
 
+            // get the custom sample settings of the clip
             var sampleSettings = importer.GetOverrideSampleSettings(buildTarget);
 
+            // enable the sample rate override
             sampleSettings.sampleRateSetting = AudioSampleRateSetting.OverrideSampleRate;
-            sampleSettings.sampleRateOverride = (uint)forcedSampleRate.intValue;
 
+            // save whatever the sample rate is now
+            uint lastSampleRate = sampleSettings.sampleRateOverride;
+
+            // if a chosen sample rate has been provided,
+            if (forceClipSampleRate.intValue > 0) 
+                sampleSettings.sampleRateOverride = (uint)forcedSampleRate.intValue; // set it to that
+            else // otherwise if it's set to 0 or less,
+                sampleSettings.sampleRateOverride = (uint)AudioSettings.outputSampleRate; // set it to the game's default
+
+            // if the sample rate was changed, let the user know
+            if (sampleSettings.sampleRateOverride !=  lastSampleRate)
+                Debug.Log("Changed clip {_clip} sample rate to {sampleSettings.sampleRateOverride} for platform {buildTarget}.");
+
+            // apply the sample rate override
             importer.SetOverrideSampleSettings(buildTarget, sampleSettings);
         }
     }

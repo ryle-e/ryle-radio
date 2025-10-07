@@ -23,7 +23,7 @@ namespace RyleRadio
         [SerializeField] private Color gizmoColorSecondary = new Color32(175, 105, 205, 255);
 
         [SerializeField] private bool forceClipSampleRate = true;
-        [SerializeField] private int forcedSampleRate = 44100;
+        [SerializeField] private int forcedSampleRate = 0;
 
         // all of the tracks in this radio- these make up the bulk of the radio itself
         [SerializeField] private List<RadioTrackWrapper> trackWs = new() { new() };
