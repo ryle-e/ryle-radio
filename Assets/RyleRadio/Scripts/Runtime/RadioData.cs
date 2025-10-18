@@ -85,19 +85,18 @@ namespace RyleRadio
             trackIDs = new List<string>();
 
             // for every track in the radio
-            for (int i = TrackWrappers.Count - 1; i >= 0; i--)
+            for (int i = 0; i < TrackWrappers.Count; i++)
             {
                 // cache the track
                 RadioTrackWrapper track = TrackWrappers[i];
 
                 // find any other tracks with the same id as this one
-                var othersWithID = trackWs.Where(t => t.id == track.id);
+                var othersWithID = trackIDs.Where(t => t == track.id);
 
                 // if there are others, change the id of this track to match
-                // this only works as we are technically iterating backwards thanks to how inspector lists are working in this editor
-                if (othersWithID.Count() > 1)
+                if (othersWithID.Count() > 0)
                     track.id += othersWithID.Count(); // you can only add one new track at a time, so we just append the count to the end
-                                                      // e.g a adding a track with the last one's id "music" will make the id of the new track "music2"
+                                                      // e.g a adding a track with the last one's id "music" will make the id of the new track "music1"
 
                 // combine some track info into a display id
                 string name = $"{track.id}, {track.range.x} - {track.range.y}";

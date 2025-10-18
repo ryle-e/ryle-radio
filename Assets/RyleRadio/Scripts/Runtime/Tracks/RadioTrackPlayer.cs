@@ -55,6 +55,7 @@ namespace RyleRadio.Tracks
 
         public Action<RadioTrackPlayer, float> OnVolume { get; set; } = new((_, _) => { }); // when the volume is calculated
         public Action<RadioTrackPlayer, float> OnGain { get; set; } = new((_, _) => { }); // when the gain is calculated
+        public Action<RadioTrackPlayer, float> OnTunePower { get; set; } = new((_, _) => { }); // when the tune power is calculated
         public Action<RadioTrackPlayer, float> OnBroadcastPower { get; set; } = new((_, _) => { }); // when the broadcast power is calculated
         public Action<RadioTrackPlayer, float> OnInsulation { get; set; } = new((_, _) => { }); // when the insulationMultiplier is calculated
 
@@ -116,7 +117,7 @@ namespace RyleRadio.Tracks
             //    Debug.Log(TrackW.SampleCount);
         }
 
-        // gets the sample at the current progress, using the tune, broadcaster/insulators, attenuation, gain, etc
+        // gets the sample at the current progress, using the tune, broadcaster/insulators, attenuation, tunePower, etc
         public float GetSample(float _tune, Vector3 _receiverPosition, float _otherVolume, out float _outVolume, bool _applyVolume = true)
         {
             // if this track is paused, return silence
@@ -127,25 +128,33 @@ namespace RyleRadio.Tracks
             }
 
             // the output volume of this track right now
-            float volume = 1;
+            float volume = 0;
+            float gain = 100;
 
             if (_applyVolume)
             {
                 // long explanation of each method is in here so this can be kind of a core script for documentation
 
-                // get the gain of the track- this is a combination of the track's individual Gain variable, as well as its tuning power and attenuation
+                // get the gain of the track- this is a variable assigned in the inspector that serves as a basic increase to the
+                // loudness of the track without affecting attenuation or other audio values
+                // if the gain is at 100, it will be at the default loudness
+                // if the gain is at 200, it will be double the loudness
+                // if the gain is at 50, it will be half the loudness
+                gain = TrackW.gain / 100f;
+                OnGain(this, gain);
+
+                // get the tunePower of the track- this is a combination of the track's tuning power and attenuation
                 // the tuning power is defined by how closely the Output is tuned to this track. e.g, if this track's range is 100 - 300, and the
                 // Output's tune is 200, the track will likely be very loud- but if the tune is 120, it will be very quiet- the amount of loudness or
                 // quietness defined by the tune is named tune power here
                 //
                 // as well as the tuning power, this value is created with attenutation: how much quieter this track is when there are others playing
-                // the _otherVolume variable is the volume of other samples so far- if the attenuation of the track is high, then the gain will be
-                // lower depending on how high the other tracks' calculated gain is
+                // the _otherVolume variable is the volume of other samples so far- if the attenuation of the track is high, then the tunePower will be
+                // lower depending on how high the other tracks' calculated tunePower is
                 //
-                // multiply the track's Gain variable to tune power and attenutation, and we get the gain stored here
-                // for more info, check inside the GetGain method
-                float gain = TrackW.GetGain(_tune, _otherVolume);
-                OnGain(this, gain);
+                // for more info, check inside the GetTunePower method
+                float tunePower = TrackW.GetTunePower(_tune, _otherVolume);
+                OnTunePower(this, tunePower);
 
                 // get the broadcast power of the track- this is dependent on where the Output is in relation to any RadioBroadcasters in the scene
                 // if the range of a Broadcaster is 100 units, and the output is 5 units away from it, it will likely hear the track loudly
@@ -163,13 +172,13 @@ namespace RyleRadio.Tracks
                 float insulationMultiplier = GetInsulation(_receiverPosition);
                 OnInsulation(this, insulationMultiplier);
 
-                // combine the gain, broadcast power and insulation multiplier to the unified volume
-                volume = gain * broadcastPower * insulationMultiplier;
+                // combine the broadcast tune power, power and insulation multiplier to the unified volume
+                volume = tunePower * broadcastPower * insulationMultiplier;
                 OnVolume(this, volume);
             }
 
-            // get the sample at this moment from the track, and apply the volume to it
-            float sample = TrackW.GetSample((int)Progress) * volume;
+            // get the sample at this moment from the track, and apply the volume and tunePower to it
+            float sample = TrackW.GetSample((int)Progress) * gain * volume;
 
             // give back the volume to the Output
             _outVolume = volume;

@@ -41,4 +41,9 @@ public class ObserverTest : MonoBehaviour
     {
         Debug.Log(msg);
     }
+
+    public void Log(float _value)
+    {
+        Debug.Log("value is " + _value);
+    }
 }

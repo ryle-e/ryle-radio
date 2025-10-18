@@ -139,7 +139,7 @@ namespace RyleRadio.Components
             // search through the currently existent players to find one with a higher index in Data
             for (int i = 0; i < players.Count; i++)
             {
-                if (Data.TrackIDs.IndexOf(players[i].TrackW.id) < indexInData)
+                if (Data.TrackIDs.IndexOf(players[i].TrackW.id) > indexInData)
                 {
                     indexForNewPlayer = i;
                     break;

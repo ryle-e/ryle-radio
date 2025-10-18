@@ -20,7 +20,7 @@ MonoBehaviour:
   - id: music_old1
     name: music_old1, 33.2 - 246
     range: {x: 33.2, y: 246}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -65,7 +65,7 @@ MonoBehaviour:
   - id: music_old2
     name: music_old2, 265 - 469.7
     range: {x: 265, y: 469.7}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -110,7 +110,7 @@ MonoBehaviour:
   - id: music_new1
     name: music_new1, 498.7 - 703.4
     range: {x: 498.7, y: 703.4}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -155,7 +155,7 @@ MonoBehaviour:
   - id: music_new2
     name: music_new2, 705 - 856.2
     range: {x: 705, y: 856.2}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -200,12 +200,21 @@ MonoBehaviour:
   - id: station_sfx
     name: station_sfx, 918.8 - 1000
     range: {x: 918.8, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
         value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -236,7 +245,7 @@ MonoBehaviour:
   - id: static
     name: static, 0 - 1000
     range: {x: 0, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3

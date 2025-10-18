@@ -44,12 +44,14 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 100
+    gain: 200
     attenuation: 0
     forceGlobal: 0
     playOnInit: 1
-    broadcasters: []
-    insulators: []
+    broadcasters:
+    - {fileID: 0}
+    insulators:
+    - {fileID: 0}
     trackType: Audio Clip
     track:
       rid: 7468380116217495609

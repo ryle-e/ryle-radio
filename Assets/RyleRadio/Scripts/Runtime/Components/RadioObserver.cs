@@ -16,12 +16,13 @@ namespace RyleRadio.Components
         public enum EventType
         {
             OutputVolume, // the volume of the track:  gain * broadcast power * insulation
-            GainTune, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the output
+            Gain, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the output
+            TunePower, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the output
             BroadcastPower, // the broadcast power of the track:  how close to any active RadioBroadcasters the output is
             Insulation, // the insulation of the track:  the higher the value the less insulation- the power of any RadioInsulator the output is in
             TrackEnds, // the track ends, or loops
             TrackStarts, // the track starts, or loops (happens after TrackEnds)
-            Tune, // the tune on the output is changed
+            OutputTune, // the tune on the output is changed
 
             None // empty, mainly to temporarily disable an event without deleting it
         }
@@ -119,8 +120,12 @@ namespace RyleRadio.Components
                         _player.OnVolume += (player, volume) => { StayEvent(e, volume); };
                         break;
 
-                    case EventType.GainTune:
+                    case EventType.Gain:
                         _player.OnGain += (player, gain) => { StayEvent(e, gain); };
+                        break;
+
+                    case EventType.TunePower:
+                        _player.OnTunePower += (player, tunePower) => { StayEvent(e, tunePower); };
                         break;
 
                     case EventType.BroadcastPower:
@@ -141,7 +146,7 @@ namespace RyleRadio.Components
                         break;
 
                     // this event watches the tune of the output- it doesn't actually use a player here
-                    case EventType.Tune:
+                    case EventType.OutputTune:
                         output.OnTune += (tune) => { StayEvent(e, tune); };
                         break;
 
@@ -177,7 +182,7 @@ namespace RyleRadio.Components
                     // call the onTrigger event
                     lock (toDoOnUpdate)
                     { 
-                        toDoOnUpdate.Add(() => _event.onTrigger.Invoke()); 
+                        toDoOnUpdate.Add(() => _event.onTrigger.Invoke(_value)); 
                     }
                 }
                 // and this is not the first time the event is called,
@@ -186,7 +191,7 @@ namespace RyleRadio.Components
                     // call the onStay event
                     lock (toDoOnUpdate)
                     { 
-                        toDoOnUpdate.Add(() => _event.onStay.Invoke()); 
+                        toDoOnUpdate.Add(() => _event.onStay.Invoke(_value)); 
                     }
                 }
             }
@@ -202,7 +207,7 @@ namespace RyleRadio.Components
                     // call the onEnd event
                     lock (toDoOnUpdate)
                     {
-                        toDoOnUpdate.Add(() => _event.onEnd.Invoke());
+                        toDoOnUpdate.Add(() => _event.onEnd.Invoke(_value));
                     }
                 }
             }
@@ -213,7 +218,7 @@ namespace RyleRadio.Components
         {
             // if the event is triggered, call the onTrigger event- the other events are not applicable
             lock (toDoOnUpdate)
-                toDoOnUpdate.Add(() => _event.onTrigger.Invoke());
+                toDoOnUpdate.Add(() => _event.onTrigger.Invoke(1));
         }
     }
 

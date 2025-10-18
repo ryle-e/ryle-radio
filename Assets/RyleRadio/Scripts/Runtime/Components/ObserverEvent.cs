@@ -44,18 +44,18 @@ namespace RyleRadio.Components
             // if this has a comparison, then it can be triggered more than once while the comparison is true- e.g the volume can remain above 0.5
             // therefore, with a comparison, this changes to mean the FIRST time the event is triggered
             [ShowIf("showEvents"), AllowNesting]
-            public UnityEvent onTrigger;
+            public UnityEvent<float> onTrigger;
 
             // called when the event remains triggered
             // this is not called without a comparison
             // with a comparison, this is called if the event is triggered, and has been triggered just before
             [ShowIf(EConditionOperator.And, "showEvents", "NeedComparison"), AllowNesting]
-            public UnityEvent onStay;
+            public UnityEvent<float> onStay;
 
             // called when the event ends
             // this is not called without a comparison
             [ShowIf(EConditionOperator.And, "showEvents", "NeedComparison"), AllowNesting]
-            public UnityEvent onEnd;
+            public UnityEvent<float> onEnd;
 
             // tracks if the event has happened before
             [HideInInspector] public bool staying = false;
@@ -64,10 +64,11 @@ namespace RyleRadio.Components
             public bool NotNeedComparison => !NeedComparison;
             public bool NeedComparison =>
                 type == EventType.OutputVolume
-                || type == EventType.GainTune
+                || type == EventType.Gain
+                || type == EventType.TunePower
                 || type == EventType.BroadcastPower
                 || type == EventType.Insulation
-                || type == EventType.Tune;
+                || type == EventType.OutputTune;
 
             // if this event needs a range to compare to
             public bool NotNeedVector => !NeedVector;
@@ -75,10 +76,10 @@ namespace RyleRadio.Components
                 comparison == ComparisonType.BetweenInclusive
                 || comparison == ComparisonType.BetweenExclusive;
 
-            // if this event is set to track Tune
+            // if this event is set to track OutputTune
             public bool NotIsTune => !IsTune;
             public bool IsTune =>
-                type == EventType.Tune;
+                type == EventType.OutputTune;
 
 
             // if this event is a comparison, check if the comparison is satisfied
@@ -91,7 +92,7 @@ namespace RyleRadio.Components
                 float value;
                 Vector2 range;
 
-                // if this event uses Tune, then make sure we're comparing to the tune values
+                // if this event uses OutputTune, then make sure we're comparing to the tune values
                 if (IsTune)
                 {
                     range = tuneRange;

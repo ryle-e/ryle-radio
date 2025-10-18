@@ -124,8 +124,6 @@ namespace RyleRadio
                         for (int i = 0; i < list.Count; i++)
                             optionNames[i] = list[i].ToString();
 
-                        optionNames = optionNames.Reverse().ToArray();
-
                         // draw the field
                         mask = EditorGUILayout.MaskField(mask, optionNames);
                     }
@@ -144,8 +142,6 @@ namespace RyleRadio
                         // convert the options to strings for displaying
                         for (int i = 0; i < array.Length; i++)
                             optionNames[i] = array.GetValue(i).ToString();
-
-                        optionNames = optionNames.Reverse().ToArray();
 
                         // draw the field
                         mask = EditorGUILayout.MaskField(mask, optionNames);

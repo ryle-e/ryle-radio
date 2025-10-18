@@ -12,11 +12,11 @@ namespace RyleRadio.Tracks
     [System.Serializable]
     public class RadioTrackWrapper
     {
-        public static AnimationCurve DefaultGainCurve => new(new Keyframe[3] {  // the default curve used for gain, a bell curve-like shape
-        new(0, 0, 0, 0),
-        new(0.5f, 1, 0, 0),
-        new(1, 0, 0, 0)
-    });
+        public static AnimationCurve DefaultRangeCurve => new(new Keyframe[3] {  // the default curve used for gain, a bell curve-like shape
+            new(0, 0, 0, 0),
+            new(0.5f, 1, 0, 0),
+            new(1, 0, 0, 0)
+        });
 
         private const float RANGE_DECIMAL_MULTIPLIER = 10f; // 2 ^ the number of decimal places that the clampedRange has, i.e 10 == 1dp, 100 == 2dp
 
@@ -27,7 +27,7 @@ namespace RyleRadio.Tracks
         public Vector2 range; // the clampedRange of tune in which this track can be heard
 
         [CurveRange(0, 0, 1, 1)]
-        public AnimationCurve gainCurve = new(DefaultGainCurve.keys); // the volume of the track over its clampedRange
+        public AnimationCurve rangeCurve = new(DefaultRangeCurve.keys); // the volume of the track over its clampedRange
 
         [Range(0, 500)]
         public float gain = 100; // the volume of the track
@@ -195,16 +195,15 @@ namespace RyleRadio.Tracks
 
 
         // calculate the volume of the track at a specific tune
-        public float GetGain(float _tune, float _otherGain)
+        public float GetTunePower(float _tune, float _otherVolume)
         {
             if (_tune < range.x || _tune > range.y) // if the tune is out of this track's range, it cannot be heard
                 return 0;
 
-            float tunePower = gainCurve.Evaluate(_tune.Remap(range.x, range.y, 0f, 1f)); // get the volume based on the tune and where it sits on the gain curve
-            float gainPower = gain / 100f; // get the volume based on the gain variable
-            float attenPower = 1f - (Mathf.Clamp01(_otherGain) * attenuation); // get the volume based on attenuation and other playing trackWs
+            float tunePower = rangeCurve.Evaluate(_tune.Remap(range.x, range.y, 0f, 1f)); // get the volume based on the tune and where it sits on the gain curve
+            float attenPower = 1f - (Mathf.Clamp01(_otherVolume) * attenuation); // get the volume based on attenuation and other playing trackWs
 
-            return tunePower * gainPower * attenPower; // combine the values into one singular volume
+            return tunePower * attenPower; // combine the values into one singular volume
         }
 
         // get a sample from the track

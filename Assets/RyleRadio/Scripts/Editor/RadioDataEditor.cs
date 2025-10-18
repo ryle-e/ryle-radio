@@ -125,14 +125,14 @@ namespace RyleRadio.Editor
                     SerializedProperty gain = newElement.FindPropertyRelative("gain");
 
                     // get the gain curve
-                    SerializedProperty gainCurve = newElement.FindPropertyRelative("gainCurve");
+                    SerializedProperty rangeCurve = newElement.FindPropertyRelative("rangeCurve");
 
                     // reset the internal track class
                     radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
 
                     // reset the gain and the gain curve
                     gain.floatValue = 100;
-                    gainCurve.animationCurveValue = new(RadioTrackWrapper.DefaultGainCurve.keys);
+                    rangeCurve.animationCurveValue = new(RadioTrackWrapper.DefaultRangeCurve.keys);
 
                     // store the new track list size
                     lastTrackWSize++;
