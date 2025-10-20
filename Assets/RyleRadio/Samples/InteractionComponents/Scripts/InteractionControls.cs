@@ -6,8 +6,6 @@ using UnityEngine.UI;
 public class InteractionControls : MonoBehaviour
 {
     [SerializeField] private RadioOutput output;
-    [SerializeField] private RadioInteractor basicInteractor;
-    [SerializeField] private RadioInteractor stationInteractor;
     [SerializeField] private Text text;
     [SerializeField] private RectTransform indicator;
 
@@ -19,12 +17,6 @@ public class InteractionControls : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
-            basicInteractor.PlayOneShot();
-
-        if (Input.GetKeyDown(KeyCode.X))
-            stationInteractor.PlayOneShot();
-
         // if shift is held down, tune faster
         if (Input.GetKeyDown(KeyCode.LeftShift))
             tuneSpeed *= 2;

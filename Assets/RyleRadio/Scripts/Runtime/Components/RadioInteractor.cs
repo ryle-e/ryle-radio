@@ -1,3 +1,4 @@
+using NaughtyAttributes;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
 using UnityEngine;
@@ -14,10 +15,10 @@ namespace RyleRadio.Components
         [SerializeField] private int affectedTracks;
 
         // the method by which this interactor chooses a RadioTrackPlayer when stopping, pausing, or resetting
-        [SerializeField] private RadioOutput.MultiplePlayersSelector playerSelector;
+        [Foldout("Advanced Settings"), SerializeField] private RadioOutput.MultiplePlayersSelector playerSelector;
 
         // whether or not this should print out all debug information about actions performed on tracks
-        [SerializeField] private bool debugAll = false;
+        [Foldout("Advanced Settings"), SerializeField] private bool debugAll = false;
 
 
         // plays affected tracks as looped tracks

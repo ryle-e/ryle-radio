@@ -72,6 +72,10 @@ namespace RyleRadio.Components
             }
         }
 
+        // !!!!!!!!!!!!!! IT'S THIS THING WE'RE GROUPING IT BY THE TYPE NOT BY THE SPECIFIC EVENT
+        //                  that's why it's not going green we're preventing more than one output volume event
+        private bool[] hasEventBeenAdded = new bool[(int)EventType.None];
+
 
         private void Awake()
         {
@@ -116,23 +120,40 @@ namespace RyleRadio.Components
                 {
                     // the _player events are mostly very similar- they give us the player it's called on, and the value
                     // we don't do anything with the player info in this script, but it's there for custom behaviour
+                    //
+                    // each sample, we check if a copy of this event has been called yet. If it has, we don't add another one, as it would hugely slow down at runtime
                     case EventType.OutputVolume:
+                        if (hasEventBeenAdded[(int)EventType.OutputVolume]) break;
+                        else hasEventBeenAdded[(int)EventType.OutputVolume] = true;
+
                         _player.OnVolume += (player, volume) => { StayEvent(e, volume); };
                         break;
 
                     case EventType.Gain:
-                        _player.OnGain += (player, gain) => { StayEvent(e, gain); };
+                        if (hasEventBeenAdded[(int)EventType.Gain]) break;
+                        else hasEventBeenAdded[(int)EventType.Gain] = true;
+
+                        _player.OnGain -= (player, gain) => { StayEvent(e, gain); };
                         break;
 
                     case EventType.TunePower:
+                        if (hasEventBeenAdded[(int)EventType.TunePower]) break;
+                        else hasEventBeenAdded[(int)EventType.TunePower] = true;
+
                         _player.OnTunePower += (player, tunePower) => { StayEvent(e, tunePower); };
                         break;
 
                     case EventType.BroadcastPower:
+                        if (hasEventBeenAdded[(int)EventType.BroadcastPower]) break;
+                        else hasEventBeenAdded[(int)EventType.BroadcastPower] = true;
+
                         _player.OnBroadcastPower += (player, power) => { StayEvent(e, power); };
                         break;
 
                     case EventType.Insulation:
+                        if (hasEventBeenAdded[(int)EventType.Insulation]) break;
+                        else hasEventBeenAdded[(int)EventType.Insulation] = true;
+
                         _player.OnInsulation += (player, insulation) => { StayEvent(e, insulation); };
                         break;
 
@@ -147,6 +168,9 @@ namespace RyleRadio.Components
 
                     // this event watches the tune of the output- it doesn't actually use a player here
                     case EventType.OutputTune:
+                        if (hasEventBeenAdded[(int)EventType.OutputTune]) break;
+                        else hasEventBeenAdded[(int)EventType.OutputTune] = true;
+
                         output.OnTune += (tune) => { StayEvent(e, tune); };
                         break;
 
