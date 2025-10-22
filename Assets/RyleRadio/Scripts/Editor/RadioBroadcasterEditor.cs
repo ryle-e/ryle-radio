@@ -7,19 +7,29 @@ namespace RyleRadio.Editor
 #if UNITY_EDITOR
     using UnityEditor;
 
-    // custom inspector for a RadioBroadcaster
-    // mainly to have handles (draggable gizmos)
-    // check RadioBroadcaster.cs for more info on variables, etc
+    /// <summary>
+    /// Custom inspector for a \ref RadioBroadcaster
+    /// <br><br>This is mainly so that we can use `Handles` (draggable gizmos).
+    /// 
+    /// <b>See: </b> \ref RadioBroadcaster
+    /// </summary>
     [CustomEditor(typeof(RadioBroadcaster))]
     public class RadioBroadcasterEditor : Editor
     {
-        // the broadcaster itself
+        /// <summary>
+        /// The broadcaster this is linked to
+        /// </summary>
         private RadioBroadcaster broadcaster;
 
-        // the colours of the broadcaster gizmos
+        /// The colour of the gizmo for the x/inner value of \ref RadioBroadcaster.broadcastRadius
         private Color innerColor;
+        /// The colour of the gizmo for the y/outer value of \ref RadioBroadcaster.broadcastRadius
         private Color outerColor;
 
+
+        /// <summary>
+        /// Initializes the broadcaster's editor
+        /// </summary>
         private void OnEnable()
         {
             // if the broadcaster's not set, set it
@@ -40,6 +50,9 @@ namespace RyleRadio.Editor
             }
         }
 
+        /// <summary>
+        /// Displays the handles for \ref RadioBroadcaster.broadcastRadius in the scene
+        /// </summary>
         private void OnSceneGUI()
         {
             // get the radii
@@ -57,7 +70,9 @@ namespace RyleRadio.Editor
             broadcaster.broadcastRadius = o;
         }
 
-        // the rest of the inspector is default, so draw it
+        /// <summary>
+        /// Draw the actual inspector as default
+        /// </summary>
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();

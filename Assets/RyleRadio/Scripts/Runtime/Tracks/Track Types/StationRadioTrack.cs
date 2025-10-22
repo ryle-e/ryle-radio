@@ -5,54 +5,78 @@ using UnityEngine;
 namespace RyleRadio.Tracks
 {
 
-    // a track that serves a multi-select- that is, a track that contains other tracks
-    // this is meant to emulate a radio station by storing many individual clips or audio then switching between them
-    // it can be used for really any purpose that requires switching tracks (at the end of the previous) though
-    // e.g ''''procedural'''' music by shuffling procedural sine waves
-
-    // this has a custom editor in StationRadioTrackEditor.cs
+    /// <summary>
+    /// A eventType of RadioTrack that contains other tracks. Has a custom editor in \ref StationRadioTrackEditor<br>
+    /// This is meant to emulate an actual radio station by storing multiple different tracks and switching between them as it plays.
+    /// It can be used for really any purpose that calls for switching tracks, though- e.g: ''''procedural'''' music, complex ambience, easter eggs (kinda)
+    /// 
+    /// Also uses \ref StationRadioTrackWrapper
+    /// </summary>
     [System.Serializable]
     public class StationRadioTrack : RadioTrack
     {
+        /// <summary>
+        /// The display name of this track in the editor. Required by \ref RadioTrack
+        /// </summary>
         public const string DISPLAY_NAME = "Station aka Multi-select";
 
-        // whether or not this station plays in a random or semi-random order
+        /// <summary>
+        /// Whether or not this station plays in a random or semi-random order
+        /// </summary>
         public bool randomSequence = true;
 
-        // how many other tracks need to be played before the same one is chosen again in a random sequence
-        // effectively stops the same track from playing back-to-back, and forces more variety in which tracks are played
-        // the number of tracks to be played before one can be repeated is  round_down( (track_count - 1) * threshold )
-        // i.e with four tracks and a threshold of 0.5f, rounddown((4 - 1 == 3) * 0.5) == 1 other track will need to be played before a repeat
-        // i.e with four tracks and a threshold of 0.7f, rounddown((4 - 1 == 3) * 0.7) == 2 other tracks will need to be played before a repeat
-        // i.e with four tracks and a threshold of 1f, rounddown((4 - 1 == 3) * 1) == 3, aka all other tracks will need to be played before a repeat
-        // i.e with eleven tracks and a threshold of 0.8f, rounddown((11 - 1 == 10) * 0.8f == 8 other tracks will need to be played before a repeat
-        // do note that if this is set to 1, the tracks are forced to play in the same randomized sequence repeatedly
+        /// <summary>
+        /// When \ref randomSequence is true, this is the number of other tracks that need to be played before the same one is chosen again. Stops the same track from playing back-to-back, and forces variety in the track order.
+        /// 
+        /// The number of tracks to be played before one can be played again is `round_down( (track_count - 1) * threshold )`.
+        /// <br>i.e with four tracks and a threshold of 0.5f, `round_down((4 - 1 == 3) * 0.5) == 1`: one other track will need to be played before a repeat
+        /// <br>i.e with four tracks and a threshold of 0.7f, `round_down((4 - 1 == 3) * 0.7) == 2`: two other tracks will need to be played before a repeat
+        /// <br>i.e with four tracks and a threshold of 1f, `round_down((4 - 1 == 3) * 1) == 3`: three other tracks (all other tracks) will need to be played before a repeat
+        /// <br>i.e with eleven tracks and a threshold of 0.8f, `round_down((11 - 1 == 10) * 0.8f == 8`: eight other tracks will need to be played before a repeat
+        /// <i>Do note that if this is set to 1, the tracks are forced to play in the same randomized sequence repeatedly</i>
+        /// </summary>
         public float thresholdBeforeRepeats;
 
-        // the child tracks of this station
+        /// <summary>
+        /// The tracks contained within this station
+        /// </summary>
         public List<StationRadioTrackWrapper> stationTrackWs;
 
-        // the currently playing child track
+        /// <summary>
+        /// The index of the contained track that's currently playing
+        /// </summary>
         private int currentTrackIndex;
 
+#if !SKIP_IN_DOXYGEN
         // audio is on a separate threat to UnityEngine.Random so we need to use System.Random instead
         private System.Random random;
+#endif
 
-        // this is stored as the number of plays that need to happen before this track can be played again.
-        // i.e if tracks A, B and C are being randomly chosen with a thresholdBeforeRepeats of 0.5f, they each need to have 1 other track play before it can repeat (see comments above thresholdBeforeRepeats)
-        // so if track A was just played after B and C, this array would look like [1, 0, -1]
-        // that is, track A needs another track to be played once before it can be repeated, B doesn't need any other tracks to play and thus can be repeated, and same for C
-        // (a number below 0 is treated as 0 for this system)
-        // see NextTrack() comments for more info
+        /// <summary>
+        /// The number of plays that need to happen before each track can be played again. Follows the layout described in \ref thresholdBeforeRepeats
+        /// 
+        /// i.e if tracks A, B and C are being randomly chosen with a \ref thresholdBeforeRepeats of 0.5f, they each need to have 1 other track play before each can repeat (see comments above thresholdBeforeRepeats)
+        /// <br>So if track A was just played after B and C, this array would look like [1, 0, -1].
+        /// That is, track A needs another track to be played once before it can be repeated, B doesn't need any other tracks to play and thus can be repeated, and same for C
+        /// <br><i>(a number below 0 is treated as 0 for this system)</i><br><br>
+        /// <b>See:</b> \ref NextTrack()
+        /// </summary>
         private int[] remainingTracksBeforeRepeat;
 
+#if !SKIP_IN_DOXYGEN
         // if this track has no stations, we want to print an error- but only once, otherwise it freezes the editor
         private bool hasPrintedError;
+#endif
 
-        // the currently playing track
+        /// <summary>
+        /// A reference to the track that's currently playing
+        /// </summary>
         private StationRadioTrackWrapper CurrentTrackW => stationTrackWs[currentTrackIndex];
 
 
+        /// <summary>
+        /// Initializes this station and all contained tracks
+        /// </summary>
         public override void Init()
         {
             random = new System.Random();
@@ -71,14 +95,22 @@ namespace RyleRadio.Tracks
             NextTrack();
         }
 
-        // when a RadioTrackPlayer for this track ends, we update it to match whatever the next track played on this station is
-        // this works because the Player only gets destroyed if its a one-shot- in which case only one randomly chosen track from here will be selected anyway
+        /// <summary>
+        /// When a RadioTrackPlayer for this station finishes the track we've given it, we update it to use whatever the next track chosen is. This method is called when the Player finishes, so we update it here.
+        /// This works because the Player only gets destroyed if it's a one-shot- in which case only one track from the station will be playing anyway
+        /// </summary>
+        /// <param name="_callback">The callback invoked when the \ref RadioTrackPlayer ends</param>
         public override void AddToPlayerEndCallback(ref Action<RadioTrackPlayer> _callback)
         {
             _callback += p => NextTrack(); // choose the next track when the Player completes the last one
             _callback += p => p.UpdateSampleIncrement(); // update the Player's SampleCount/Length when the next track is chosen
         }
 
+        /// <summary>
+        /// Gets a sample from the currently playing track
+        /// </summary>
+        /// <param name="_sampleIndex">The index of the sample</param>
+        /// <returns>A sample from \ref CurrentTrackW</returns>
         public override float GetSample(int _sampleIndex)
         {
             // get the sample from the currently playing track
@@ -86,16 +118,22 @@ namespace RyleRadio.Tracks
             return CurrentTrackW.GetSample(_sampleIndex) * CurrentTrackW.Gain;
         }
 
-
-        // selects the next track to play from the station
+        /// <summary>
+        /// Selects the next track for this station to play
+        /// </summary>
         private void NextTrack()
         {
+            // if there aren't any stations, alert the player and stop trying to get them
             if (stationTrackWs.Count == 0)
             {
+                // if the error hasn't been printed, print it
                 if (!hasPrintedError)
-                    Debug.LogWarning($"Cannot play a StationRadioTrack, as there are no stations!");
+                { 
+                    Debug.LogWarning($"Cannot play a StationRadioTrack, as there are no stations!"); 
+                    hasPrintedError = true;
+                }
 
-                hasPrintedError = true;
+                // otherwise stop
                 return;
             }
 

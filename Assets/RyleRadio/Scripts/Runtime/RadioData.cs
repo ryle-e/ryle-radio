@@ -1,4 +1,3 @@
-using NaughtyAttributes;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
 using System;
@@ -10,36 +9,57 @@ using UnityEngine;
 
 namespace RyleRadio
 {
-
-    // the central data object containing the tracks and information for a radio
-    // has a custom editor in RadioDataEditor.cs
+    /// <summary>
+    /// The central data object defining the radio. Contains the tracks and information required to play the radio at runtime.
+    /// <br><br>Has a custom editor at \ref RadioDataEditor
+    /// </summary>
     [CreateAssetMenu(fileName = "New Radio Data", menuName = "Ryle Radio/Radio Data")]
     public class RadioData : ScriptableObject
     {
-        // i wanted this to be editable in the inspector too, but for now it's internally hardcoded- looking into changing this at some point
-        public const float LOW_TUNE = 0; // the lower limit for tune on this radio
-        public const float HIGH_TUNE = 1000; // the upper limit for tune on this radio
+        // i wanted these to be editable in the inspector too, but for now it's internally hardcoded- looking into changing this at some point
+        /// The lower limit for tune on this radio. This may become non-const at some point
+        public const float LOW_TUNE = 0;
+        /// The upper limit for tune on this radio. This may become non-const at some point
+        public const float HIGH_TUNE = 1000;
 
-        // the colours of scene gizmos
+        /// The primary colour of gizmos relating to this radio
         [SerializeField] private Color gizmoColor = new Color32(200, 180, 255, 255);
+        /// The secondary colour of gizmos relating to this radio
         [SerializeField] private Color gizmoColorSecondary = new Color32(175, 105, 205, 255);
 
+        /// Whether or not this radio forces the sample rate on AudioClips it references
         [SerializeField] private bool forceClipSampleRate = true;
+        /// The sample rate this radio can force on AudioClips it references. If left at 0, it chooses the project's default sample rate
         [SerializeField] private int forcedSampleRate = 0;
 
-        // all of the tracks in this radio- these make up the bulk of the radio itself
+        /// <summary>
+        /// The tracks contained in this radio, editable in the inspector
+        /// </summary>
         [SerializeField] private List<RadioTrackWrapper> trackWs = new() { new() };
 
-        public Color GizmoColor => gizmoColor; // aliases for gizmo colours, for safety
+
+        /// Alias for \ref gizmoColor for safety
+        public Color GizmoColor => gizmoColor;
+        /// Alias for \ref gizmoColorSecondary for safety
         public Color GizmoColorSecondary => gizmoColorSecondary;
 
+        /// Alias for \ref trackWs for safety- in documentation we usually call them the tracks, but for code clarity we explicitly call them wrappers in this object
         public List<RadioTrackWrapper> TrackWrappers => trackWs;
 
-        public Action<RadioData> OnInit { get; set; } = new(_ => { }); // invoked when Init() is called
-        public Action<RadioData> BeforeInit { get; set; } = new(_ => { }); // invoked when Init() is called, but before anything happens
 
+        /// Event invoked when \ref Init() is called
+        public Action<RadioData> OnInit { get; set; } = new(_ => { });
+        /// Event invoked when \ref Init() is called, but at the beginning before anything happens
+        public Action<RadioData> BeforeInit { get; set; } = new(_ => { });
+
+
+#if !SKIP_IN_DOXYGEN 
         // the names of all tracks contained in this radio
         private List<string> trackNames;
+#endif
+        /// <summary>
+        /// The names of all tracks stored in this radio, used when selecting them in the inspector
+        /// </summary>
         public List<string> TrackNames
         {
             get
@@ -52,7 +72,9 @@ namespace RyleRadio
             }
         }
 
-        // the ids of all tracks contained in this radio
+        /// <summary>
+        /// The IDs of all tracks stored in this radio
+        /// </summary>
         private List<string> trackIDs;
         public List<string> TrackIDs
         {
@@ -67,13 +89,19 @@ namespace RyleRadio
         }
 
 
-        // slices a given id to get the id
+        /// <summary>
+        /// Converts a track's name to ID format
+        /// </summary>
+        /// <param name="_name">The name to convert</param>
+        /// <returns>The name transformed into ID format</returns>
         public static string NameToID(string _name)
         {
             return _name.Split(", ")[0];
         }
 
-        // fill the track id and id lists to match the current tracks
+        /// <summary>
+        /// Fills \ref TrackNames and \ref TrackIDs to match the current content of \ref trackWs
+        /// </summary>
         private void PopulateTrackIDs()
         {
             // if there are no tracks, don't try to get the names
@@ -110,13 +138,17 @@ namespace RyleRadio
             }
         }
 
-        // when tracks are changed, update their info
+        /// <summary>
+        /// Updates the track names and IDs when this object is changed
+        /// </summary>
         private void OnValidate()
         {
             PopulateTrackIDs();
         }
 
-        // initialize this radio and all related components
+        /// <summary>
+        /// Initialise this radio, its tracks, and referenced components
+        /// </summary>
         public void Init()
         {
             BeforeInit(this);
@@ -131,13 +163,22 @@ namespace RyleRadio
             OnInit(this);
         }
 
+        /// <summary>
+        /// Clears track names and IDs
+        /// </summary>
         public void ClearCache()
         {
             TrackNames.Clear();
             TrackIDs.Clear();
         }
 
-        // attempt to get a track from this radio using an id or id
+        /// <summary>
+        /// Attempts to find a track in this radio using either an ID or a name
+        /// </summary>
+        /// <param name="_idOrName">The ID or name of the track to find</param>
+        /// <param name="_trackW">The track that has been found, or null if none was found</param>
+        /// <param name="_useID">If true, this method searches for a matching ID. If false, it searches for a matching name</param>
+        /// <returns>True if a track was found, false if not</returns>
         public bool TryGetTrack(string _idOrName, out RadioTrackWrapper _trackW, bool _useID = true)
         {
             // either an id or id can be supplied here, but we always convert it to an id for this

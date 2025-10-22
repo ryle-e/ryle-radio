@@ -8,21 +8,29 @@ namespace RyleRadio.Editor
     using UnityEditor;
     using UnityEditor.IMGUI.Controls; // we have to use imgui handles rather than unity handles in order to have draggable boxes
 
-    // the editor for an insulator
-    // mainly to have handles (draggable gizmos)
-    // check RadioInsulator.cs for more info on variables, etc
+    /// <summary>
+    /// Custom inspector for a \ref RadioInsulator
+    /// <br><br>This is mainly so that we can use `Handles` (draggable gizmos).
+    /// 
+    /// <b>See: </b> \ref RadioInsulator
+    /// </summary>
     [CustomEditor(typeof(RadioInsulator))]
     public class RadioInsulatorEditor : Editor
     {
-        // draggable box gizmos (handles) for the outer and inner bounds
-        private readonly BoxBoundsHandle outerBoundsHandle = new();
-        private readonly BoxBoundsHandle innerBoundsHandle = new();
-
-        // the insulator class itself
+        /// <summary>
+        /// The insulator this is linked to
+        /// </summary>
         private RadioInsulator insulator = null;
 
+        /// The draggable gizmo for the outer bounds of the insulator
+        private readonly BoxBoundsHandle outerBoundsHandle = new();
+        /// The draggable gizmo for the inner bounds of the insulator
+        private readonly BoxBoundsHandle innerBoundsHandle = new();
 
-        // when the inspector is initialized
+
+        /// <summary>
+        /// Initializes the insulator's editor
+        /// </summary>
         private void OnEnable()
         {
             // get the insulator itself
@@ -37,6 +45,9 @@ namespace RyleRadio.Editor
             }
         }
 
+        /// <summary>
+        /// Displays the handles for \ref RadioInsulator.innerBoxSize and \ref RadioInsulator.outerBoxSize in the scene
+        /// </summary>
         private void OnSceneGUI()
         {
             // if this doesn't have the insulator for some reason, get it
@@ -76,7 +87,9 @@ namespace RyleRadio.Editor
             }
         }
 
-        // the inspector itself is normal, so draw it as such
+        /// <summary>
+        /// Draw the actual inspector as default
+        /// </summary>
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();

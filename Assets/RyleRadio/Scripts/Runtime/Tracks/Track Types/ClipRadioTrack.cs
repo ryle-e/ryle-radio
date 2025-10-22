@@ -3,24 +3,37 @@ using UnityEngine;
 namespace RyleRadio.Tracks
 {
 
-    // a track that plays from a chosen AudioClip
+    /// <summary>
+    /// A eventType of RadioTrack that plays from a chosen AudioClip object
+    /// </summary>
     [System.Serializable]
     public class ClipRadioTrack : RadioTrack, IStationTrack
     {
+        /// <summary>
+        /// The display name of this track in the editor. Required in \ref RadioTrack
+        /// </summary>
         public const string DISPLAY_NAME = "Audio Clip";
 
-        private const bool FORCE_SAMPLE_RATE = true;
-
-        // the clip you're providing to this track
+        /// <summary>
+        /// The clip that this track plays
+        /// </summary>
         public AudioClip clip;
 
-        // we read the clip into an array of individual samples so that we can play it sample-by-sample
+        /// <summary>
+        /// The individual samples of this clip, as it needs to be played sample-by-sample (a limitation of Unity's AudioClip)
+        /// </summary>
         protected float[] Samples { get; set; }
 
+        /// <summary>
+        /// Whether or not this is in a \ref StationRadioTrack
+        /// Required by \ref IStationTrack
+        /// </summary>
         public bool IsInStation { get; set; }
 
 
-        // needs to be called again if the clip is changed
+        /// <summary>
+        /// Initializes this track. This needs to be called every time the clip is changed
+        /// </summary>
         public override void Init()
         {
             ReadClipAndForceToMono();
@@ -29,8 +42,12 @@ namespace RyleRadio.Tracks
             SampleRate = clip.frequency;
         }
 
-        // in order to play the radio generically and mix different clips, we need to flatten the clip to mono/one channel
-        // realistically the radio is playing from a single speaker and is mono anyway
+        /// <summary>
+        /// Reads the clip into the \ref Samples array, and combines its channels into one.
+        /// 
+        /// We need to flatten the clip into one channel to play it from a \ref RadioOutput as the Output is only using one channel. Theoretically, we could expand the Output to use multiple channels, but given this would be the only track eventType to do this it's probably not worth the significant effort.
+        /// <br>For the moment, we'll treat Outputs as AM radios (which are mono in real life)
+        /// </summary>
         public void ReadClipAndForceToMono()
         {
             float[] allSamples = new float[clip.samples * clip.channels]; // all samples from both channels
@@ -57,6 +74,11 @@ namespace RyleRadio.Tracks
             }
         }
 
+        /// <summary>
+        /// Gets a sample from the clip
+        /// </summary>
+        /// <param name="_sampleIndex">The index of the sample</param>
+        /// <returns>A sample from the clip at the given index</returns>
         public override float GetSample(int _sampleIndex)
         {
             // we already have all the samples, so we just get the one at the given index

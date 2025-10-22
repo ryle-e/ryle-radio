@@ -5,7 +5,7 @@ using UnityEngine;
 namespace RyleRadio.Components.Base
 {
 
-    // an expansion of a RadioComponent that can access specific tracks on a RadioOutput
+    // a sister class to RadioComponent that can access specific tracks on a RadioOutput
     public abstract class RadioOutputTrackAccessor : MonoBehaviour
     {
         // the output to pull tracks from

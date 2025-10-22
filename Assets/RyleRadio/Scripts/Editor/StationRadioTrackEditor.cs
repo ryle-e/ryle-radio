@@ -7,18 +7,26 @@ namespace RyleRadio.Editor
 #if UNITY_EDITOR
     using UnityEditor;
 
-    // the editor for a station radio track
-    // this mainly exists so that we can reset any newly added track in the station, same as RadioDataEditor
-    //
-    // please check StationRadioTrack for info about any variables here
+    /// <summary>
+    /// The editor for a \ref StationRadioTrack
+    /// <br><br>This mainly exists so that we can reset any newly added tracks in the station- much the same as \ref RadioDataEditor
+    /// <br><b>See: </b>\ref StationRadioTrack
+    /// </summary>
     [CustomPropertyDrawer(typeof(StationRadioTrack))]
     public class StationRadioTrackEditor : PropertyDrawer
     {
-        private int lastTrackWSize = -1; // the last number of tracks in this station
-        private bool isShowingThreshold = false; // whether or not the random threshold is currently visible in the inspector
+        /// The last recorded number of tracks in this station
+        private int lastTrackWSize = -1;
 
+        /// Whether or not the random threshold is currently visible in the inspector
+        private bool isShowingThreshold = false;
+
+        /// Whether or not this track is showing its child tracks- optional variable for cleanliness
         private bool showTrackInParent = true;
 
+        /// <summary>
+        /// Draws the track, its child tracks, and other variables, e.g: randomisation settings
+        /// </summary>
         public override void OnGUI(Rect _position, SerializedProperty _property, GUIContent _label)
         {
             SerializedProperty trackWs = _property.FindPropertyRelative("stationTrackWs"); // the tracks
@@ -53,7 +61,6 @@ namespace RyleRadio.Editor
 
             if (showTrackInParent)
             { 
-
                 // if the station is in a random order,
                 if (EditorGUI.Toggle(isRandomRect, new GUIContent("Random Sequence"), isRandom.boolValue))
                 {
@@ -91,7 +98,7 @@ namespace RyleRadio.Editor
                         // get the new element
                         SerializedProperty newElement = trackWs.GetArrayElementAtIndex(trackWs.arraySize - 1);
 
-                        // get the stored track and track type
+                        // get the stored track and track eventType
                         SerializedProperty track = newElement.FindPropertyRelative("track");
                         SerializedProperty trackType = newElement.FindPropertyRelative("trackType");
 
@@ -130,7 +137,9 @@ namespace RyleRadio.Editor
 
         }
 
-        // get the height of the track in the inspector
+        /// <summary>
+        /// Gets the total height of this track in the inspector, including child tracks
+        /// </summary>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             if (showTrackInParent)

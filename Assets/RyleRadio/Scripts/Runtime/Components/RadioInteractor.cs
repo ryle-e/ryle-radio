@@ -2,40 +2,57 @@ using NaughtyAttributes;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace RyleRadio.Components
 {
-    // a script that performs actions on a radio, such as playing tracks, stopping them, etc
+    /// <summary>
+    /// A component that performs actions on a radio, such as playing tracks, stopping them, etc
+    /// <br><br>Very useful when writing custom code for a radio, or when using a \ref RadioObserver
+    /// </summary>
     [AddComponentMenu("Ryle Radio/Radio Interactor")]
     public class RadioInteractor : RadioOutputTrackAccessor
     {
-        // the tracks this interactor applies to- to apply to differen tracks, we need another interactor
+        /// <summary>
+        /// The tracks that this interactor applies to
+        /// </summary>
+        /// <remarks>Much like in \ref RadioObserver , you need multiple RadioInteractors to perform actions on different track groups</remarks>
         [Multiselect("TrackNames")]
         [SerializeField] private int affectedTracks;
 
-        // the method by which this interactor chooses a RadioTrackPlayer when stopping, pausing, or resetting
-        [Foldout("Advanced Settings"), SerializeField] private RadioOutput.MultiplePlayersSelector playerSelector;
+        /// <summary>
+        /// The method by which this interactor selects a RadioTrackPlayer when one is needed. For example, if \ref Stop() is called and an affected track has multiple active players, the interactor needs to pick which player to stop- it chooses according to this variable
+        /// </summary>
+        [Foldout("Advanced Settings"), SerializeField] 
+        private RadioOutput.MultiplePlayersSelector playerSelector;
 
-        // whether or not this should print out all debug information about actions performed on tracks
-        [Foldout("Advanced Settings"), SerializeField] private bool debugAll = false;
+        /// <summary>
+        /// Whether or not extra debug information should be printed from this component
+        /// </summary>
+        [Foldout("Advanced Settings"), SerializeField] 
+        private bool debugAll = false;
 
 
-        // plays affected tracks as looped tracks
+        /// <summary>
+        /// Plays \ref affectedTracks with looping players
+        /// </summary>
         public void PlayLoop()
         {
             // apply the loop play to all affected tracks
             DoTrackAction(affectedTracks, id => output.PlayLoop(id));
         }
 
-        // plays affected tracks as one-shots
+        /// <summary>
+        /// Plays \ref affectedTracks with one-shot players
+        /// </summary>
         public void PlayOneShot()
         {
             // apply the oneshot play to all affected tracks
             DoTrackAction(affectedTracks, id => output.PlayOneShot(id));
         }
 
-        // stops a player for affected tracks
+        /// <summary>
+        /// Stops a player on each \ref affectedTracks
+        /// </summary>
         public void Stop()
         {
             // apply the stop to all affected tracks
@@ -52,7 +69,9 @@ namespace RyleRadio.Components
             });
         }
 
-        // pauses/unpauses a player for affected tracks
+        /// <summary>
+        /// Pauses/unpauses a player on each \ref affectedTracks
+        /// </summary>
         public void FlipPause()
         {
             // apply the pause flip to all affected tracks
@@ -69,7 +88,9 @@ namespace RyleRadio.Components
             });
         }
 
-        // pauses a player for affected tracks
+        /// <summary>
+        /// Pauses a player on each \ref affectedTracks
+        /// </summary>
         public void Pause()
         {
             // apply the pause to all affected tracks
@@ -86,7 +107,9 @@ namespace RyleRadio.Components
             });
         }
 
-        // unpauses a player for affected tracks
+        /// <summary>
+        /// Unpauses a player on each \ref affectedTracks
+        /// </summary>
         public void Unpause()
         {
             // apply the unpause to all affected tracks
@@ -103,7 +126,9 @@ namespace RyleRadio.Components
             });
         }
         
-        // resets the progress of a player for affected tracks to 0
+        /// <summary>
+        /// Resets the progress of a player on each \ref affectedTracks
+        /// </summary>
         public void ResetProgress()
         {
             // apply the reset to all affected tracks

@@ -6,29 +6,37 @@ namespace RyleRadio.Editor
 
 #if UNITY_EDITOR
     using UnityEditor;
-    using UnityEngine.UIElements;
 
-    // the editor for a RadioData object
-    // the main purpose for this is to reset tracks when new ones are added- if we don't do this, they link- changing one track changes all of them
-
-    // see RadioData.cs for more info about variables
+    /// <summary>
+    /// A custom editor for \ref RadioData
+    /// <br><br> This mainly exists so that we can reset tracks when they're newly added to the RadioData and prevent them from being linked- I don't think it actually does its job for that, though
+    /// <br><br><b>See: </b>\ref RadioData
+    /// </summary>
     [CustomEditor(typeof(RadioData))]
     public class RadioDataEditor : Editor
     {
-        private SerializedProperty trackWs; // the tracks in this radio
-        private int lastTrackWSize; // the last recorded number of tracks
+        /// The tracks contained in this radio
+        private SerializedProperty trackWs;
+        /// The last recorded number of tracks contained in this radio
+        private int lastTrackWSize;
 
-        private SerializedProperty gizmoColor; // colour of gizmos associated with the data
+        /// The primary colour of gizmos on components referencing this radio
+        private SerializedProperty gizmoColor;
+        /// The secondary colour of gizmos on components referencing this radio
         private SerializedProperty gizmoColorSecondary;
 
-        private SerializedProperty forceClipSampleRate; // whether or not all AudioClips are overriden to a specific sample rate
-        private SerializedProperty forcedSampleRate; // the specific sample rate
+        /// Toggles whether or not we should force the sample rate on AudioClips used in this radio
+        private SerializedProperty forceClipSampleRate;
+        /// The sample rate we're forcing on AudioClips used in this radio- if left at 0, picks the project's default sample rate
+        private SerializedProperty forcedSampleRate;
 
-        // for a foldout hiding advanced vars
+        /// Toggle drawing of advanced settings
         private bool showAdvanced = false;
 
 
-        // on inspector init
+        /// <summary>
+        /// Initializes this object on inspector init
+        /// </summary>
         private void OnEnable()
         {
             // store gizmo colours
@@ -48,19 +56,19 @@ namespace RyleRadio.Editor
                 // cache it
                 SerializedProperty track = trackWs.GetArrayElementAtIndex(i);
 
-                // get the internal track class and the string type
+                // get the internal track class and the string eventType
                 SerializedProperty radioTrack = track.FindPropertyRelative("track");
                 SerializedProperty trackType = track.FindPropertyRelative("trackType");
 
                 // if the track itself is null somehow, (e.g it's the first track added when the data is created)
                 if (radioTrack.managedReferenceValue == null)
                 {
-                    // set a default track class based on the listed track type string
+                    // set a default track class based on the listed track eventType string
                     radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
                 }
                 else
                 {
-                    // set the track type string to whatever the internal track class is
+                    // set the track eventType string to whatever the internal track class is
                     trackType.stringValue = RadioTrackWrapper.GetTrackType(radioTrack.managedReferenceValue.ToString());
                 }
             }
@@ -69,6 +77,9 @@ namespace RyleRadio.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
+        /// <summary>
+        /// Draws variables, buttons, etc
+        /// </summary>
         public override void OnInspectorGUI()
         {
             // update the rest of the inspector
@@ -80,29 +91,7 @@ namespace RyleRadio.Editor
             // if the foldout is open,
             if (showAdvanced)
             {
-                // display the gizmo colour vars
-                EditorGUILayout.PropertyField(gizmoColor, new GUIContent("Gizmo Colour"));
-                EditorGUILayout.PropertyField(gizmoColorSecondary, new GUIContent("Secondary Gizmo Colour"));
-
-
-                // toggle for whether or not the user wants to force a sample rate on clips referenced in this radio
-                forceClipSampleRate.boolValue = EditorGUILayout.BeginToggleGroup("Force sample rate on Clips", forceClipSampleRate.boolValue);
-                
-                // the sample rate to force on the clips
-                EditorGUILayout.PropertyField(forcedSampleRate, new GUIContent("Forced sample rate"));
-
-                // a button to manually perform the sample rate forcing
-                if (GUILayout.Button(new GUIContent("Force Clips to sample rate")))
-                    ForceClipsToSampleRate();
-
-                // finish the toggled area
-                EditorGUILayout.EndToggleGroup();
-
-
-                // button to manually clear the name and ID caches of the radio
-                if (GUILayout.Button(new GUIContent("Clear Cache")))
-                    ((RadioData)serializedObject.targetObject).ClearCache();
-
+                DrawAdvancedOptions();
             }
 
             // display the tracks
@@ -114,28 +103,7 @@ namespace RyleRadio.Editor
                 // if a track has been added,
                 if (trackWs.arraySize > lastTrackWSize)
                 {
-                    // cache it
-                    SerializedProperty newElement = trackWs.GetArrayElementAtIndex(trackWs.arraySize - 1);
-
-                    // get the internal class and type
-                    SerializedProperty radioTrack = newElement.FindPropertyRelative("track");
-                    SerializedProperty trackType = newElement.FindPropertyRelative("trackType");
-
-                    // get the gain
-                    SerializedProperty gain = newElement.FindPropertyRelative("gain");
-
-                    // get the gain curve
-                    SerializedProperty rangeCurve = newElement.FindPropertyRelative("rangeCurve");
-
-                    // reset the internal track class
-                    radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
-
-                    // reset the gain and the gain curve
-                    gain.floatValue = 100;
-                    rangeCurve.animationCurveValue = new(RadioTrackWrapper.DefaultRangeCurve.keys);
-
-                    // store the new track list size
-                    lastTrackWSize++;
+                    InitNewTrack();
                 }
                 // if a track has been removed
                 else if (trackWs.arraySize < lastTrackWSize)
@@ -149,8 +117,65 @@ namespace RyleRadio.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        // get all AudioClips referenced in this radio, and override their sample rates in one go
-        // we do this to stop distortion in RadioOutput when converting between sample rates- optional if you're okay with a little distortion
+        /// <summary>
+        /// Draws the advanced options (gizmo colours, sample rate forcing, cache clear)
+        /// </summary>
+        private void DrawAdvancedOptions()
+        {
+            // display the gizmo colour vars
+            EditorGUILayout.PropertyField(gizmoColor, new GUIContent("Gizmo Colour"));
+            EditorGUILayout.PropertyField(gizmoColorSecondary, new GUIContent("Secondary Gizmo Colour"));
+
+            // toggle for whether or not the user wants to force a sample rate on clips referenced in this radio
+            forceClipSampleRate.boolValue = EditorGUILayout.BeginToggleGroup("Force sample rate on Clips", forceClipSampleRate.boolValue);
+
+            // the sample rate to force on the clips
+            EditorGUILayout.PropertyField(forcedSampleRate, new GUIContent("Forced sample rate"));
+
+            // a button to manually perform the sample rate forcing
+            if (GUILayout.Button(new GUIContent("Force Clips to sample rate")))
+                ForceClipsToSampleRate();
+
+            // finish the toggled area
+            EditorGUILayout.EndToggleGroup();
+
+            // button to manually clear the name and ID caches of the radio
+            if (GUILayout.Button(new GUIContent("Clear Cache")))
+                ((RadioData)serializedObject.targetObject).ClearCache();
+        }
+
+        /// <summary>
+        /// Initializes a newly created track
+        /// </summary>
+        private void InitNewTrack()
+        {
+            // cache it
+            SerializedProperty newElement = trackWs.GetArrayElementAtIndex(trackWs.arraySize - 1);
+
+            // get the internal class and eventType
+            SerializedProperty radioTrack = newElement.FindPropertyRelative("track");
+            SerializedProperty trackType = newElement.FindPropertyRelative("trackType");
+
+            // get the gain
+            SerializedProperty gain = newElement.FindPropertyRelative("gain");
+
+            // get the gain curve
+            SerializedProperty rangeCurve = newElement.FindPropertyRelative("rangeCurve");
+
+            // reset the internal track class
+            radioTrack.managedReferenceValue = RadioTrackWrapper.CreateTrackEditor(trackType.stringValue);
+
+            // reset the gain and the gain curve
+            gain.floatValue = 100;
+            rangeCurve.animationCurveValue = new(RadioTrackWrapper.DefaultRangeCurve.keys);
+
+            // store the new track list size
+            lastTrackWSize++;
+        }
+
+        /// <summary>
+        /// Get all AudioClips used in this radio, and override their sample rates all at once. This is done to reduce distortion when converting between sample rates at runtime- if you're okay with the distortion there's no issue
+        /// </summary>
         private void ForceClipsToSampleRate()
         {
             // for every track in this radio,
@@ -179,7 +204,10 @@ namespace RyleRadio.Editor
             }
         }
 
-        // force the sample rate on a specific clip
+        /// <summary>
+        /// Override the sample rate of a specific AudioClip
+        /// </summary>
+        /// <param name="_clip">The clip to override the sample rate on</param>
         private void ForceSingleClipToSampleRate(AudioClip _clip)
         {
             // get the import settings for the clip

@@ -35,7 +35,7 @@ namespace RyleRadio.Tracks
             }
         }
 
-        // the chosen type ==> what happens when this player ends
+        // the chosen eventType ==> what happens when this player ends
         public PlayerType PlayType { get; private set; }
 
         // called to destroy this player
@@ -140,7 +140,7 @@ namespace RyleRadio.Tracks
                 // if the gain is at 100, it will be at the default loudness
                 // if the gain is at 200, it will be double the loudness
                 // if the gain is at 50, it will be half the loudness
-                gain = TrackW.gain / 100f;
+                gain = TrackW.Gain;
                 OnGain(this, gain);
 
                 // get the tunePower of the track- this is a combination of the track's tuning power and attenuation

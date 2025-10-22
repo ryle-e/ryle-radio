@@ -13,41 +13,73 @@ namespace RyleRadio
     using System;
 #endif
 
-    // allows an int to display as a multiselect field for a given collection
-    // NOTE: due to int limitations there can only be a max of 32 options
+    /// <summary>
+    /// A custom attribute that allows ints to display as a multiselect dropdown for a given collection, like a custom LayerMask. Due to int limitations you can only have up to 32 options
+    /// </summary>
     public class MultiselectAttribute : PropertyAttribute
     {
-        // id of the options variable this is referencing
+        /// <summary>
+        /// Name of the variable this attribute uses for the options list
+        /// </summary>
         public string OptionsName { get; private set; }
 
+        /// <summary>
+        /// A filler array with numbers 0 - 31, used when converting from a flag int to a list subset
+        /// </summary>
+        public static int[] ZeroTo31 => new int[32] 
+        {
+            0,  
+            1,  2,  3,  4,  5,  6,  7,  8,
+            9,  10, 11, 12, 13, 14, 15, 16,
+            17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27, 28, 29, 30, 31
+        };
+
+        /// <summary>
+        /// A filler array with numbers 1 - 32. Not yet used, but theoretically helpful for indexing from the end of a list (list[^i] instead of list[i])
+        /// </summary>
+        public static int[] OneTo32 => new int[32] 
+        {
+            1,  2,  3,  4,  5,  6,  7,  8,
+            9,  10, 11, 12, 13, 14, 15, 16,
+            17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27, 28, 29, 30, 31,
+            32
+        };
+
+        /// <summary>
+        /// Initialises the attribute
+        /// </summary>
         public MultiselectAttribute(string _optionsName)
         {
             OptionsName = _optionsName;
         }
 
 
-        // self-explanatory
-        // useful for list indexes
-        public static int[] ZeroTo31 => new int[32] {
-        0,  
-        1,  2,  3,  4,  5,  6,  7,  8,
-        9,  10, 11, 12, 13, 14, 15, 16,
-        17, 18, 19, 20, 21, 22, 23, 24,
-        25, 26, 27, 28, 29, 30, 31
-    };
-
-        // useful for reverse list indexes(?? i haven't really used this one but thought i'd include it nonetheless)
-        public static int[] OneTo32 => new int[32] {
-        1,  2,  3,  4,  5,  6,  7,  8,
-        9,  10, 11, 12, 13, 14, 15, 16,
-        17, 18, 19, 20, 21, 22, 23, 24,
-        25, 26, 27, 28, 29, 30, 31,
-        32
-    };
-
-        // converts a multiselect int to a list of whatever type you like
+       /// <summary>
+        /// Converts an int with the Multiselect attribute to a subset of a given list according to the int flags- converts the flag int to usable data
+        /// </summary>
+        /// <typeparam name="T">The eventType content of the list we're converting the flags to</typeparam>
+        /// <param name="_flags">The int with the Multiselect attribute- a flag int</param>
+        /// <param name="_options">The list we're getting a subset of according to the flags</param>
+        /// <returns>A subset of `_options` that matches the `_flags` int</returns>
+        /// <example><code>
+        /// string[] options = new string[4] { "awesome", "attribute", "thanks", "ryle-e" };
+        /// 
+        /// [Multiselect("options")]
+        /// private int flags1; // in the inspector, we set it to ["awesome", "thanks"]- the first and third options in the inspector. this int then becomes 0x0101
+        /// 
+        /// public void Convert()
+        /// {
+        ///     int flags2 = 0x1010; // equivalent to selecting the second and fourth options in the inspector
+        ///     
+        ///     List<string> converted1 = Multiselect.To<string>(flags1, options); // sets to ["awesome", "thanks"]
+        ///     List<string> converted2 = Multiselect.To<string>(flags2, options); // sets to ["attribute", "ryle-e"]
+        /// }
+        /// </code></example>
         public static T[] To<T>(int _flags, T[] _options)
         {
+            // if the flag int is invalid, alert the user and return nothing
             if (_flags < 0)
             {
                 Debug.LogWarning("A value less than 0 is being used as the flag variable in a MultiselectAttribute.To<T>() call! The value is " + _flags);
@@ -76,7 +108,11 @@ namespace RyleRadio
             return o;
         }
 
-        // shorthand to convert it to ints or indexes
+        /// <summary>
+        /// Shorthand for `MultiselectAttribute.To<int>(_flags, _options)`. Useful for converting a multiselect to indexes in a list
+        /// </summary>
+        /// <param name="_flags">The int with the Multiselect attribute</param>
+        /// <returns></returns>
         public static int[] ToInt(int _flags)
         {
             return To<int>(_flags, ZeroTo31);
@@ -85,16 +121,23 @@ namespace RyleRadio
 
 
 #if UNITY_EDITOR
-    // draws the attribute
+    /// <summary>
+    /// Draws the MultiselectAttribute in the inspector
+    /// </summary>
     [CustomPropertyDrawer(typeof(MultiselectAttribute))]
     public class MultiselectDrawer : PropertyDrawer
     {
+#if !SKIP_IN_DOXYGEN
         // the inspector seems to think this is larger than it actually is, so we give it a small adjustment in height
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return -2;
         }
+#endif
 
+        /// <summary>
+        /// Displays the multiselect dropdown
+        /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             // make the selection a bit mask
@@ -110,7 +153,7 @@ namespace RyleRadio
             if (options != null) // if there are options, display them
             {
                 // we have to use the individual collection types here as there's no way (that i know of) to access IEnumerable without
-                // specifying a generic type- and since we only have the variable id, we can't do that
+                // specifying a generic eventType- and since we only have the variable id, we can't do that
 
                 // if anyone knows of an alternate way to do this please do share :)
 
@@ -167,6 +210,7 @@ namespace RyleRadio
             property.intValue = mask;
         }
 
+#if !SKIP_IN_DOXYGEN
         // taken from DropdownPropertyDrawer.cs in NaughtyAttributes.Editor
         // ======
         private object GetValues(SerializedProperty property, string valuesName)
@@ -196,6 +240,7 @@ namespace RyleRadio
             return null;
         }
         // ======
+#endif
     }
 #endif
 

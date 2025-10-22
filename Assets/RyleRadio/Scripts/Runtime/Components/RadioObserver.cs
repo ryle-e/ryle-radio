@@ -5,62 +5,102 @@ using UnityEngine;
 
 namespace RyleRadio.Components
 {
-
-    // a component used to watch for specific happenings on a RadioOutput, e.g: a clip being a certain volume, a track starting, the tune being in a certain range
-    // we don't inherit from RadioComponent here since we don't need to use a RadioData ref, but it's very similar
-    // this is also partial as it's extended in ObserverEvent.cs
+    /// <summary> 
+    /// A component used to watch for specific happenings on a RadioOutput, e.g: a clip being a certain volume, a track starting, the tune being in a certain range\n
+    /// We don't inherit from RadioComponent here since we don't need to use a RadioData ref, but it's very similar
+    /// </summary>
+    /// <remarks>
+    /// One major thing to notice about this class is that each individual Observer component has specific tracks it's watching for- NOT each individual ObserverEvent.
+    /// This is due to limitations of MultiselectAttribute- it doesn't display in nested lists properly. This is theoretically something I can fix, but I'm not fantastic at custom editors so I'd prefer to accept this limitation for now.
+    /// With that being said, this means it *is* a bit cleaner to navigate multiple Observers in the scene- not all bad!
+    /// </remarks>
+    
+    // This is partial as it's extended in ObserverEvent.cs
     [AddComponentMenu("Ryle Radio/Radio Observer")]
     public partial class RadioObserver : MonoBehaviour
     {
-        // the event an observer is looking for
+        /// <summary>
+        /// The event an observer is looking for. 
+        /// 
+        /// Except for Trigger events, we need a value(s) to check for a change with. E.g: checking if volume is above a threshold. 
+        /// Trigger events wait for a certain thing to happen that doesn't need a value. E.g: checking if a track has just started playing
+        /// </summary>
         public enum EventType
         {
-            OutputVolume, // the volume of the track:  gain * broadcast power * insulation
-            Gain, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the output
-            TunePower, // the gain of the track:  this is combined from the gain variable on the track and the tuning power on the output
-            BroadcastPower, // the broadcast power of the track:  how close to any active RadioBroadcasters the output is
-            Insulation, // the insulation of the track:  the higher the value the less insulation- the power of any RadioInsulator the output is in
-            TrackEnds, // the track ends, or loops
-            TrackStarts, // the track starts, or loops (happens after TrackEnds)
-            OutputTune, // the tune on the output is changed
+            OutputVolume, ///< The volume of the track: tune power * broadcast power * insulation
+            Gain, ///< The gain of the track:  this is currently defined exclusively in the track's gain variable
+            TunePower, ///< The tune power of the track: how close the RadioOutput.Tune value is to the range of the track
+            BroadcastPower, ///< The broadcast power of the track:  how close to any active RadioBroadcasters the output's transform is
+            Insulation, ///< The insulation of the track:  the higher the value the less insulation- the power of any RadioInsulator the output is inside of
+            TrackEnds, ///< The track ends, or loops- this is a Trigger event
+            TrackStarts, ///< The track starts, or loops (happens after TrackEnds)- this is a Trigger event
+            OutputTune, ///< The tune on the RadioOutput is changed
 
-            None // empty, mainly to temporarily disable an event without deleting it
+            None, ///< Empty, mainly to temporarily disable an event without deleting it
         }
 
-        // the method of comparison used for the value or range provided in the event
+        /// <summary>
+        /// The method of comparisonType used for an event. For example, checking if the volume is greater than a number, or in a certain range
+        /// </summary>
         public enum ComparisonType
         {
-            Equal,
-            GreaterThan,
-            GreaterThanOrEqual,
-            LessThan,
-            LessThanOrEqual,
-            BetweenInclusive, // between x and y, including if it's equal to x or y
-            BetweenExclusive, // between x and y, but not equal to x or y
+            Equal, /// The value is equal to a number <remarks>We're using floats for almost every EventType with a value, so this won't be used often</remarks>
+            GreaterThan, /// The value is greater than a number
+            GreaterThanOrEqual, /// The value is greater than or equal to a number
+            LessThan, /// The value is less than a number
+            LessThanOrEqual, /// The value is less than or equal to a number
+            BetweenInclusive, /// The value is between numbers x and y, including if it's equal to x or y
+            BetweenExclusive, /// The value between numbers x and y, but not equal to x or y
         }
 
-        // the output this observer is attached to
+        /// <summary>
+        /// The RadioOutput this observer is attached to 
+        /// </summary>
         [SerializeField] private RadioOutput output;
 
-        // the tracks that this observer is watching for events on
-        // due to editor attribute limitations, all these events apply to the same tracks. if you want different events for different tracks, you need to make new observers
+        /// <summary>
+        /// The tracks that this observer is watching for events on. This is a flag int and is translated to a list of names in \ref AffectedTracks
+        /// </summary>
         [SerializeField, Multiselect("TrackNames")]
         private int affectedTracks;
 
-        // the events tracked in this observer
+        /// <summary>
+        /// The events that this Observer responds uses, containing values/triggers to watch for and events to call
+        /// </summary>
         [SerializeField] private List<ObserverEvent> events;
 
-        // as the audio methods are on a separate thread to UnityEvents, we need to create a buffer to run in Update
-        // if we don't do this, we get errors from the UnityEvents e.g "IsPlaying can only be called from the main thread"
-        // tl;dr: audio is on a separate thread to UnityEvents, this solves that issue
+        /// <summary>
+        /// A buffer for events to run on Update. 
+        /// We cannot call \ref UnityEvents
+        /// in the audio thread, so we need a buffer here so we can run them in \ref Update instead.
+        /// 
+        /// <b>See also: </b>\ref stayedEvents 
+        /// </summary>
         private List<Action> toDoOnUpdate = new();
 
-        // the names that the multiselect can pull from
+        /// <summary>
+        /// A tracker for which ObserverEvents have been called for this specific frame- prevents us from calling an OnStay event hundreds of times in a frame due to the audio thread being WAY faster
+        /// 
+        /// <b>See also:</b> \ref toDoOnUpdate
+        /// </summary>
+        private List<ObserverEvent> stayedEvents = new();
+
+#if !SKIP_IN_DOXYGEN
+        // The names that the MultiselectAttribute on affectedTracks can use
         private List<string> TrackNames => output != null ? output.Data.TrackNames : new() { "Output not assigned!" };
 
-        // the affected tracks as a list of names rather than an int
-        // cached
+#endif
+       
+        /// <summary>
+        /// \ref affectedTracks as a list of names rather than a flag int. Created and cached in \ref AffectedTracks
+        /// </summary>
         private string[] affectedTrackNames;
+
+        /// <summary>
+        /// The tracks selected on this Observer.
+        /// 
+        /// This is an accessor for \ref affectedTrackNames and \ref affectedTracks - uses MultiselectAttribute.To to automatically convert the flag int to a string array
+        /// </summary>
         public string[] AffectedTracks
         {
             get
@@ -72,22 +112,27 @@ namespace RyleRadio.Components
             }
         }
 
-        // !!!!!!!!!!!!!! IT'S THIS THING WE'RE GROUPING IT BY THE TYPE NOT BY THE SPECIFIC EVENT
-        //                  that's why it's not going green we're preventing more than one output volume event
-        private bool[] hasEventBeenAdded = new bool[(int)EventType.None];
 
-
+        /// <summary>
+        /// Attaches the Observer to \ref output
+        /// </summary>
         private void Awake()
         {
             // attach this observer to the output
             output.Observers.Add(this);
         }
 
+        /// <summary>
+        /// Detaches this Observer from \ref output
+        /// </summary>
         private void OnDestroy()
         {
             output.Observers.Remove(this);
         }
 
+        /// <summary>
+        /// Run the buffered events and reset for the next frame
+        /// </summary>
         private void Update()
         {
             // time to cache the update queue
@@ -109,52 +154,50 @@ namespace RyleRadio.Components
                 lock (toDoOnUpdate)
                     toDoOnUpdate.Remove(a);
             }
+
+            // clear stay events from last frame so they can be called again this frame
+            stayedEvents.Clear();
         }
 
-        // link up each event to the associated track player
+        /// <summary>
+        /// Assigns each event to a RadioTrackPlayer for one of our \ref AffectedTracks\. This is called when a new RadioTrackPlayer is created that's playing a Track in \ref AffectedTracks.
+        /// </summary>
+        /// <param name="_player">A RadioTrackPlayer playing one of our \ref AffectedTracks</param>
         public void AssignEvents(RadioTrackPlayer _player)
         {
             foreach (ObserverEvent e in events)
             {
-                switch (e.type)
+                // if the OnStay event for this ObserverEvent has already been called this frame, don't call it again
+                // if we didn't have this, it would be calling the OnStay events hundreds of times per frame
+                if (stayedEvents.Contains(e)) 
+                    break;
+                else 
+                    stayedEvents.Add(e);
+                
+                switch (e.eventType)
                 {
                     // the _player events are mostly very similar- they give us the player it's called on, and the value
                     // we don't do anything with the player info in this script, but it's there for custom behaviour
                     //
                     // each sample, we check if a copy of this event has been called yet. If it has, we don't add another one, as it would hugely slow down at runtime
                     case EventType.OutputVolume:
-                        if (hasEventBeenAdded[(int)EventType.OutputVolume]) break;
-                        else hasEventBeenAdded[(int)EventType.OutputVolume] = true;
-
-                        _player.OnVolume += (player, volume) => { StayEvent(e, volume); };
+                        _player.OnVolume += (player, volume) => { ValueEvent(e, volume); };
                         break;
 
                     case EventType.Gain:
-                        if (hasEventBeenAdded[(int)EventType.Gain]) break;
-                        else hasEventBeenAdded[(int)EventType.Gain] = true;
-
-                        _player.OnGain -= (player, gain) => { StayEvent(e, gain); };
+                        _player.OnGain -= (player, gain) => { ValueEvent(e, gain); };
                         break;
 
                     case EventType.TunePower:
-                        if (hasEventBeenAdded[(int)EventType.TunePower]) break;
-                        else hasEventBeenAdded[(int)EventType.TunePower] = true;
-
-                        _player.OnTunePower += (player, tunePower) => { StayEvent(e, tunePower); };
+                        _player.OnTunePower += (player, tunePower) => { ValueEvent(e, tunePower); };
                         break;
 
                     case EventType.BroadcastPower:
-                        if (hasEventBeenAdded[(int)EventType.BroadcastPower]) break;
-                        else hasEventBeenAdded[(int)EventType.BroadcastPower] = true;
-
-                        _player.OnBroadcastPower += (player, power) => { StayEvent(e, power); };
+                        _player.OnBroadcastPower += (player, power) => { ValueEvent(e, power); };
                         break;
 
                     case EventType.Insulation:
-                        if (hasEventBeenAdded[(int)EventType.Insulation]) break;
-                        else hasEventBeenAdded[(int)EventType.Insulation] = true;
-
-                        _player.OnInsulation += (player, insulation) => { StayEvent(e, insulation); };
+                        _player.OnInsulation += (player, insulation) => { ValueEvent(e, insulation); };
                         break;
 
                     // this is a single event rather than a value- there is no value associated with the track starting or ending, it just starts or ends
@@ -168,13 +211,10 @@ namespace RyleRadio.Components
 
                     // this event watches the tune of the output- it doesn't actually use a player here
                     case EventType.OutputTune:
-                        if (hasEventBeenAdded[(int)EventType.OutputTune]) break;
-                        else hasEventBeenAdded[(int)EventType.OutputTune] = true;
-
-                        output.OnTune += (tune) => { StayEvent(e, tune); };
+                        output.OnTune += (tune) => { ValueEvent(e, tune); };
                         break;
 
-                    // an empty event gets no behaviour - gandhi
+                    // an empty event gets no behaviour - pretty sure gandhi said this at one point idk man
                     default:
                     case EventType.None:
                         break;
@@ -183,17 +223,25 @@ namespace RyleRadio.Components
 
         }
 
-        // a generic approach to an event tracking a value- we use a method here since we'd just be duplicating the code otherwise
-        private void StayEvent(ObserverEvent _event, float _value) 
+        /// <summary>
+        /// A generic method letting an ObserverEvent tracking a value watch for its change.
+        /// 
+        /// This is what's called every time a Track's observed value is changed. If the new value fulfills the given ObserverEvent, it'll be called. E.g: volume is in given range- call event
+        /// 
+        /// <b>See also: \ref TriggerEvent()</b>
+        /// </summary>
+        /// <param name="_event">Contains the change we're watching for, and the event to call when the change happens</param>
+        /// <param name="_value">The observed value right now</param>
+        private void ValueEvent(ObserverEvent _event, float _value) 
         {
-            // if this event doesn't use a comparison, this method should not have been called- tell the user
+            // if this event doesn't use a comparisonType, this method should not have been called- tell the user
             if (!_event.NeedComparison)
             {
                 Debug.LogWarning($"Attempting to use the FloatEvent method on trigger event {_event}! To fix, either modify the NeedComparison property in ObserverEvent, or change the method used in AssignEvents to TriggerEvent.");
                 return;
             }
 
-            // evaluate the comparison
+            // evaluate the comparisonType
             if (_event.EvaluateComparison(_value))
             {
                 // if it passes,
@@ -237,7 +285,12 @@ namespace RyleRadio.Components
             }
         }
 
-        // a generic approach to tracking a trigger rather than a value
+        /// <summary>
+        /// A generic method tracking if an ObserverEvent's trigger has been called. E.g: a track has just started playing, call event
+        /// 
+        /// <b>See also: </b> \ref ValueEvent()
+        /// </summary>
+        /// <param name="_event">Contains the trigger we're watching for, and the event to call when it's triggered</param>
         private void TriggerEvent(ObserverEvent _event)
         {
             // if the event is triggered, call the onTrigger event- the other events are not applicable

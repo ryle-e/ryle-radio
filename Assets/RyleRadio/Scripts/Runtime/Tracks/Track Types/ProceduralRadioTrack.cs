@@ -4,66 +4,102 @@ using UnityEngine;
 namespace RyleRadio.Tracks
 {
 
-    // a track that plays procedurally generated audio
+    /// <summary>
+    /// A RadioTrack that plays procedurally generated audio, such as noice, silence, and waveforms.
+    /// </summary>
     [System.Serializable]
     public class ProceduralRadioTrack : RadioTrack, IStationTrack
     {
+        /// <summary>
+        /// The name of this class in the editor- required by RadioTrack
+        /// </summary>
         public const string DISPLAY_NAME = "Procedural";
 
+        /// <summary>
+        /// The eventType of procedural audio this track is generating.
+        /// </summary>
         public enum ProceduralType // you can add custom ones of these if you like, but they're not as malleable as tracks themselves and you'll have to adjust the code
         {
-            WhiteNoise,
-            PinkNoise,
-            BrownNoise,
-            SineWave, // i haven't added other waveforms at this time but if requested i can :)
-            Silence,
+            WhiteNoise, ///< White noise: random samples between 0 and 1
+            PinkNoise, ///< Special eventType of noise defined by Paul Kellet's refined method (pk3): sounds "fuller" than white noise
+            BrownNoise, ///< Special eventType of noise using a value (\ref brownWalkPower): sounds softer and deeper
+            SineWave, ///< A waveform: shaped as a sine wave at a given frequency
+            Silence, ///< Silence: samples at 0
         }
 
-        private const float NOISE_MULTIPLIER = .2f; // the noise is much louder by default due to the random being between -1 and 1, so we shrink it
-        private const float PINK_MULTIPLIER = .5f; // pink noise is louder so we curb it a little
-        private const float BASE_SAMPLE_RATE = 44100; // the default sample rate for the procedural tracks, can adjust this if needed
+        private const float NOISE_MULTIPLIER = .2f; ///< A base multiplier for noise- because the samples can go all the way up to 1, noise tends to be a lot louder than other tracks, e.g: AudioClips in ClipRadioTrack
+        private const float PINK_MULTIPLIER = .5f; ///< Pink noise is even louder than the other noise types, so we curb it a little
+        private const float BASE_SAMPLE_RATE = 44100; ///< The default sample rate for the procedural tracks, can adjust this if required
 
+        /// <summary>
+        /// The selected eventType of noise for this track
+        /// </summary>
         public ProceduralType proceduralType = ProceduralType.WhiteNoise;
 
-        // if this is in a station, then the audio needs to end sometime- give it a duration
-        // if this is not in a station then the audio is endless anyway
+        /// <summary>
+        /// If this track is inside of a StationRadioTrack, then it should only play for a certain duration- this is that duration
+        /// </summary>
         [AllowNesting, ShowIf("IsInStation")]
         public float duration = 0;
 
-        // frequency (pitch) of the generated wave
+        /// <summary>
+        /// The frequency/pitch of the waveform
+        /// </summary>
         [AllowNesting, ShowIf("proceduralType", ProceduralType.SineWave), Range(1, 2000)]
         public float waveFrequency = 100;
 
-        // brown noise works by adding the generated number to all previous ones
-        // this float is what previous ones are multiplied by when they're stored
-        // therefore the higher the walk power, the closer it is to white noise
+        /// <summary>
+        /// The value used to define the sound of brown noise.<br><br>
+        /// Brown noise works by adding the generated sample to all previous generated samples. This float is what these generated samples are multiplied by when stored.
+        /// This means that the higher the walk power, the larger the difference that each sample makes on average, and the closer it sounds to white noise.
+        /// </summary>
         [AllowNesting, ShowIf("proceduralType", ProceduralType.BrownNoise), Range(0, 1)]
         public float brownWalkPower = 0.5f;
 
-        // we can't use UnityEngine.Random during audio updates as it's on a different thread, so we need to use System.Random
+#if !SKIP_IN_DOXYGEN
+        // we can't use UnityEngine.Random during audio updates as it runs on a different thread, so we need to use System.Random instead
         private System.Random random;
+#endif
 
-        // the progress through the waveform when using wave audio
+        /// <summary>
+        /// The progress of the waveform used when generating it
+        /// </summary>
         private float phase = 0;
 
-        // running variables used in pink noise generation
+#if !SKIP_IN_DOXYGEN
+        // values used for the sample generation of pink noise- it needs to use running values and stores them here
         private float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0, p5 = 0, p6 = 0;
+#endif
+
+        /// <summary>
+        /// The generated brown noise from the previous sample
+        /// </summary>
         private float lastBrown = 0;
 
+        /// <summary>
+        /// Whether this is in a station or not. Required by IStationTrack
+        /// </summary>
         public bool IsInStation { get; set; }
 
 
+        /// <summary>
+        /// Initializes this track
+        /// </summary>
         public override void Init()
         {
             random = new System.Random();
             phase = 0;
 
-            // if this track has a duration, set the sample count to that duration, otherwise set it to ''''infinite''''
+            // if this track has a duration, set the sample count to that duration, otherwise set it to ''''infinite'''' (as big a number as possible)
             SampleCount = (duration > 0) ? (int)(duration * BASE_SAMPLE_RATE) : int.MaxValue;
             SampleRate = BASE_SAMPLE_RATE;
         }
 
-
+        /// <summary>
+        /// Get the next sample of the selected procedural audio eventType
+        /// </summary>
+        /// <param name="_sampleIndex">The index of the sample- useless for noise, useful for waveforms</param>
+        /// <returns>The sample of generated audio</returns>
         public override float GetSample(int _sampleIndex)
         {
             // all the noise algorithms use a white noise float
