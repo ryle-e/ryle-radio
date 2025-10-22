@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0.78431374, g: 0.7058824, b: 1, a: 1}
   gizmoColorSecondary: {r: 0.6779662, g: 0.40677968, b: 0.8, a: 1}
+  forceClipSampleRate: 1
+  forcedSampleRate: 0
   trackWs:
   - id: music
     name: music, 250 - 750
     range: {x: 250, y: 750}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
@@ -59,28 +61,37 @@ MonoBehaviour:
     insulators: []
     trackType: Audio Clip
     track:
-      rid: 7468379982762082358
+      rid: 7468380461637566742
   - id: noise
     name: noise, 0 - 1000
     range: {x: 0, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
         time: 1
-        value: 1
+        value: 0
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -95,28 +106,37 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 7468379982762082359
+      rid: 7468380461637566743
   - id: bass
     name: bass, 0 - 1000
     range: {x: 0, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
         time: 1
-        value: 1
+        value: 0
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -131,28 +151,37 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 7468379982762082360
+      rid: 7468380461637566744
   - id: bass2
     name: bass2, 0 - 1000
     range: {x: 0, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
         time: 1
-        value: 1
+        value: 0
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -167,32 +196,32 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 7468379982762082361
+      rid: 7468380461637566745
   references:
     version: 2
     RefIds:
-    - rid: 7468379982762082358
-      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+    - rid: 7468380461637566742
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
-        clip: {fileID: 8300000, guid: 99cb3a6d99a6f854ab97e624b3f3a51f, type: 3}
-    - rid: 7468379982762082359
-      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+        clip: {fileID: 0}
+    - rid: 7468380461637566743
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
         proceduralType: 0
         duration: 0
         waveFrequency: 100
         brownWalkPower: 0.5
-    - rid: 7468379982762082360
-      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+    - rid: 7468380461637566744
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
-        proceduralType: 3
+        proceduralType: 0
         duration: 0
         waveFrequency: 100
         brownWalkPower: 0.5
-    - rid: 7468379982762082361
-      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+    - rid: 7468380461637566745
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
-        proceduralType: 3
+        proceduralType: 0
         duration: 0
-        waveFrequency: 300
+        waveFrequency: 100
         brownWalkPower: 0.5

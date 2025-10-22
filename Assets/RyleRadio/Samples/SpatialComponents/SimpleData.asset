@@ -20,24 +20,33 @@ MonoBehaviour:
   - id: music
     name: music, 0 - 1000
     range: {x: 0, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
         time: 1
-        value: 1
+        value: 0
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -54,28 +63,37 @@ MonoBehaviour:
     - {fileID: 0}
     trackType: Audio Clip
     track:
-      rid: 7468380116217495609
+      rid: 7468380461637566740
   - id: static
     name: static, 0 - 1000
     range: {x: 0, y: 1000}
-    gainCurve:
+    rangeCurve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
         value: 1
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
         time: 1
-        value: 1
+        value: 0
         inSlope: 0
         outSlope: 0
-        tangentMode: 34
+        tangentMode: 0
         weightedMode: 0
         inWeight: 0
         outWeight: 0
@@ -90,18 +108,18 @@ MonoBehaviour:
     insulators: []
     trackType: Procedural
     track:
-      rid: 7468380116217495611
+      rid: 7468380461637566741
   references:
     version: 2
     RefIds:
-    - rid: 7468380116217495609
-      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+    - rid: 7468380461637566740
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
         clip: {fileID: 8300000, guid: 5749668615100434f82b5e5223f57249, type: 3}
-    - rid: 7468380116217495611
-      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: Assembly-CSharp}
+    - rid: 7468380461637566741
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
         proceduralType: 2
         duration: 0
         waveFrequency: 100
-        brownWalkPower: 0.65
+        brownWalkPower: 0.5

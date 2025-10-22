@@ -7977,8 +7977,8 @@ MonoBehaviour:
   output: {fileID: 398591046}
   affectedTracks: 1
   events:
-  - type: 0
-    comparison: 2
+  - eventType: 0
+    comparisonType: 2
     clampedValue: 0.08
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
@@ -8042,8 +8042,8 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
     staying: 0
-  - type: 0
-    comparison: 2
+  - eventType: 0
+    comparisonType: 2
     clampedValue: 0.8
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
@@ -8107,8 +8107,8 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
     staying: 0
-  - type: 7
-    comparison: 5
+  - eventType: 7
+    comparisonType: 5
     clampedValue: 0.2
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
@@ -8136,8 +8136,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     staying: 0
-  - type: 7
-    comparison: 5
+  - eventType: 7
+    comparisonType: 5
     clampedValue: 0.2
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
@@ -8165,13 +8165,13 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     staying: 0
-  - type: 5
-    comparison: 5
+  - eventType: 5
+    comparisonType: 0
     clampedValue: 0.2
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
     tuneRange: {x: 0, y: 200}
-    showEvents: 1
+    showEvents: 0
     onTrigger:
       m_PersistentCalls:
         m_Calls:
