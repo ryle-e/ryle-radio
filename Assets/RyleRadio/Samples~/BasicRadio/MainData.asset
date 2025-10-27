@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gizmoColor: {r: 0.78431374, g: 0.7058824, b: 1, a: 1}
   gizmoColorSecondary: {r: 0.6862745, g: 0.4117647, b: 0.8039216, a: 1}
-  forceClipSampleRate: 1
+  forceClipSampleRate: 0
   forcedSampleRate: 0
   trackWs:
   - id: music_old1

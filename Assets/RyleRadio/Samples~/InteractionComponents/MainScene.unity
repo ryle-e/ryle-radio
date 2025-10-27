@@ -8062,7 +8062,7 @@ MonoBehaviour:
     tuneValue: 0
     clampedRange: {x: 0, y: 0}
     tuneRange: {x: 0, y: 0}
-    showEvents: 0
+    showEvents: 1
     onTrigger:
       m_PersistentCalls:
         m_Calls:
