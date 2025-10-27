@@ -1,0 +1,202 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a748e9405d1fe748b3f60064475d081, type: 3}
+  m_Name: Data
+  m_EditorClassIdentifier: 
+  gizmoColor: {r: 0.78431374, g: 0.7058824, b: 1, a: 1}
+  gizmoColorSecondary: {r: 0.6862745, g: 0.4117647, b: 0.8039216, a: 1}
+  forceClipSampleRate: 1
+  forcedSampleRate: 0
+  trackWs:
+  - id: music
+    name: music, 200 - 800
+    range: {x: 200, y: 800}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 21.462378
+        outSlope: 21.462378
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0.050890584
+      - serializedVersion: 3
+        time: 0.1
+        value: 1
+        inSlope: 0.003384903
+        outSlope: 0.003384903
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.53999215
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.9
+        value: 1
+        inSlope: -0
+        outSlope: -0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.31615767
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -17.487913
+        outSlope: -17.487913
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.07633565
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0
+    forceGlobal: 1
+    playOnInit: 1
+    broadcasters:
+    - {fileID: 0}
+    insulators:
+    - {fileID: 0}
+    trackType: Audio Clip
+    track:
+      rid: 7468380575479365634
+  - id: static
+    name: static, 0 - 999.9
+    range: {x: 0, y: 999.9}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 50
+    attenuation: 1
+    forceGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    insulators: []
+    trackType: Procedural
+    track:
+      rid: 7468380575479365633
+  - id: beep
+    name: beep, 0 - 1000
+    range: {x: 0, y: 1000}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0
+    forceGlobal: 1
+    playOnInit: 0
+    broadcasters: []
+    insulators: []
+    trackType: Station aka Multi-select
+    track:
+      rid: 7468380575479365638
+  references:
+    version: 2
+    RefIds:
+    - rid: 7468380575479365633
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        proceduralType: 1
+        duration: 0
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 7468380575479365634
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        clip: {fileID: 8300000, guid: e410581d534ad48489fec10caab24033, type: 3}
+    - rid: 7468380575479365638
+      type: {class: StationRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        randomSequence: 1
+        thresholdBeforeRepeats: 0.5
+        stationTrackWs:
+        - id: 1
+          gain: 100
+          startAndEndRests: {x: 0, y: 0}
+          trackType: Procedural
+          track:
+            rid: 7468380575479365639
+        - id: 2
+          gain: 100
+          startAndEndRests: {x: 0, y: 0}
+          trackType: Procedural
+          track:
+            rid: 7468380575479365640
+    - rid: 7468380575479365639
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        proceduralType: 3
+        duration: 1
+        waveFrequency: 300
+        brownWalkPower: 0.5
+    - rid: 7468380575479365640
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        proceduralType: 3
+        duration: 1
+        waveFrequency: 500
+        brownWalkPower: 0.5

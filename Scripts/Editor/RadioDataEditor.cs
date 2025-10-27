@@ -231,12 +231,12 @@ namespace RyleRadio.Editor
             else // otherwise if it's set to 0 or less,
                 sampleSettings.sampleRateOverride = (uint)AudioSettings.outputSampleRate; // set it to the game's default
 
-            // if the sample rate was changed, let the user know
-            if (sampleSettings.sampleRateOverride !=  lastSampleRate)
-                Debug.Log("Changed clip {_clip} sample rate to {sampleSettings.sampleRateOverride} for platform {buildTarget}.");
-
             // apply the sample rate override
             importer.SetOverrideSampleSettings(buildTarget, sampleSettings);
+
+            // if the sample rate was changed, let the user know
+            if (sampleSettings.sampleRateOverride !=  lastSampleRate)
+                Debug.Log($"Changed clip {_clip} sample rate to {sampleSettings.sampleRateOverride} for platform {buildTarget}.");
         }
     }
 #endif

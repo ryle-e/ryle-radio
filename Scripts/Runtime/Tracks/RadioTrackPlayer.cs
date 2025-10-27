@@ -33,7 +33,7 @@ namespace RyleRadio.Tracks
         /// This is stored as a double for greater precision with sample rates- using a float here causes clipping or distortion.
         /// <br>We could use a `decimal` here, but we're opting to change sample rates of the tracks rather than messing with them here
         /// </remarks>
-        public double Progress { get; private set; } = 0;
+        public decimal Progress { get; private set; } = 0;
 
         /// <summary>
         /// How far through the track this player is, from [0 - 1]
@@ -114,7 +114,7 @@ namespace RyleRadio.Tracks
         /// <summary>
         /// The amount that \ref Progress is increased by every sample- the ratio of the track's sample speed to the \ref baseSampleRate
         /// </summary>
-        private float sampleIncrement;
+        private decimal sampleIncrement;
 
         /// <summary>
         /// The sample rate of the \ref RadioOutput that this player is used by- that is, the sample rate of the radio
@@ -169,7 +169,7 @@ namespace RyleRadio.Tracks
             // software and programs operate. as such, we use it here :)
             //
             // note: this explanation was mostly for my own future reference if i forget how this works lol
-            sampleIncrement = TrackW.SampleRate / baseSampleRate;
+            sampleIncrement = (decimal)TrackW.SampleRate / (decimal)baseSampleRate;
 
             //if (TrackW.id == "music_old2")
             //    Debug.Log(TrackW.SampleCount);
