@@ -4,31 +4,42 @@ using UnityEngine;
 namespace RyleRadio.Components.Base
 {
 
-    // a component that references a RadioData
+    /// <summary>
+    /// A scene component that holds a reference to a \ref RadioData
+    /// </summary>
     public abstract class RadioComponent : MonoBehaviour
     {
-        // delegate allows us to universally initialize these components
-        public static Action InitAllComponents { get; private set; } = new(() => { });
-
-        // the data this component is linked to
+        /// <summary>
+        /// The \ref RadioData (aka just radio) that this component is linked to
+        /// </summary>
         [SerializeField] protected RadioData data;
 
+        /// <summary>
+        /// Read-only accessor for \ref data
+        /// </summary>
         public RadioData Data => data;
 
 
-        // initialize this component
+        /// <summary>
+        /// Initialises this component
+        /// </summary>
         public abstract void Init();
 
 
-        // hook up the component to the delegate
+        /// <summary>
+        /// Link \ref Init() to the radio's init
+        /// </summary>
         private void Awake()
         {
-            InitAllComponents += Init;
+            data.OnInit += _ => Init();
         }
 
+        /// <summary>
+        /// Unlink \ref Init() from the radio's init
+        /// </summary>
         private void OnDestroy()
         {
-            InitAllComponents -= Init;
+            data.OnInit -= _ => Init();
         }
     }
 

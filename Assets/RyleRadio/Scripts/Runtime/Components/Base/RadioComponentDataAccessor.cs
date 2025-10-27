@@ -6,22 +6,38 @@ using UnityEngine;
 namespace RyleRadio.Components.Base
 {
 
-    // an expansion of a RadioComponent that can access specific tracks
+    /// <summary>
+    /// An extension of \ref RadioComponent that accesses specific tracks on the stored \ref RadioData
+    /// </summary>
     public abstract class RadioComponentDataAccessor : RadioComponent
     {
+        /// <summary>
+        /// The tracks that this component affects. This is displayed with a \ref MultiselectAttribute
+        /// </summary>
         [SerializeField, Multiselect("TrackNames")]
-        private int affectedTracks; // the tracks to affect
-        private int lastAffectedTracks; // the tracks that were previously affected- used if the affected tracks are changed at runtime
+        private int affectedTracks;
 
-        // the tracks to choose from on the RadioData
+        /// <summary>
+        /// The tracks that were affected previously- only matters if affected tracks are changed at runtime (which currently is not possible)
+        /// </summary>
+        private int lastAffectedTracks;
+
+        /// <summary>
+        /// The list of tracks on the \ref RadioData that this component can choose from
+        /// </summary>
         protected List<string> TrackNames => data != null
             ? data.TrackNames
             : new() { "Data not assigned!" };
 
-        // called when the component is initialized
+        /// <summary>
+        /// Event called when the component is initialized
+        /// </summary>
         public Action<RadioComponent> OnInit { get; set; } = new(_ => { });
 
 
+        /// <summary>
+        /// Initialises this component and links its affected tracks
+        /// </summary>
         public override void Init()
         {
             // apply this component to selected tracks
@@ -32,6 +48,9 @@ namespace RyleRadio.Components.Base
             AccessorInit();
         }
 
+        /// <summary>
+        /// Generally applicable method that converts \ref affectedTracks to a list of tracks, then calls \ref AssignToTrack() to link this component to each of them
+        /// </summary>
         private void AssignToTracksGeneric()
         {
             // if the tracks have been changed since last initialize,
@@ -68,11 +87,14 @@ namespace RyleRadio.Components.Base
             lastAffectedTracks = affectedTracks;
         }
 
-        // methods to link and unlink this component to a track
+        /// Links this component to a track
         protected abstract void AssignToTrack(RadioTrackWrapper _track);
+        /// Unlinks this component from a track
         protected abstract void RemoveFromTrack(RadioTrackWrapper _track);
 
-        // initialize this component if needed
+        /// <summary>
+        /// Allows extra code for initialization so that \ref Init() can still be called
+        /// </summary>
         protected virtual void AccessorInit() { }
 
     }

@@ -5,24 +5,40 @@ using UnityEngine;
 namespace RyleRadio.Tracks
 {
 
-    // a class that plays a given RadioTrack at runtime- this manages the playback in a output, and as such will be created newly for each Output
-    // this is effectively a central point for most documentation about how a track is played
+    /// <summary>
+    /// A class that plays a certain \ref RadioTrack at runtime. It's created newly for each track on each RadioOutput, and manages the playback entirely.
+    /// 
+    /// As such, this script is a central point for information about the playback process.
+    /// </summary>
     public class RadioTrackPlayer
     {
-        // what happens when this player ends
+        /// <summary>
+        /// The different types of Player- mainly changes what it does when the end of the track is reached
+        /// </summary>
         public enum PlayerType
         {
-            Loop, // when it ends, the player goes back to the start and plays it again
-            OneShot, // when it ends, the player destroys itself and stops playing
+            Loop, ///< When it ends, the player goes back to the start and plays the track again
+            OneShot, ///< When it ends, the player destroys itself and stops playing
         }
 
-        // the associated track
+        /// <summary>
+        /// The track that this player is associated with and plays during runtime
+        /// </summary>
         public RadioTrackWrapper TrackW { get; private set; }
 
-        // how many samples through the track are we
-        // we use a double here to increase precision- if we use a float, we start to get clipping or distortion when converting between sample rates
+        /// <summary>
+        /// How many samples through the track this player is- not a whole number as we increment it with different values depending on the track's sample rate
+        /// </summary>
+        /// <remarks>
+        /// This is stored as a double for greater precision with sample rates- using a float here causes clipping or distortion.
+        /// <br>We could use a `decimal` here, but we're opting to change sample rates of the tracks rather than messing with them here
+        /// </remarks>
         public double Progress { get; private set; } = 0;
-        public float ProgressFraction // progress through the track from 0 - 1
+
+        /// <summary>
+        /// How far through the track this player is, from [0 - 1]
+        /// </summary>
+        public float ProgressFraction
         {
             get
             {
@@ -35,32 +51,57 @@ namespace RyleRadio.Tracks
             }
         }
 
-        // the chosen eventType ==> what happens when this player ends
+        /// <summary>
+        /// The type of player this is- what happens when the track ends.
+        /// </summary>
         public PlayerType PlayType { get; private set; }
 
-        // called to destroy this player
+        /// <summary>
+        /// Event called in order to destroy this player- this can either be invoked directly or as part of the \ref Destroy() method.
+        /// 
+        /// We're using an event here so that other scripts can add their own functions to be called when this player is destroyed- e.g: removing one-shot players from a \ref RadioOutput
+        /// </summary>
         public Action<RadioTrackPlayer> DoDestroy { get; set; } = new(_ => { });
 
-        public Action<RadioTrackPlayer> OnPlay { get; set; } = new(_ => { }); // when the track starts to play
-        public Action<RadioTrackPlayer> OnStop { get; set; } = new(_ => { }); // when the track is stopped and destroyed
-        public Action<RadioTrackPlayer, bool> OnPause { get; set; } = new((_, _) => { }); // when the track is paused partway
+        /// Event called when the player starts playing
+        public Action<RadioTrackPlayer> OnPlay { get; set; } = new(_ => { });
+        /// Event called when the player is stopped through \ref Stop()
+        public Action<RadioTrackPlayer> OnStop { get; set; } = new(_ => { });
+        /// Event called when the player's pause state is changed- the bool is true if the player is being paused, false if unpaused
+        public Action<RadioTrackPlayer, bool> OnPause { get; set; } = new((_, _) => { });
+        /// Event called when this player retreieves a sample from its track
         public Action<RadioTrackPlayer> OnSample { get; set; } = new(_ => { }); // when a sample is retrieved from this track
 
+#if !SKIP_IN_DOXYGEN
+        // internal event for OnEnd
         private Action<RadioTrackPlayer> onEnd = _ => { };
-        public Action<RadioTrackPlayer> OnEnd  // when the track reaches the end, not when it stops (i.e when the loop happens)
+#endif
+        /// Event called when the player reaches the end of its track naturally, before it takes an action depending on the \ref PlayType (e.g: looping). This is not invoked when the player is stopped or reset.
+        public Action<RadioTrackPlayer> OnEnd 
         {
-            get => onEnd; // we need an alias here as we're adressing the delegate with a ref in the constructor- we can't use ref on a property
+            get => onEnd; // we need an alias here as we're adressing the delegate with a ref in this class' constructor- we can't use ref on a property
             set => onEnd = value;
         }
 
-        public Action<RadioTrackPlayer, float> OnVolume { get; set; } = new((_, _) => { }); // when the volume is calculated
-        public Action<RadioTrackPlayer, float> OnGain { get; set; } = new((_, _) => { }); // when the gain is calculated
-        public Action<RadioTrackPlayer, float> OnTunePower { get; set; } = new((_, _) => { }); // when the tune power is calculated
-        public Action<RadioTrackPlayer, float> OnBroadcastPower { get; set; } = new((_, _) => { }); // when the broadcast power is calculated
-        public Action<RadioTrackPlayer, float> OnInsulation { get; set; } = new((_, _) => { }); // when the insulationMultiplier is calculated
+        /// Event called when the volume of this player is captured for a sample. Volume is the product of Tune power, Broadcast power, and Insulation
+        public Action<RadioTrackPlayer, float> OnVolume { get; set; } = new((_, _) => { });
+        /// Event called when the gain for this player is captured for a sample. Gain is a direct change to the loudness of a track.
+        public Action<RadioTrackPlayer, float> OnGain { get; set; } = new((_, _) => { });
+        /// Event called when the tune power for this player is captured for a sample. Tune power is the loudness of a track based on the Tune value of the \ref RadioOutput
+        public Action<RadioTrackPlayer, float> OnTunePower { get; set; } = new((_, _) => { });
+        /// Event called when the broadcast power for this player is captured for a sample. Broadcast power is the loudness of a track based on the position of the \ref RadioOutput relative to any \ref RadioBroadcaster
+        public Action<RadioTrackPlayer, float> OnBroadcastPower { get; set; } = new((_, _) => { });
+        /// Event called when the insulation for this player is captured for a sample. Insulation is the quietness of a track based on the position of the \ref RadioOutput relative to any \ref RadioInsulator
+        public Action<RadioTrackPlayer, float> OnInsulation { get; set; } = new((_, _) => { });
 
+#if !SKIP_IN_DOXYGEN
+        // internal value for Paused
         private bool paused = false;
-        public bool Paused  // pauses playback temporarily
+#endif
+        /// <summary>
+        /// Whether or not this player has been paused, temporarily halting playback of the track. Changing this value pauses/unpauses the player
+        /// </summary>
+        public bool Paused 
         {
             get => paused;
             set
@@ -70,13 +111,28 @@ namespace RyleRadio.Tracks
             }
         }
 
-        private float sampleIncrement; // the amount that the sample progress is increased every increment
-        private float baseSampleRate; // the sample rate of the Output this is associated with
+        /// <summary>
+        /// The amount that \ref Progress is increased by every sample- the ratio of the track's sample speed to the \ref baseSampleRate
+        /// </summary>
+        private float sampleIncrement;
 
-        private bool isStopped = false; // if this player has been stopped already, e.g reaches the end of a one-shot
+        /// <summary>
+        /// The sample rate of the \ref RadioOutput that this player is used by- that is, the sample rate of the radio
+        /// </summary>
+        private float baseSampleRate;
+
+        /// <summary>
+        /// Whether or not this player has been stopped- prevents it from being stopped multiple times
+        /// </summary>
+        private bool isStopped = false;
 
 
-        // creates a new player for a particular track
+        /// <summary>
+        /// Creates a new player for the provided track
+        /// </summary>
+        /// <param name="_trackW">The track for this player to play</param>
+        /// <param name="_playerType">The type of player this is (what happens when the track ends)</param>
+        /// <param name="_baseSampleRate">The sample rate of the RadioOutput using this Player</param>
         public RadioTrackPlayer(RadioTrackWrapper _trackW, PlayerType _playerType, float _baseSampleRate)
         {
             TrackW = _trackW;
@@ -92,7 +148,9 @@ namespace RyleRadio.Tracks
             TrackW.AddToPlayerEndCallback(ref onEnd);
         }
 
-        // update the increment added to the progress each sample
+        /// <summary>
+        /// Updates the \ref sampleIncrement variable to match the current track
+        /// </summary>
         public void UpdateSampleIncrement()
         {
             // we need to have a float variable for sampleIncrement as the sample rate of the track and the sample rate of the output may be different
@@ -117,7 +175,15 @@ namespace RyleRadio.Tracks
             //    Debug.Log(TrackW.SampleCount);
         }
 
-        // gets the sample at the current progress, using the tune, broadcaster/insulators, attenuation, tunePower, etc
+        /// <summary>
+        /// Gets the current sample from the track according to playback. <i>I would recommend reading the code comments for this method as they explain how the entire sample playback and evaluation process works</i>
+        /// </summary>
+        /// <param name="_tune">The tune value of the Output</param>
+        /// <param name="_receiverPosition">The position of the Output</param>
+        /// <param name="_otherVolume">The sum of the samples of previous tracks, according to the order in \ref RadioData.<br><b>See: </b>\ref RadioTrack.attenuation</param>
+        /// <param name="_outVolume">The volume of this sample to be added to `_otherVolume`</param>
+        /// <param name="_applyVolume">Whether or not Volume (`tune power * broadcast power * insulation`) should be applied</param>
+        /// <returns>The current sample</returns>
         public float GetSample(float _tune, Vector3 _receiverPosition, float _otherVolume, out float _outVolume, bool _applyVolume = true)
         {
             // if this track is paused, return silence
@@ -172,7 +238,7 @@ namespace RyleRadio.Tracks
                 float insulationMultiplier = GetInsulation(_receiverPosition);
                 OnInsulation(this, insulationMultiplier);
 
-                // combine the broadcast tune power, power and insulation multiplier to the unified volume
+                // combine the broadcast power, tune power and insulation multiplier to the unified volume
                 volume = tunePower * broadcastPower * insulationMultiplier;
                 OnVolume(this, volume);
             }
@@ -187,7 +253,9 @@ namespace RyleRadio.Tracks
             return sample;
         }
 
-        // move to the next sample in the track
+        /// <summary>
+        /// Move this player to the next sample
+        /// </summary>
         public void IncrementSample()
         {
             // if this track can't be played, don't increment its sample
@@ -239,7 +307,9 @@ namespace RyleRadio.Tracks
             }
         }
 
-        // stop and destroy this player
+        /// <summary>
+        /// Stop playback and destroy this player. Make sure any references to it are removed as well
+        /// </summary>
         public void Stop()
         {
             if (isStopped) // if it's already been stopped, don't do it again
@@ -252,16 +322,30 @@ namespace RyleRadio.Tracks
             OnStop.Invoke(this);
 
             // destroy this player
-            DoDestroy(this);
+            Destroy();
         }
 
-        // resets the progress of this player to 0
+        /// <summary>
+        /// Resets the \ref Progress of this player to 0
+        /// </summary>
         public void ResetProgress()
         {
             Progress = 0;
         }
 
-        // get the broadcast power of the current track depending on its position
+        /// <summary>
+        /// Invokes \ref DoDestroy, destroying the player
+        /// </summary>
+        public void Destroy()
+        {
+            DoDestroy.Invoke(this);
+        }
+
+        /// <summary>
+        /// Gets the broadcast power of this player using the position of the Output and any any \ref RadioBroadcaster
+        /// </summary>
+        /// <param name="_receiverPosition">The position of the Output</param>
+        /// <returns>The broadcast power- higher the closer the Output is to broadcasters</returns>
         public float GetBroadcastPower(Vector3 _receiverPosition)
         {
             // if this track is forced to be global, it is forced to not use broadcasters- as such, its broadcast power is always 1
@@ -293,7 +377,11 @@ namespace RyleRadio.Tracks
             return Mathf.Clamp01(outPower);
         }
 
-        // get the insulation multiplier of the current track depending on its posiiton
+        /// <summary>
+        /// Gets the insulation multiplier of this player using the position of the output and the bounds of any \ref RadioInsulator
+        /// </summary>
+        /// <param name="_receiverPosition">The position of the Output</param>
+        /// <returns>The insulation multiplier- the more insulated the Output is, the lower the multiplier</returns>
         public float GetInsulation(Vector3 _receiverPosition)
         {
             // if there are no insulators, the multiplier is 1

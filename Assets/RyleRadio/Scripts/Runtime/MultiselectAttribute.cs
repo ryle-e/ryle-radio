@@ -14,7 +14,9 @@ namespace RyleRadio
 #endif
 
     /// <summary>
-    /// A custom attribute that allows ints to display as a multiselect dropdown for a given collection, like a custom LayerMask. Due to int limitations you can only have up to 32 options
+    /// A custom attribute that allows ints to display as a multiselect dropdown for a given collection, like a custom LayerMask. Due to int limitations you can only have up to 32 options.
+    /// 
+    /// Has editor code in \ref MultiselectDrawer
     /// </summary>
     public class MultiselectAttribute : PropertyAttribute
     {
@@ -67,14 +69,14 @@ namespace RyleRadio
         /// string[] options = new string[4] { "awesome", "attribute", "thanks", "ryle-e" };
         /// 
         /// [Multiselect("options")]
-        /// private int flags1; // in the inspector, we set it to ["awesome", "thanks"]- the first and third options in the inspector. this int then becomes 0x0101
+        /// public int flags1; // in the inspector, we set it to ["awesome", "thanks"]- the first and third options in the inspector. this int then becomes 0x0101
         /// 
         /// public void Convert()
         /// {
-        ///     int flags2 = 0x1010; // equivalent to selecting the second and fourth options in the inspector
+        ///     int flags2 = (1 << 1) | (1 << 3); // equivalent to selecting the second and fourth options in the inspector
         ///     
-        ///     List<string> converted1 = Multiselect.To<string>(flags1, options); // sets to ["awesome", "thanks"]
-        ///     List<string> converted2 = Multiselect.To<string>(flags2, options); // sets to ["attribute", "ryle-e"]
+        ///     string[] converted1 = MultiselectAttribute.To<string>(flags1, options); // sets to ["awesome", "thanks"]
+        ///     string[] converted2 = MultiselectAttribute.To<string>(flags2, options); // sets to ["attribute", "ryle-e"]
         /// }
         /// </code></example>
         public static T[] To<T>(int _flags, T[] _options)

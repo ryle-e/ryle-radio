@@ -10,45 +10,64 @@ using Random = UnityEngine.Random;
 namespace RyleRadio.Components
 {
 
-    // a component that plays a RadioData through an AudioSource
-    // most of the documentation explaining specific parts of playback is in RadioTrackPlayer.cs, so check there as well
+    /// <summary>
+    /// The main scene component for a radio that plays it through an AudioSource.
+    /// 
+    /// <b>See </b>\ref RadioTrackPlayer as well for more info on how playback works
+    /// </summary>
     [AddComponentMenu("Ryle Radio/Radio Output")]
     [RequireComponent(typeof(AudioSource))]
     public class RadioOutput : RadioComponent
     {
-        // when attempting to pull a RadioTrackPlayer from this output, you can choose the method by which it picks it
-        // this only matters if you're playing a bunch of one-shots of the same track
+        /// <summary>
+        /// The method by which a RadioTrackPlayer is chosen from this output. Really only matters when you're playing the same track repeatedly causing overlaps
+        /// </summary>
         public enum MultiplePlayersSelector
         {
-            Youngest,
-            Oldest,
-            Random
+            Youngest, ///< Selects the youngest player
+            Oldest, ///< Selects the oldest player
+            Random ///< Selects a random player (probably useless but funny to have)
         }
 
-        // the current tune of this output- controls what tracks can be heard and when
+        /// <summary>
+        /// The current tune value of this output- akin to the frequency of a real radio. Controls what tracks can be heard through tune power. Never modify this directly except for in the inspector, use \ref Tune instead
+        /// </summary>
         [SerializeField, Range(RadioData.LOW_TUNE, RadioData.HIGH_TUNE), OnValueChanged("ExecOnTune")]
         protected float tune;
 
-        // the players applied to this output;
+        /// <summary>
+        /// The players used by this output
+        /// </summary>
         protected List<RadioTrackPlayer> players = new();
 
-        // the position of this output as of the last update
-        // we need to cache this value as audio is on a separate thread to the rest of Unity- this means we get errors if we access position as
-        // transform.position rather than caching it here
+        /// <summary>
+        /// The position of this object as of the last frame update. We can't access `transform.position` from the audio thread, so we cache it here
+        /// </summary>
         protected Vector3 cachedPos;
 
-        // the sample rate of the player
+        /// <summary>
+        /// The normal sample rate of this output, applied to each \ref RadioTrackPlayer
+        /// </summary>
         private float baseSampleRate;
 
-        // a delegate that is called at the end of every audio sample iteration so that we don't interrupt threads when manipulating RadioTrackPlayers
+        /// <summary>
+        /// Called at the end of every audio cycle so that we don't interrupt threads when manipulating RadioTrackPlayers
+        /// </summary>
         private Action playEvents = () => { };
 
-        // all observers associated with this output
+        /// <summary>
+        /// Every \ref RadioObserver associated with this output
+        /// </summary>
         public List<RadioObserver> Observers { get; private set; } = new();
 
-        // called whenever the tune is changed
+        /// <summary>
+        /// Event called whenever \ref Tune is changed
+        /// </summary>
         public Action<float> OnTune { get; set; } = new(_ => { });
 
+        /// <summary>
+        /// The \ref tune clamped to the full range
+        /// </summary>
         public float Tune
         {
             get => tune;
@@ -62,18 +81,25 @@ namespace RyleRadio.Components
             }
         }
 
+        /// <summary>
+        /// \ref Tune scaled to [0 - 1], useful for UI
+        /// </summary>
         public float Tune01
         {
             get => Mathf.InverseLerp(RadioData.LOW_TUNE, RadioData.HIGH_TUNE, Tune);
         }
 
+        /// <summary>
+        /// \ref Tune with limited decimal points- looks better when displayed, more like an actual radio
+        /// </summary>
         public float DisplayTune
         {
             get => Mathf.Round(tune * 10) / 10;
         }
 
-
-        // called when the tune is changed in the inspector
+        /// <summary>
+        /// Called when tune is modified in the inspector
+        /// </summary>
         private void ExecOnTune()
         {
             // we invoke the callback here too so that it reacts when the tune is changed in the inspector
@@ -81,20 +107,28 @@ namespace RyleRadio.Components
         }
 
 
+        /// <summary>
+        /// Updates \ref cachedPos
+        /// </summary>
         protected virtual void Update()
         {
             // cache the position of this output
             cachedPos = transform.position;
         }
 
+#if !SKIP_IN_DOXYGEN
         // starts the radio system- this component basically serves as a manager
         private void Start()
         {
             LocalInit();
         }
+#endif
 
         // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
-        // this is just how the RadioComponent class works really
+        // this is just a consequence of how the RadioComponent class works really
+        /// <summary>
+        /// Initializes the RadioData- this needs to be separated from \ref Init() as it would be recursive otherwise
+        /// </summary>
         protected void LocalInit()
         {
             // initialize the associated RadioData
@@ -103,6 +137,9 @@ namespace RyleRadio.Components
 
         }
 
+        /// <summary>
+        /// Initializes the output itself, and creates all required every required \ref RadioTrackPlayer
+        /// </summary>
         public override void Init()
         {
             // save the sample rate of the whole Unity player
@@ -114,7 +151,10 @@ namespace RyleRadio.Components
             OnTune(tune);
         }
 
-        // stores a new RadioTrackPlayer and alerts any observers
+        /// <summary>
+        /// Sets up and stores a new \ref RadioTrackPlayer and alerts any \ref RadioObserver of its creation
+        /// </summary>
+        /// <param name="_player">The new player to set up</param>
         protected void PlayerCreation(RadioTrackPlayer _player)
         {
             foreach (RadioObserver observer in Observers)
@@ -153,7 +193,9 @@ namespace RyleRadio.Components
                 players.Insert(indexForNewPlayer, _player);
         }
 
-        // create all RadioTrackPlayers for this output
+        /// <summary>
+        /// Creates every \ref RadioTrackPlayer that this output needs for playback
+        /// </summary>
         private void StartPlayers()
         {
             // for every track in the RadioData
@@ -171,7 +213,11 @@ namespace RyleRadio.Components
             }
         }
 
-        // play a track as a one-shot- a one-shot destroys itself after the track ends
+        /// <summary>
+        /// Plays a track as a one-shot. A one-shot destroys itself when its track ends.
+        /// </summary>
+        /// <param name="_id"></param>
+        /// <returns></returns>
         public RadioTrackPlayer PlayOneShot(string _id)
         {
             // get the track with the given id
@@ -202,7 +248,11 @@ namespace RyleRadio.Components
             }
         }
 
-        // play a track as a loop- it will restart when the track ends, and keep playing
+        /// <summary>
+        /// Plays a track as a loop. A loop restarts when the track ends, then continues to play.
+        /// </summary>
+        /// <param name="_id"></param>
+        /// <returns></returns>
         public RadioTrackPlayer PlayLoop(string _id)
         {
             // get the track with the given id
@@ -228,10 +278,18 @@ namespace RyleRadio.Components
         }
 
         // try to find an active RadioTrackPlayer on this output
+        /// <summary>
+        /// Gets an active \ref RadioTrackPlayer from this output.
+        /// </summary>
+        /// <param name="_trackID">The ID of the track used by the player</param>
+        /// <param name="_player">Output parameter containing the found player</param>
+        /// <param name="_createNew">Whether or not a new player should be created if one can't be found. Players created this way are always one-shots</param>
+        /// <param name="_multiplePlayerSelector">How a player is selected when multiple are present for the same track</param>
+        /// <returns>True if a player was found or created, false if not</returns>
         public bool TryGetPlayer(
             string _trackID,
             out RadioTrackPlayer _player,
-            bool _createNew,
+            bool _createNew = false,
             MultiplePlayersSelector _multiplePlayerSelector = MultiplePlayersSelector.Youngest
         )
         {
@@ -274,7 +332,6 @@ namespace RyleRadio.Components
             }
 
             // if there aren't any players for this track,
-
             // and the method is set to make a new one,
             else if (_createNew)
             {
@@ -291,11 +348,13 @@ namespace RyleRadio.Components
             }
         }
 
-        // the core method- this is where the audio is output to the linked AudioSource
-        // this method appears to have initially been introduced for custom audio filters, but we can use it for custom audio output too
-        //
-        // _data here is whatever other audio is playing from the source- normally is nothing, unless you wanted some other audio playing
-        // if you do want this i would recommend using a separate audiosource so that you can control the volume separately
+        /// <summary>
+        /// Gets a set of samples from the radio to play from the AudioSource- this preserves the settings on the Source, e.g: volume, 3D. This is the main driving method for the radio's playback.
+        /// 
+        /// The method itself appears to have been initially introduced so devs could create custom audio filters, but it just so happens we can use it for direct output of samples too!
+        /// </summary>
+        /// <param name="_data">Whatever other audio is playing from the AudioSource- preferably nothing</param>
+        /// <param name="_channels">The number of channels the AudioSource is using- the radio itself is limited to one channel, but still outputs as two- they'll just be identical.</param>
         protected virtual void OnAudioFilterRead(float[] _data, int _channels)
         {
             // the output only plays back one channel, so we have to account for this when the radio is using

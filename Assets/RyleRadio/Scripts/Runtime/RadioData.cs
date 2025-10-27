@@ -157,9 +157,6 @@ namespace RyleRadio
             foreach (RadioTrackWrapper trackW in TrackWrappers)
                 trackW.Init();
 
-            // initialize all components, e.g broadcasters, insulators, outputs
-            RadioComponent.InitAllComponents();
-
             OnInit(this);
         }
 

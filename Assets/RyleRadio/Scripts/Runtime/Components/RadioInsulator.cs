@@ -6,45 +6,74 @@ using UnityEngine;
 namespace RyleRadio.Components
 {
 
-    // an insulator for a RadioTrack- the further in the output, the quieter the track
-    // this has a custom editor in RadioInsulatorEditor.cs
+    /// <summary>
+    /// An "insulator" for a \ref RadioTrackWrapper - if a RadioOutput is inside the bounds of this object, the affected tracks on it will become quieter.
+    /// 
+    /// There aren't really any real-world analogues for the strength of an insulator like this- think of it like putting a radio in a Faraday cage or something I suppose
+    /// 
+    /// This also has custom editor stuff in \ref RadioInsulatorEditor
+    /// </summary>
     [AddComponentMenu("Ryle Radio/Radio Insulator")]
     public class RadioInsulator : RadioComponentDataAccessor
     {
-        // the inner and outer sizes of the insulator- if it's in the inner box, insulation power is at the maximum. if it's between the outer and inner
-        // boxes, insulation power is between the minimum and the maximum. if it's outside both, insulation power is at the minimum.
+        /// <summary>
+        /// The size of the inner box of the insulator- inside of this box, insulation is the highest
+        /// </summary>
         [Space(8)]
         public Vector3 innerBoxSize = Vector3.one * 0.9f;
+
+        /// <summary>
+        /// The size of the outer box of the insulator- outside of this box, insulation is 0- between this and the inner box, insulation is between [0 - 1]
+        /// </summary>
         public Vector3 outerBoxSize = Vector3.one;
 
+        /// <summary>
+        /// The max and min insulation in the outer and inner boxes.
+        /// 
+        /// If an output is on the edge of the outer box, insulation will be the x-value here.
+        /// If an output is inside the inner box, insulation will be the y-value.
+        /// If an output is between the inner and outer boxes, it will be somewhere between the x and y values according to the \ref insulationCurve
+        /// 
+        /// If the x-value is above 0, you might want to toggle \ref applyToAllOutputsOutside so this becomes global
+        /// </summary>
         [Space(8)]
-
-        // the minimum and maximum insulation- how high the insulation is when the output is inside the inner box or between the inner and
-        // outer boxes
         [SerializeField, MinMaxSlider(0, 1)]
         private Vector2 insulation = new(0, 0.5f);
 
-        // the curve that defines insulation between the inner and outer boxes
+        /// <summary>
+        /// A curve that defines insulation between the inner and outer boxes- the x-value is how far between the inner and outer boxes the output is
+        /// </summary>
         [SerializeField, CurveRange(0, 0, 1, 1)]
         private AnimationCurve insulationCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
-        // if minimum insulation is greater than 0, we need to know if it applies to all outputss outside of the insulator as well
-        // if this is set to true and min insulation is set to 0.1, for example, every output outside of the insulator will still have 0.1 insulation
-        // applied to it
+        /// <summary>
+        /// Effectively makes this insulator global- when this is true, any output outside of the outer box's range will be affected by the x-value on \ref insulation
+        /// 
+        /// This only shows when the x-value of insulation is above 0
+        /// </summary>
         [SerializeField, AllowNesting, ShowIf("ShowApplyToAllOutputs")]
         private bool applyToAllOutputsOutside = false;
 
-        // the position of this insulator at the last frame
-        // we cache this as we cannot use transform.position in GetPower, as audio is on a different thread and we would otherwise get errors
+        /// <summary>
+        /// The position of the insulator in the previous frame. We cannot access transform.position in the audio thread, so we cache it to this
+        /// </summary>
         private Vector3 cachedPos;
 
         // the inner and outer boxes with transform.localScale applied
+        /// The \ref innerBoxSize but adjusted with `transform.localScale` in \ref Update()
         public Vector3 InnerBoxSizeAdjusted { get; private set; }
+        /// The \ref outerBoxSize but adjusted with `transform.localScale` in \ref Update()
         public Vector3 OuterBoxSizeAdjusted { get; private set; }
 
+        /// <summary>
+        /// Shows \ref applyToAllOutputsOutside when the x-value of \ref insulation is greater than 0
+        /// </summary>
         private bool ShowApplyToAllOutputs => insulation.x > 0;
 
 
+        /// <summary>
+        /// Updates cached position and adjusted box sizes
+        /// </summary>
         private void Update()
         {
             // applies the local scale to the inner and outer boxes
@@ -55,20 +84,31 @@ namespace RyleRadio.Components
             cachedPos = transform.position;
         }
 
-        // links and unlinks this insulator to a track
+        /// <summary>
+        /// Links this insulator to a track
+        /// </summary>
+        /// <param name="_track">The track to link to</param>
         protected override void AssignToTrack(RadioTrackWrapper _track)
         {
             _track.insulators.Add(this);
             _track.OnAddInsulator(this, _track);
         }
 
+        /// <summary>
+        /// Unlinks this insulator from a track
+        /// </summary>
+        /// <param name="_track">The track to unlink from</param>
         protected override void RemoveFromTrack(RadioTrackWrapper _track)
         {
             _track.insulators.Remove(this);
             _track.OnRemoveInsulator(this, _track);
         }
 
-        // gets the power of this insulator with the output at position
+        /// <summary>
+        /// Gets the power of this insulator at a specific position
+        /// </summary>
+        /// <param name="_position">The position to evaluate with</param>
+        /// <returns>The insulation multiplier at the position. The lower the number, the stronger the insulation- it's a multiplier intended to shrink the samples rather than grow them</returns>
         public float GetPower(Vector3 _position)
         {
             float power = 0;
