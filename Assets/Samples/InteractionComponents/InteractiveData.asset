@@ -1,0 +1,348 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a748e9405d1fe748b3f60064475d081, type: 3}
+  m_Name: InteractiveData
+  m_EditorClassIdentifier: 
+  gizmoColor: {r: 0.78431374, g: 0.7058824, b: 1, a: 1}
+  gizmoColorSecondary: {r: 0.6862745, g: 0.4117647, b: 0.8039216, a: 1}
+  forceClipSampleRate: 1
+  forcedSampleRate: 0
+  trackWs:
+  - id: music
+    name: music, 550 - 950
+    range: {x: 550, y: 950}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 238
+    attenuation: 0
+    forceGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    insulators: []
+    trackType: Audio Clip
+    track:
+      rid: 7468380461637566720
+  - id: track_sfx
+    name: track_sfx, 275 - 375
+    range: {x: 275, y: 375}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 95
+    attenuation: 0
+    forceGlobal: 1
+    playOnInit: 0
+    broadcasters: []
+    insulators: []
+    trackType: Audio Clip
+    track:
+      rid: 7468380461637566721
+  - id: track_sfx_silence
+    name: track_sfx_silence, 275 - 375
+    range: {x: 275, y: 375}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0.908
+    forceGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    insulators: []
+    trackType: Procedural
+    track:
+      rid: 7468380461637566722
+  - id: station_sfx
+    name: station_sfx, 0 - 200
+    range: {x: 0, y: 200}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 138
+    attenuation: 0
+    forceGlobal: 1
+    playOnInit: 0
+    broadcasters: []
+    insulators: []
+    trackType: Station aka Multi-select
+    track:
+      rid: 7468380461637566723
+  - id: station_sfx_silence
+    name: station_sfx_silence, 0 - 200
+    range: {x: 0, y: 200}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0.935
+    forceGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    insulators: []
+    trackType: Procedural
+    track:
+      rid: 7468380461637566724
+  - id: static
+    name: static, 0 - 1000
+    range: {x: 0, y: 1000}
+    rangeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    gain: 100
+    attenuation: 0.935
+    forceGlobal: 1
+    playOnInit: 1
+    broadcasters: []
+    insulators: []
+    trackType: Procedural
+    track:
+      rid: 7468380461637566725
+  references:
+    version: 2
+    RefIds:
+    - rid: 7468380461637566720
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        clip: {fileID: 8300000, guid: 9052c6deadacb784998d914022ae7055, type: 3}
+    - rid: 7468380461637566721
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        clip: {fileID: 8300000, guid: a93f07a1da4023a4e8150cda88cb36c6, type: 3}
+    - rid: 7468380461637566722
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        proceduralType: 4
+        duration: 0
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 7468380461637566723
+      type: {class: StationRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        randomSequence: 1
+        thresholdBeforeRepeats: 0.5
+        stationTrackWs:
+        - id: 1
+          gain: 100
+          startAndEndRests: {x: 0, y: 0}
+          trackType: Audio Clip
+          track:
+            rid: 7468380461637566727
+        - id: 2
+          gain: 100
+          startAndEndRests: {x: 0, y: 0}
+          trackType: Audio Clip
+          track:
+            rid: 7468380461637566728
+        - id: 3
+          gain: 100
+          startAndEndRests: {x: 0, y: 0}
+          trackType: Audio Clip
+          track:
+            rid: 7468380461637566729
+    - rid: 7468380461637566724
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        proceduralType: 4
+        duration: 0
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 7468380461637566725
+      type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        proceduralType: 0
+        duration: 0
+        waveFrequency: 100
+        brownWalkPower: 0.5
+    - rid: 7468380461637566727
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        clip: {fileID: 8300000, guid: a93f07a1da4023a4e8150cda88cb36c6, type: 3}
+    - rid: 7468380461637566728
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        clip: {fileID: 8300000, guid: 29367ecc1312bd1498b5c4eb81a3bc13, type: 3}
+    - rid: 7468380461637566729
+      type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
+      data:
+        clip: {fileID: 8300000, guid: 35dece6bc5b76a74380099b8ff50f2c8, type: 3}
