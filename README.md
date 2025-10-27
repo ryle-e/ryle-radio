@@ -1,9 +1,9 @@
 # ryle-radio
-A simple "radio" system for Unity
+**Ryle Radio** is an open-source "radio" system for Unity. Allows you to create tracks to pan between, broadcasters, insulators, no-code observers, and integrated interactors, together letting you create a complex and deep radio system for runtime interaction and integration :)
 
-- ~~Add attenuation (make other sounds quieter when playing)~~
-- ~~add random selection of audio when one ends- track vs station?~~
-- ~~add spatial broadcasting (can only receive track in certain area)~~
-- ~~dead zones~~
-- ~~events called when sound hits certain tune or range past threshold- RadioObservers??~~
-- ~~rename listeners to output~~
+# Installation
+To install Ryle Radio, use the Unity Asset Store + Package Manager as you would any other package. Add the asset to your library in the Asset Store, then access the package manager in your project at 
+
+# Documentation
+The basic documentation for Ryle Radio, including guides, is [hosted on GitHub Pages for this repository](https://ryle-e.github.io/ryle-radio-docs/).
+The source documentation is [separately hosted on Pages](https://ryle-e.github.io/ryle-radio-scripting-docs/d8/df8/class_ryle_radio_1_1_tracks_1_1_procedural_radio_track.html#a875d0aa43f7a037896786dd2f223c6b3).
