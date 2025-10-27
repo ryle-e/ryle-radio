@@ -20,17 +20,17 @@
     {
       "displayName": "Basic Radio",
       "description": "A simple scene to demonstate the basic functions of Ryle Radio",
-      "path": "Samples/BasicRadio"
+      "path": "Samples~/BasicRadio"
     },
     {
       "displayName": "Spatial Components",
       "description": "A scene to demonstrate spatial components in Ryle Radio, namely Broadcasters and Insulators",
-      "path": "Samples/SpatialComponents"
+      "path": "Samples~/SpatialComponents"
     },
     {
       "displayName": "Interaction Components",
       "description": "An intermediate scene showing coded and code-free interactions and events in a radio",
-      "path": "Samples/InteractionComponents"
+      "path": "Samples~/InteractionComponents"
     }
   ],
   "author": {
