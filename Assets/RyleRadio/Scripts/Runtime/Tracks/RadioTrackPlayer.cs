@@ -203,6 +203,7 @@ namespace RyleRadio.Tracks
 
                 // get the gain of the track- this is a variable assigned in the inspector that serves as a basic increase to the
                 // loudness of the track without affecting attenuation or other audio values
+                // [[ this value is scaled down to ones in the property, so the below values refer to GainDisplay ]]
                 // if the gain is at 100, it will be at the default loudness
                 // if the gain is at 200, it will be double the loudness
                 // if the gain is at 50, it will be half the loudness

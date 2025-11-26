@@ -136,7 +136,20 @@ namespace RyleRadio.Tracks
         /// <summary>
         /// The gain value scaled down to ones- e.g \ref gain at 200 is \ref Gain at 2
         /// </summary>
-        public float Gain => gain / 100f;
+        public float Gain
+        {
+            get => gain / 100f;
+            set => gain = value * 100f;
+        }
+
+        /// <summary>
+        /// The gain value as it is displayed and modified in the editor- in the 100s
+        /// </summary>
+        public float GainDisplay
+        {
+            get => gain;
+            set => gain = value;
+        }
 
 
 #if !SKIP_IN_DOXYGEN
@@ -289,6 +302,7 @@ namespace RyleRadio.Tracks
             return outTrack;
         }
 
+
         /// <summary>
         /// Set \ref track to a new track with eventType defined by \ref trackType
         /// <br><b>See also: </b>\ref CreateTrackEditor()
@@ -346,6 +360,18 @@ namespace RyleRadio.Tracks
         public float GetSample(int _sampleIndex)
         {
             return track.GetSample(_sampleIndex);
+        }
+
+        public bool TryGetClip(out AudioClip _clip)
+        {
+            if (track is ClipRadioTrack clipTrack)
+            {
+                _clip = clipTrack.clip;
+                return true;
+            }
+
+            _clip = null;
+            return false;
         }
     }
 
