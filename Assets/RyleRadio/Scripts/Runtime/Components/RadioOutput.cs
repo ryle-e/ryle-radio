@@ -1,6 +1,7 @@
 using NaughtyAttributes;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
+using Utilities.Audio;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,9 +18,7 @@ namespace RyleRadio.Components
     /// <b>See </b>\ref RadioTrackPlayer as well for more info on how playback works
     /// </summary>
     [AddComponentMenu("Ryle Radio/Radio Output")]
-    [RequireComponent(typeof(AudioSource))]
-#if UNITY_WEBGL
-    [RequireComponent(typeof(Streaming))]
+    [RequireComponent(typeof(AudioSource), typeof(StreamAudioSource))]
     public class RadioOutput : RadioComponent
     {
         /// <summary>
