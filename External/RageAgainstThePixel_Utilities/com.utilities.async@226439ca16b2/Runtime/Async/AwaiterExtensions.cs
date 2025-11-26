@@ -30,10 +30,6 @@ using UnityEngine;
 using UnityEngine.Scripting;
 using Object = UnityEngine.Object;
 
-#if UNITY_EDITOR
-using Unity.EditorCoroutines.Editor;
-#endif
-
 namespace Utilities.Async
 {
     /// <summary>
@@ -326,11 +322,7 @@ namespace Utilities.Async
                 return new CoroutineWrapper(coroutineRunner.StartCoroutine(enumerator));
             }
 
-#if UNITY_EDITOR
-            return new CoroutineWrapper(EditorCoroutineUtility.StartCoroutineOwnerless(enumerator));
-#else
             throw new Exception(nameof(CoroutineRunner));
-#endif
         }
 
         internal static void StopCoroutine(this CoroutineWrapper wrapper)
@@ -340,11 +332,6 @@ namespace Utilities.Async
                 case Coroutine coroutine:
                     coroutine.StopCoroutine();
                     break;
-#if UNITY_EDITOR
-                case EditorCoroutine editorCoroutine:
-                    editorCoroutine.StopCoroutine();
-                    break;
-#endif
             }
         }
 
@@ -357,10 +344,6 @@ namespace Utilities.Async
             }
         }
 
-#if UNITY_EDITOR
-        internal static void StopCoroutine(this EditorCoroutine editorCoroutine)
-            => EditorCoroutineUtility.StopCoroutine(editorCoroutine);
-#endif
         [Preserve]
         private static MonoBehaviour coroutineRunner;
 
