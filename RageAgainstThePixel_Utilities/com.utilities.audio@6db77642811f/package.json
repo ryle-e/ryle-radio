@@ -1,0 +1,39 @@
+{
+  "name": "com.utilities.audio",
+  "displayName": "Utilities.Audio",
+  "description": "A simple package for audio extensions and utilities.",
+  "keywords": [],
+  "version": "3.0.1",
+  "unity": "2021.3",
+  "documentationUrl": "https://github.com/RageAgainstThePixel/com.utilities.audio#documentation",
+  "changelogUrl": "https://github.com/RageAgainstThePixel/com.utilities.audio/releases",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/RageAgainstThePixel/com.utilities.audio.git",
+    "type": "git"
+  },
+  "author": {
+    "name": "Stephen Hodgson",
+    "url": "https://github.com/StephenHodgson"
+  },
+  "dependencies": {
+    "com.utilities.async": "3.0.2",
+    "com.utilities.extensions": "1.3.7",
+    "com.unity.modules.androidjni": "1.0.0",
+    "com.unity.collections": "1.2.4",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.unitywebrequestaudio": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "PCMRecording",
+      "description": "Contains sample scene with PCMRecordingBehaviour that will progressively save clip to disk as it records, then plays back the recording.",
+      "path": "Samples~/PCMRecording"
+    }
+  ],
+  "publishConfig": {
+    "registry": "https://package.openupm.com"
+  },
+  "hideInEditor": false,
+  "_fingerprint": "6db77642811f7cd84dfa8624cd0e0ee27b555175"
+}
