@@ -4,7 +4,8 @@
     "references": [
         "NaughtyAttributes.Core",
         "NaughtyAttributes.Editor",
-        "Utilities.Audio"
+        "Utilities.Audio",
+        "Unity.EditorCoroutines.Editor"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
