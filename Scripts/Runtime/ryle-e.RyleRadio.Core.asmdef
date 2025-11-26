@@ -3,7 +3,8 @@
     "rootNamespace": "RyleRadio",
     "references": [
         "NaughtyAttributes.Core",
-        "NaughtyAttributes.Editor"
+        "NaughtyAttributes.Editor",
+        "Utilities.Audio"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

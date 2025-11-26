@@ -300,6 +300,7 @@ GameObject:
   - component: {fileID: 1423850050}
   - component: {fileID: 1423850052}
   - component: {fileID: 1423850051}
+  - component: {fileID: 1423850053}
   m_Layer: 0
   m_Name: Radio
   m_TagString: Untagged
@@ -330,7 +331,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1423850049}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1f28a12e049e7cc449e36b069886f019, type: 3}
   m_Name: 
@@ -347,8 +348,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: e410581d534ad48489fec10caab24033, type: 3}
-  m_Resource: {fileID: 8300000, guid: e410581d534ad48489fec10caab24033, type: 3}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -434,6 +435,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1423850053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423850049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b2317b29e6eb934f9f1cd50d682e019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 1423850052}
 --- !u!1 &1778363625
 GameObject:
   m_ObjectHideFlags: 0

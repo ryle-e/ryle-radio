@@ -73,7 +73,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 100
     attenuation: 0
-    forceGlobal: 1
+    forceGlobal: 0
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
@@ -109,8 +109,8 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 50
-    attenuation: 1
+    gain: 10
+    attenuation: 0.85
     forceGlobal: 1
     playOnInit: 1
     broadcasters: []
@@ -145,7 +145,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 100
+    gain: 60
     attenuation: 0
     forceGlobal: 1
     playOnInit: 0

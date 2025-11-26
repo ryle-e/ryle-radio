@@ -2,6 +2,7 @@ using NaughtyAttributes;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,6 +18,8 @@ namespace RyleRadio.Components
     /// </summary>
     [AddComponentMenu("Ryle Radio/Radio Output")]
     [RequireComponent(typeof(AudioSource))]
+#if UNITY_WEBGL
+    [RequireComponent(typeof(Streaming))]
     public class RadioOutput : RadioComponent
     {
         /// <summary>
@@ -64,6 +67,11 @@ namespace RyleRadio.Components
         /// Event called whenever \ref Tune is changed
         /// </summary>
         public Action<float> OnTune { get; set; } = new(_ => { });
+
+        /// <summary>
+        /// Event called when this output is finished initializing- mainly useful for WebGL when we use \ref AwaitLoadingThenInit
+        /// </summary>
+        public Action OnInit { get; set; } = new(() => { });
 
         /// <summary>
         /// The \ref tune clamped to the full range
@@ -120,9 +128,49 @@ namespace RyleRadio.Components
         // starts the radio system- this component basically serves as a manager
         private void Start()
         {
+  #if UNITY_WEBGL
+            // if this is a webgl build, wait for clips to load before initializing
+            StartCoroutine(AwaitLoadingThenInit());
+  #else
+            // if this is not webgl, init right away
             LocalInit();
+  #endif
         }
 #endif
+
+        /// <summary>
+        /// Waits for all AudioClips used in this radio to be loaded before initializing the radio. This is used as WebGL will cause errors if a clip is used before it's fully loaded.
+        /// </summary>
+        private IEnumerator AwaitLoadingThenInit()
+        {
+            // store all child audioclips
+            List<AudioClip> unloadedClips = new List<AudioClip>();
+
+            // populate list of child audioclips
+            foreach (RadioTrackWrapper wrapper in data.TrackWrappers)
+            {
+                if (wrapper.TryGetClip(out AudioClip clip))
+                    unloadedClips.Add(clip);
+            }
+
+            // while clips aren't yet loaded...
+            while (unloadedClips.Count > 0)
+            {
+                // iterate through all the clips
+                for (int i = 0; i < unloadedClips.Count; i++)
+                {
+                    // and find those which are now loaded
+                    if (unloadedClips[i].loadState == AudioDataLoadState.Loaded)
+                    { 
+                        // and remove them
+                        unloadedClips.Remove(unloadedClips[i]);
+                        i--;
+                    }
+                }
+
+                yield return null;
+            }
+        }
 
         // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
         // this is just a consequence of how the RadioComponent class works really
