@@ -1,14 +1,12 @@
 using NaughtyAttributes;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
-using Utilities.Audio;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
-using UnityEngine.UI;
 
 namespace RyleRadio.Components
 {
@@ -33,9 +31,10 @@ namespace RyleRadio.Components
         }
 
         /// <summary>
-        /// The duration, 
+        /// The size of half the cache clip used for WebGL playback- this is the amount of audio the cache clip stores in advance during playback before switching to the other half of the clip
         /// </summary>
-        private const float STREAM_CLIP_CHUNK_DURATION = 4;
+        private float cacheClipChunkDuration = .04f;
+
 
         /// <summary>
         /// The current tune value of this output- akin to the frequency of a real radio. Controls what tracks can be heard through tune power. Never modify this directly except for in the inspector, use \ref Tune instead
@@ -63,7 +62,41 @@ namespace RyleRadio.Components
         /// </summary>
         private Action playEvents = () => { };
 
-        private StreamAudioSource streamSource;
+        /// <summary>
+        /// The AudioClip used internally to emulate audio streaming on WebGL- half of this is played at a time, and the other half is generated in advance
+        /// </summary>
+        private AudioClip cacheClip;
+
+        /// <summary>
+        /// The total number of samples in each half of the cache clip
+        /// </summary>
+        private int totalCacheChunkLength = 0;
+
+        /// <summary>
+        /// The number of samples currently generated for the next chunk in the cache clip- should be approximately the same as the number of samples the player is through the currently playing chunk
+        /// </summary>
+        private int currentCacheChunkLength = 0;
+
+        /// <summary>
+        /// The AudioSource attached to this Output. This is assigned automatically.
+        /// </summary>
+        private AudioSource source;
+
+        /// <summary>
+        /// Whether or not the cache clip playback is in the second half of the clip
+        /// </summary>
+        private bool isInFirstHalf = false;
+
+        /// <summary>
+        /// Whether or not the clips in this radio have been loaded
+        /// </summary>
+        private bool loaded = false;
+
+        private float fixedDeltaAddition;
+
+        private float[] cacheClipSamples;
+        private float[] cacheClipSamples2;
+
 
         /// <summary>
         /// Every \ref RadioObserver associated with this output
@@ -113,6 +146,12 @@ namespace RyleRadio.Components
         }
 
         /// <summary>
+        /// Public accessor for \ref loaded
+        /// </summary>
+        public bool Loaded => loaded;
+
+
+        /// <summary>
         /// Called when tune is modified in the inspector
         /// </summary>
         private void ExecOnTune()
@@ -121,9 +160,6 @@ namespace RyleRadio.Components
             OnTune(tune);
         }
 
-        [SerializeField] private StreamAudioSource stream;
-        [SerializeField] private Image image;
-
         /// <summary>
         /// Updates \ref cachedPos
         /// </summary>
@@ -131,23 +167,44 @@ namespace RyleRadio.Components
         {
             // cache the position of this output
             cachedPos = transform.position;
+
+        }
+
+        private void FixedUpdate()
+        {
+#if UNITY_WEBGL
+            if (!loaded)
+                return;
+
+            bool wasInFirstHalf = isInFirstHalf;
+            //Debug.Log(source.timeSamples + " " + totalCacheChunkLength);
+            isInFirstHalf = source.timeSamples < totalCacheChunkLength;
+
+            if (isInFirstHalf != wasInFirstHalf)
+                FillCacheClip();
+#endif
+        }
+
+        private IEnumerator AudioUpdate()
+        {
+            while (true)
+            { }
         }
 
 #if !SKIP_IN_DOXYGEN
         // starts the radio system- this component basically serves as a manager
         private void Start()
         {
-            Debug.Log("starting");
+            source = GetComponent<AudioSource>();
 
-            streamSource = GetComponent<StreamAudioSource>();
-
-#if UNITY_WEBGL
+    #if UNITY_WEBGL
             // if this is a webgl build, wait for clips to load before initializing
             StartCoroutine(AwaitLoadingThenInit());
-#else // UNITY_WEBGL
+            
+    #else // UNITY_WEBGL
             // if this is not webgl, init right away
             LocalInit();
-#endif // UNITY_WEBGL
+    #endif // UNITY_WEBGL
         }
 #endif // !SKIP_IN_DOXYGEN
 
@@ -156,8 +213,6 @@ namespace RyleRadio.Components
         /// </summary>
         private IEnumerator AwaitLoadingThenInit()
         {
-            Debug.Log("trying to load");
-
             // store all child audioclips
             List<AudioClip> unloadedClips = new List<AudioClip>();
 
@@ -193,6 +248,7 @@ namespace RyleRadio.Components
             Debug.Log("loaded!");
 
             LocalInit();
+            loaded = true;
         }
 
         // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
@@ -218,6 +274,32 @@ namespace RyleRadio.Components
 
             // create and start all track players
             StartPlayers();
+
+#if UNITY_WEBGL
+            cacheClipChunkDuration = Time.fixedDeltaTime * 2;
+            totalCacheChunkLength = (int)(AudioSettings.outputSampleRate * cacheClipChunkDuration);
+
+            cacheClip = AudioClip.Create(
+                this.GetInstanceID() + "_CacheClip",
+                totalCacheChunkLength * 2,
+                1, (int)baseSampleRate, false
+            );
+
+            source.clip = cacheClip;
+
+            //Debug.Log(cacheClipChunkDuration + " " +  totalCacheChunkLength);
+            currentCacheChunkLength = 0;
+
+            cacheClipSamples = new float[totalCacheChunkLength * 2];
+            cacheClipSamples2 = new float[totalCacheChunkLength * 2];
+
+            cacheClip.GetData(cacheClipSamples, 0);
+            cacheClip.GetData(cacheClipSamples2, 0);
+
+            FillCacheClip();
+
+            source.Play();
+#endif
 
             OnTune(tune);
         }
@@ -428,7 +510,9 @@ namespace RyleRadio.Components
         /// <param name="_channels">The number of channels the AudioSource is using- the radio itself is limited to one channel, but still outputs as two- they'll just be identical.</param>
         protected virtual void OnAudioFilterRead(float[] _data, int _channels)
         {
+#if !UNITY_WEBGL
             GetOutput(ref _data, _channels);
+#endif
         }
 
         protected void GetOutput(ref float[] _data, int _channels)
@@ -478,6 +562,42 @@ namespace RyleRadio.Components
             }
 
             //Debug.Log(_data[0]);
+        }
+
+        protected void FillCacheClip()
+        {
+            //if (currentCacheChunkLength >= totalCacheChunkLength)
+            //    return;
+
+            // gets the number of samples to generate for this method. it will either be the number ordinarily generated this frame, or the number of samples needed to finish generation of this chunk.
+
+            int deltaStart;
+
+            if (isInFirstHalf)
+                deltaStart = totalCacheChunkLength;
+            else
+                deltaStart = 0;
+
+            float[] newData = new float[totalCacheChunkLength];
+            GetOutput(ref newData, 1);
+
+            if (isInFirstHalf)
+            { 
+                for (int i = 0; i < totalCacheChunkLength; i++)
+                    cacheClipSamples2[i + totalCacheChunkLength] = newData[i];
+
+                cacheClip.SetData(cacheClipSamples, 0);
+            }
+            else
+            {
+                for (int i = 0; i < totalCacheChunkLength; i++)
+                    cacheClipSamples[i] = newData[i];
+
+                cacheClip.SetData(cacheClipSamples2, 0);
+                //source.clip = cacheClip;
+            }
+
+            source.Play();
         }
     }
 
