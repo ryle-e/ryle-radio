@@ -149,9 +149,10 @@ namespace RyleRadio.Components
             foreach (RadioTrackWrapper wrapper in data.TrackWrappers)
             {
                 if (wrapper.TryGetClip(out AudioClip clip))
-                    unloadedClips.Add(clip);
-
-                clip.LoadAudioData();
+                { 
+                    unloadedClips.Add(clip); 
+                    clip.LoadAudioData();
+                }
             }
 
             // while clips aren't yet loaded...
@@ -171,6 +172,8 @@ namespace RyleRadio.Components
 
                 yield return null;
             }
+
+            LocalInit();
         }
 
         // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
