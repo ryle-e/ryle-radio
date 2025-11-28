@@ -150,6 +150,8 @@ namespace RyleRadio.Components
             {
                 if (wrapper.TryGetClip(out AudioClip clip))
                     unloadedClips.Add(clip);
+
+                clip.LoadAudioData();
             }
 
             // while clips aren't yet loaded...
