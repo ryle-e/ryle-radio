@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using UnityEngine.UI;
 
 namespace RyleRadio.Components
 {
@@ -18,7 +19,7 @@ namespace RyleRadio.Components
     /// <b>See </b>\ref RadioTrackPlayer as well for more info on how playback works
     /// </summary>
     [AddComponentMenu("Ryle Radio/Radio Output")]
-    [RequireComponent(typeof(AudioSource), typeof(StreamAudioSource))]
+    [RequireComponent(typeof(AudioSource))]
     public class RadioOutput : RadioComponent
     {
         /// <summary>
@@ -30,6 +31,11 @@ namespace RyleRadio.Components
             Oldest, ///< Selects the oldest player
             Random ///< Selects a random player (probably useless but funny to have)
         }
+
+        /// <summary>
+        /// The duration, 
+        /// </summary>
+        private const float STREAM_CLIP_CHUNK_DURATION = 4;
 
         /// <summary>
         /// The current tune value of this output- akin to the frequency of a real radio. Controls what tracks can be heard through tune power. Never modify this directly except for in the inspector, use \ref Tune instead
@@ -56,6 +62,8 @@ namespace RyleRadio.Components
         /// Called at the end of every audio cycle so that we don't interrupt threads when manipulating RadioTrackPlayers
         /// </summary>
         private Action playEvents = () => { };
+
+        private StreamAudioSource streamSource;
 
         /// <summary>
         /// Every \ref RadioObserver associated with this output
@@ -113,6 +121,8 @@ namespace RyleRadio.Components
             OnTune(tune);
         }
 
+        [SerializeField] private StreamAudioSource stream;
+        [SerializeField] private Image image;
 
         /// <summary>
         /// Updates \ref cachedPos
@@ -127,21 +137,27 @@ namespace RyleRadio.Components
         // starts the radio system- this component basically serves as a manager
         private void Start()
         {
-  #if UNITY_WEBGL
+            Debug.Log("starting");
+
+            streamSource = GetComponent<StreamAudioSource>();
+
+#if UNITY_WEBGL
             // if this is a webgl build, wait for clips to load before initializing
             StartCoroutine(AwaitLoadingThenInit());
-  #else
+#else // UNITY_WEBGL
             // if this is not webgl, init right away
             LocalInit();
-  #endif
+#endif // UNITY_WEBGL
         }
-#endif
+#endif // !SKIP_IN_DOXYGEN
 
         /// <summary>
         /// Waits for all AudioClips used in this radio to be loaded before initializing the radio. This is used as WebGL will cause errors if a clip is used before it's fully loaded.
         /// </summary>
         private IEnumerator AwaitLoadingThenInit()
         {
+            Debug.Log("trying to load");
+
             // store all child audioclips
             List<AudioClip> unloadedClips = new List<AudioClip>();
 
@@ -150,6 +166,8 @@ namespace RyleRadio.Components
             {
                 if (wrapper.TryGetClip(out AudioClip clip))
                     unloadedClips.Add(clip);
+
+                unloadedClips[^1].LoadAudioData();
             }
 
             // while clips aren't yet loaded...
@@ -160,15 +178,21 @@ namespace RyleRadio.Components
                 {
                     // and find those which are now loaded
                     if (unloadedClips[i].loadState == AudioDataLoadState.Loaded)
-                    { 
+                    {
+                        Debug.Log(unloadedClips[i] + " " + unloadedClips[i].loadState);
                         // and remove them
                         unloadedClips.Remove(unloadedClips[i]);
                         i--;
                     }
+
                 }
 
                 yield return null;
             }
+         
+            Debug.Log("loaded!");
+
+            LocalInit();
         }
 
         // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
@@ -404,6 +428,11 @@ namespace RyleRadio.Components
         /// <param name="_channels">The number of channels the AudioSource is using- the radio itself is limited to one channel, but still outputs as two- they'll just be identical.</param>
         protected virtual void OnAudioFilterRead(float[] _data, int _channels)
         {
+            GetOutput(ref _data, _channels);
+        }
+
+        protected void GetOutput(ref float[] _data, int _channels)
+        {
             // the output only plays back one channel, so we have to account for this when the radio is using
             // tracks with more than one channel
 
@@ -447,8 +476,9 @@ namespace RyleRadio.Components
                 playEvents(); // execute the delegate
                 playEvents = () => { }; // clear it
             }
-        }
 
+            //Debug.Log(_data[0]);
+        }
     }
 
 }

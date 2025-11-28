@@ -77,6 +77,8 @@ namespace Utilities.Audio
             var buffer = new float[AudioSettings.outputSampleRate];
             var bufferLength = buffer.Length;
 
+            Debug.Log(bufferLength);
+
             try
             {
                 if (audioContextPtr == IntPtr.Zero)

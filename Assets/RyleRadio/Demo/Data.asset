@@ -73,7 +73,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 100
     attenuation: 0
-    forceGlobal: 0
+    forceGlobal: 1
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
