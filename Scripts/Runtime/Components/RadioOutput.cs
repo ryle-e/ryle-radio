@@ -241,10 +241,10 @@ namespace RyleRadio.Components
                 yield return null;
             }
          
-            Debug.Log("loaded!");
-
             LocalInit();
+
             loaded = true;
+            Debug.Log("loaded!");
         }
 
         // we have to separate this and Init as otherwise data.Init() would call Init(), which calls data.Init(), which calls Init()......
