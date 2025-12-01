@@ -192,6 +192,8 @@ namespace RyleRadio.Components
         {
             source = GetComponent<AudioSource>();
 
+            Debug.Log(source + " " + gameObject.name);
+
     #if UNITY_WEBGL
             // if this is a webgl build, wait for clips to load before initializing
             StartCoroutine(AwaitLoadingThenInit());
@@ -206,6 +208,8 @@ namespace RyleRadio.Components
         private void OnDestroy()
         {
             source.Stop();
+            source.clip = null;
+
             source = null;
 
             data.ClearCache();
