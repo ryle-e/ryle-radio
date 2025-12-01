@@ -292,6 +292,9 @@ namespace RyleRadio.Components
             // create an empty array for samples
             cacheClipSamples = new float[totalCacheChunkLength * 2];
 
+            // assign a default clip
+            source.clip = cacheClipFirst;
+
             // populate the array and start playback
             FillCacheClip();
 #endif
