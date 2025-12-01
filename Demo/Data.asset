@@ -73,7 +73,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     gain: 100
     attenuation: 0
-    forceGlobal: 0
+    forceGlobal: 1
     playOnInit: 1
     broadcasters:
     - {fileID: 0}
@@ -167,7 +167,7 @@ MonoBehaviour:
     - rid: 7468380575479365634
       type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
-        clip: {fileID: 8300000, guid: e410581d534ad48489fec10caab24033, type: 3}
+        clip: {fileID: 8300000, guid: d72075f33d28dd64290a7a84658e6213, type: 3}
     - rid: 7468380575479365638
       type: {class: StationRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
