@@ -203,6 +203,14 @@ namespace RyleRadio.Components
         }
 #endif // !SKIP_IN_DOXYGEN
 
+        private void OnDestroy()
+        {
+            source.Stop();
+            source = null;
+
+            data.ClearCache();
+        }
+
         /// <summary>
         /// Waits for all AudioClips used in this radio to be loaded before initializing the radio. This is used as WebGL will cause errors if a clip is used before it's fully loaded.
         /// </summary>
@@ -230,7 +238,6 @@ namespace RyleRadio.Components
                     // and find those which are now loaded
                     if (unloadedClips[i].loadState == AudioDataLoadState.Loaded)
                     {
-                        Debug.Log(unloadedClips[i] + " " + unloadedClips[i].loadState);
                         // and remove them
                         unloadedClips.Remove(unloadedClips[i]);
                         i--;
