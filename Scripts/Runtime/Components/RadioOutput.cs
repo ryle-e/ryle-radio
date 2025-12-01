@@ -216,9 +216,10 @@ namespace RyleRadio.Components
             {
                 if (wrapper.TryGetClip(out AudioClip clip))
                     unloadedClips.Add(clip);
-
-                unloadedClips[^1].LoadAudioData();
             }
+
+            foreach (AudioClip clip in unloadedClips)
+                clip.LoadAudioData();
 
             // while clips aren't yet loaded...
             while (unloadedClips.Count > 0)
