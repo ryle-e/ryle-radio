@@ -1,4 +1,5 @@
 using NaughtyAttributes;
+using NUnit.Framework.Constraints;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
 using System;
@@ -30,11 +31,6 @@ namespace RyleRadio.Components
             Random ///< Selects a random player (probably useless but funny to have)
         }
 
-        /// <summary>
-        /// The size of half the cache clip used for WebGL playback- this is the amount of audio the cache clip stores in advance during playback before switching to the other half of the clip
-        /// </summary>
-        private float cacheClipChunkDuration = .04f;
-
 
         /// <summary>
         /// The current tune value of this output- akin to the frequency of a real radio. Controls what tracks can be heard through tune power. Never modify this directly except for in the inspector, use \ref Tune instead
@@ -62,10 +58,12 @@ namespace RyleRadio.Components
         /// </summary>
         private Action playEvents = () => { };
 
+
         /// <summary>
         /// The AudioClip used internally to emulate audio streaming on WebGL- half of this is played at a time, and the other half is generated in advance
         /// </summary>
-        private AudioClip cacheClip;
+        private AudioClip cacheClipSecond;
+        private AudioClip cacheClipFirst;
 
         /// <summary>
         /// The total number of samples in each half of the cache clip
@@ -73,9 +71,9 @@ namespace RyleRadio.Components
         private int totalCacheChunkLength = 0;
 
         /// <summary>
-        /// The number of samples currently generated for the next chunk in the cache clip- should be approximately the same as the number of samples the player is through the currently playing chunk
+        /// The size of half the cache clip used for WebGL playback- this is the amount of audio the cache clip stores in advance during playback before switching to the other half of the clip
         /// </summary>
-        private int currentCacheChunkLength = 0;
+        private float cacheClipChunkDuration = .04f;
 
         /// <summary>
         /// The AudioSource attached to this Output. This is assigned automatically.
@@ -92,10 +90,7 @@ namespace RyleRadio.Components
         /// </summary>
         private bool loaded = false;
 
-        private float fixedDeltaAddition;
-
         private float[] cacheClipSamples;
-        private float[] cacheClipSamples2;
 
 
         /// <summary>
@@ -170,25 +165,25 @@ namespace RyleRadio.Components
 
         }
 
+        /// <summary>
+        /// Updates audio playback in WebGL, does nothing on other platforms.
+        /// 
+        /// <b>See:</b> \ref FillCacheClip
+        /// </summary>
         private void FixedUpdate()
         {
-#if UNITY_WEBGL
-            if (!loaded)
+#if UNITY_WEBGL // we have to do things a bit differently in WebGL
+            if (!loaded) // if the clips haven't been loaded, wait until they have
                 return;
 
+            // check if the radio was in the first half of the chunk in the last update, and is now in the second- or vice versa 
             bool wasInFirstHalf = isInFirstHalf;
-            //Debug.Log(source.timeSamples + " " + totalCacheChunkLength);
             isInFirstHalf = source.timeSamples < totalCacheChunkLength;
 
+            // if the half we're in this frame differs from that of the previous, generate the audio for the other chunk
             if (isInFirstHalf != wasInFirstHalf)
                 FillCacheClip();
 #endif
-        }
-
-        private IEnumerator AudioUpdate()
-        {
-            while (true)
-            { }
         }
 
 #if !SKIP_IN_DOXYGEN
@@ -275,30 +270,29 @@ namespace RyleRadio.Components
             // create and start all track players
             StartPlayers();
 
-#if UNITY_WEBGL
-            cacheClipChunkDuration = Time.fixedDeltaTime * 2;
-            totalCacheChunkLength = (int)(AudioSettings.outputSampleRate * cacheClipChunkDuration);
+#if UNITY_WEBGL // if this a WebGL project, we need to stream audio a different way as OnAudioFilterRead is not called
+            cacheClipChunkDuration = Time.fixedDeltaTime * 2; // get the duration of a chunk in seconds
+            totalCacheChunkLength = (int)(AudioSettings.outputSampleRate * cacheClipChunkDuration); // get the duration of a chunk in samples
 
-            cacheClip = AudioClip.Create(
+            // generate an empty first clip
+            cacheClipFirst = AudioClip.Create(
+                this.GetInstanceID() + "_CacheClip2",
+                totalCacheChunkLength * 2,
+                1, (int)baseSampleRate, false
+            );
+
+            // generate an empty second clip
+            cacheClipSecond = AudioClip.Create(
                 this.GetInstanceID() + "_CacheClip",
                 totalCacheChunkLength * 2,
                 1, (int)baseSampleRate, false
             );
 
-            source.clip = cacheClip;
-
-            //Debug.Log(cacheClipChunkDuration + " " +  totalCacheChunkLength);
-            currentCacheChunkLength = 0;
-
+            // create an empty array for samples
             cacheClipSamples = new float[totalCacheChunkLength * 2];
-            cacheClipSamples2 = new float[totalCacheChunkLength * 2];
 
-            cacheClip.GetData(cacheClipSamples, 0);
-            cacheClip.GetData(cacheClipSamples2, 0);
-
+            // populate the array and start playback
             FillCacheClip();
-
-            source.Play();
 #endif
 
             OnTune(tune);
@@ -502,9 +496,13 @@ namespace RyleRadio.Components
         }
 
         /// <summary>
-        /// Gets a set of samples from the radio to play from the AudioSource- this preserves the settings on the Source, e.g: volume, 3D. This is the main driving method for the radio's playback.
+        /// Assigns a set of samples from the radio to play from the AudioSource- this preserves the settings on the Source, e.g: volume, 3D. This is the main driving method for the radio's playback.
         /// 
         /// The method itself appears to have been initially introduced so devs could create custom audio filters, but it just so happens we can use it for direct output of samples too!
+        /// 
+        /// <h3>IMPORTANT NOTE ABOUT WEBGL:</h3> WebGL can't use this method, as it doesn't support audio streaming. I've implemented a "streaming emulation" system creating and storing clips repeatedly, but it's a bit rough around the edges and causes some popping artefacts. Please try to avoid WebGL with this package when possible, or use a pop removal filter at runtime. See \ref FillCacheClip for a bit more info :)
+        /// 
+        /// <b>See:</b> \ref GetOutput
         /// </summary>
         /// <param name="_data">Whatever other audio is playing from the AudioSource- preferably nothing</param>
         /// <param name="_channels">The number of channels the AudioSource is using- the radio itself is limited to one channel, but still outputs as two- they'll just be identical.</param>
@@ -515,6 +513,11 @@ namespace RyleRadio.Components
 #endif
         }
 
+        /// <summary>
+        /// Gets a set of samples from the radio, and push it along to the next samples- that is, get some samples from the radio, and move it on.
+        /// </summary>
+        /// <param name="_data">An array (usually empty) that the samples will be written to. The length of the array is the number of samples used recorded</param>
+        /// <param name="_channels">The number of channels being played- usually this should be at one, I'm not confident in its functionality otherwise</param>
         protected void GetOutput(ref float[] _data, int _channels)
         {
             // the output only plays back one channel, so we have to account for this when the radio is using
@@ -560,44 +563,74 @@ namespace RyleRadio.Components
                 playEvents(); // execute the delegate
                 playEvents = () => { }; // clear it
             }
-
-            //Debug.Log(_data[0]);
         }
 
+        /// <summary>
+        /// Generate and store the next chunk of audio that will be played on WebGL. This is called just before the next chunk is generated.
+        /// </summary>
+        /// <remarks>We need to use this method as WebGL doesn't support audio streaming. Because this system also requires audio to be modified in realtime, we can't simply generate a couple seconds of audio and just play that- we need to modify that audio each frame depending on what the player does- e.g: tuning
+        /// The methodology for this system is as follows:
+        /// 1. Generate a small chunk of audio (usually `Time.fixedDeltaTime`)
+        /// 2. Assign this audio to one of two short AudioClips
+        /// 3. When the AudioSource reaches the halfway point or end of this chunk, generate some of the next one and assign it to a separate AudioClip
+        /// 4. Switch clips so that the audio updates on web
+        /// 
+        /// This is obviously not perfect, and the main issue we face here is a constant popping sound when switching back and forth between clips- unfortunately, as it stands, this is a required tradeoff due to WebGL's audio limitations. If there's a smoother way to get this functionality working, please do give it a try or let me know :)</remarks>
         protected void FillCacheClip()
         {
-            //if (currentCacheChunkLength >= totalCacheChunkLength)
-            //    return;
-
-            // gets the number of samples to generate for this method. it will either be the number ordinarily generated this frame, or the number of samples needed to finish generation of this chunk.
-
-            int deltaStart;
-
-            if (isInFirstHalf)
-                deltaStart = totalCacheChunkLength;
-            else
-                deltaStart = 0;
-
+            // generates samples for half of a chunk
             float[] newData = new float[totalCacheChunkLength];
             GetOutput(ref newData, 1);
 
+            // audio in webgl can't be streamed, so we need to split our otherwise-streamed audio into small chunks, and play them sequentially
+            // to do this smoothly, we need to separate our chunks into two halves, so that while one half is playing, the other can be overwritten
+            // if the first half of a chunk is playing, we generate and store the second half- and vice versa
             if (isInFirstHalf)
-            { 
-                for (int i = 0; i < totalCacheChunkLength; i++)
-                    cacheClipSamples2[i + totalCacheChunkLength] = newData[i];
+            {
+                // we're now playing the first half of the chunk, so generate the second
+                // populate the second half of the sample array
+                for (int sample = 0; sample < totalCacheChunkLength; sample++)
+                {
+                    cacheClipSamples[sample + totalCacheChunkLength] = newData[sample];
+                }
 
-                cacheClip.SetData(cacheClipSamples, 0);
+                // save the source's progress through the last clip, as we need to switch it
+                int prog = source.timeSamples;
+
+                // assign the samples to the clips
+                cacheClipFirst.SetData(cacheClipSamples, 0);
+                cacheClipSecond.SetData(cacheClipSamples, 0);
+
+                // play the first clip
+                source.clip = cacheClipFirst;
+                source.Play();
+
+                // reassign progress to keep playback smooth
+                source.timeSamples = prog;
             }
             else
             {
-                for (int i = 0; i < totalCacheChunkLength; i++)
-                    cacheClipSamples[i] = newData[i];
+                // we're now playing the second half of the chunk, so generate the first
+                // populate the first half of the sample array
+                for (int sample = 0; sample < totalCacheChunkLength; sample++)
+                {
+                    cacheClipSamples[sample] = newData[sample];
+                }
 
-                cacheClip.SetData(cacheClipSamples2, 0);
-                //source.clip = cacheClip;
+                // save the source's progress through the last clip, as we need to switch it
+                int prog = source.timeSamples;
+
+                // assign the samples to the clips
+                cacheClipFirst.SetData(cacheClipSamples, 0);
+                cacheClipSecond.SetData(cacheClipSamples, 0);
+
+                // play the second clip
+                source.clip = cacheClipSecond;
+                source.Play();
+
+                // reassign progress to keep playback smooth
+                source.timeSamples = prog;
             }
-
-            source.Play();
         }
     }
 
