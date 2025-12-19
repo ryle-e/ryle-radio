@@ -1,5 +1,4 @@
 using NaughtyAttributes;
-using NUnit.Framework.Constraints;
 using RyleRadio.Components.Base;
 using RyleRadio.Tracks;
 using System;
@@ -283,8 +282,9 @@ namespace RyleRadio.Components
             // create and start all track players
             StartPlayers();
 
+            cacheClipChunkDuration = Time.fixedDeltaTime * 2; // get the duration of a chunk in seconds- this is only used in webgl but suppresses a warning in the editor if here
+
 #if UNITY_WEBGL // if this a WebGL project, we need to stream audio a different way as OnAudioFilterRead is not called
-            cacheClipChunkDuration = Time.fixedDeltaTime * 2; // get the duration of a chunk in seconds
             totalCacheChunkLength = (int)(AudioSettings.outputSampleRate * cacheClipChunkDuration); // get the duration of a chunk in samples
 
             // generate an empty first clip
