@@ -53,7 +53,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    gain: 200
+    gain: 210
     attenuation: 0
     forceGlobal: 0
     playOnInit: 1
@@ -115,7 +115,7 @@ MonoBehaviour:
     - rid: 7468380461637566740
       type: {class: ClipRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:
-        clip: {fileID: 8300000, guid: 5749668615100434f82b5e5223f57249, type: 3}
+        clip: {fileID: 8300000, guid: 9ff1f14a67672ba45972cbf83de60998, type: 3}
     - rid: 7468380461637566741
       type: {class: ProceduralRadioTrack, ns: RyleRadio.Tracks, asm: ryle-e.RyleRadio.Core}
       data:

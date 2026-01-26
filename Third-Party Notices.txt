@@ -1,0 +1,27 @@
+MUSIC USED IN PACKAGE DEMO+SAMPLES
+
+Baby, Won't You Please Come Home by Eva Taylor is licensed under a Public Domain / Sound Recording Common Law Protection License. Sourced from https://freemusicarchive.org/music/Eva_Taylor/Antique_Phonograph_Music_Program_01202015/Baby_Wont_You_Please_Come_Home_-_Eva_Taylor/
+
+Cycle by Anemoia is licensed under a Attribution-NonCommercial-NoDerivatives 4.0 International License. Sourced from https://freemusicarchive.org/music/anemoia/vague/cycle/
+
+Caruso Ein Legendarer Sanger - 7. Verdi - Act I by Enrico Caruso is licensed under a Public Domain Mark 1.0 Universal License. Sourced from https://musopen.org/music/43898-caruso-compilation/
+
+Coins by HoliznaCC0 is licensed under a CC0 1.0 Universal License. Sourced from https://freemusicarchive.org/music/holiznacc0/gamer-beats/coins/
+ 
+
+
+
+
+SFX USED IN PACKAGE SAMPLES
+
+"popup open", "popup3 open", and "popup3 close" by Tissman are licensed under a CC0 1.0 Universal license. They've been sourced from Tissman's Freesound.org account, more specifically from the following pack: https://freesound.org/people/Tissman/packs/29401/
+
+
+
+
+
+VISUALS USED IN PACKAGE DEMO+SAMPLES
+
+The radio model is made by me. I'm not sure if declaring it here is valid, but I intend for it to be under a CC0 1.0 Universal license, and can be freely used in projects including (or completely separate from) Ryle Radio. I will note that the model is not amazing- I'm not a very good 3d artist :)
+
+There is a model of a flat disc called "pancake" in the Spatial Components sample- that's CC0 1.0 Universal too, but infinitely lower quality than the radio
