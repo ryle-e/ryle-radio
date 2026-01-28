@@ -3,7 +3,7 @@
 
 # Installation
 ### 1. Install from Asset Store
-1. Add Ryle Radio on the Asset Store to your library
+1. Add [Ryle Radio on the Asset Store](https://assetstore.unity.com/packages/tools/audio/ryle-radio-330418) to your library
 2. In Unity, go to `Window >> Package Manager`
 3. Click `Packages (Unity Registry)` and select `My Assets`
 4. Select `Ryle Radio`, then `Download`
