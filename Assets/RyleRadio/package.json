@@ -3,7 +3,7 @@
   "version": "1.1.2",
   "displayName": "Ryle Radio",
   "description": "A complete \"radio\" system for Unity with tuning, broadcasters, insulators, code-free interactions and events, procedural audio, AudioClips, dynamic modularity, and more! Fully documented with comprehensive samples and annotations.",
-  "unity": "2021.3",
+  "unity": "2022.3",
   "dependencies": {
     "com.dbrizov.naughtyattributes":"2.1.5"
   },
