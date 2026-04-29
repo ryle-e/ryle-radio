@@ -1,4 +1,6 @@
-﻿namespace NaughtyAttributes
+﻿using System;
+
+namespace NaughtyAttributes
 {
     public enum EConditionOperator
     {
